@@ -1,8 +1,5 @@
 ## diderot-cli
-Tool for accessing diderot on the command line. Use at your own risk.
 
-To use the script, clone this git repo, and add the `./diderot` script to your path. 
+Under maintainence by Diderot Project as of now. CLI will be updated with functionality once it is stable.
 
-William Paivine
-bill@paivine.com
-
+We thank William Paivine for his initial work on this project.
