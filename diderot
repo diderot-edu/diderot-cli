@@ -1,20 +1,38 @@
-#!/usr/bin/env python3.6
-''' a script for uploading tar files directly to Diderot.
-USE AT YOUR OWN RISK (This is completely unofficial and the consequences of bugs are unknown. I
-assume no responsibility for late assignments, corrupted files, or anything that comes as a result
-of this script!
+#!/usr/bin/env python3
 
-William Paivine
-bill@paivine.com
+# Outdated message. TODO (rohany): remove
+# ''' a script for uploading tar files directly to Diderot.
+# USE AT YOUR OWN RISK (This is completely unofficial and the consequences of bugs are unknown. I
+# assume no responsibility for late assignments, corrupted files, or anything that comes as a result
+# of this script!
+# 
+# William Paivine
+# bill@paivine.com
+# '''
+
 '''
+Initial script written by William Paivine (bill@paivine.com).
+
+Updated/Maintined by Rohan Yadav (rohany@alumni.cmu.edu)
+'''
+
+import cmd
+
 import sys
 assert sys.version_info >= (3,6), 'Python3.6 is required'
 import getpass
 import shutil
 import os.path
+
+import api_calls
+
 import importlib
+from importlib import util
 
 
+# TODO (rohany): remove this import logic, just say that we require
+# the requests package. It seems tricky to install it and stuff.
+# Or at least, it didn't work for me on my local computer.
 requests_spec = importlib.util.find_spec('requests')
 if requests_spec is None:
     print('Requests library not found!')
@@ -80,7 +98,79 @@ def download_file(url):
 
     return local_filename
 
+class DiderotCLI(cmd.Cmd):
+
+    prompt = "DiderotCLI >> "
+
+    def cmdloop(self, url):
+        self.url = url
+        self.api_client = api_calls.DiderotAPIInterface(url)
+        return cmd.Cmd.cmdloop(self, intro=None)
+    
+    def preloop(self):
+        username = str(input('Username: '))
+        password = getpass.getpass()
+
+        if username == '' or password == '':
+            print('Login aborted!')
+            return False
+
+        if not self.api_client.login(username, password):
+            sys.exit(0)
+    
+    def do_list_courses(self, line):
+        result = self.api_client.list_all_courses()
+        print("\t".join(result))
+
+    def help_list_courses(self):
+        print("Usage: list_courses")
+        print("List all courses.")
+
+
+    # TODO (rohany): error handling here!
+    def do_list_assignments(self, course):
+        # Parse the course info.
+        if not course:
+            print("Provide a course (number or label). list_assignments [course]")
+        else:
+            # TODO (rohany): verify that we are given a value course object.
+            result = self.api_client.list_assignments(course)
+            print("\t".join(result))
+
+    def help_list_assignments(self):
+        print("Usage: list_assignments [course]")
+        print("List all assignments for a course.")
+
+
+    def do_download_assignment(self, args):
+        args = args.split(" ")
+        self.api_client.download_assignment(args[0], args[1])
+
+    def help_download_assignment(self, args):
+        pass
+
+
+    def do_submit_assignment(self, args):
+        pass
+    
+    def help_submit_assignment(self, args):
+        pass
+
+
+    def do_quit(self, line):
+        sys.exit(0)
+    
+    def help_quit(self):
+        pass
+
+    def do_EOF(self, line):
+        return True
+
+    def help_EOF(self):
+        pass
+
 class Diderot:
+    # TODO (rohany): these URL's are probably busted.
     def __init__(self,
                  class_code=None,
                  filename=None,
@@ -100,14 +190,16 @@ class Diderot:
         self.assignments_url = assignments_url
         self.assignment_url = assignment_url
         self.submission_url = submission_url
-        self.connected = False
+        self.connected = True
         self.logged_in = False
+        # self.api_client = api_calls.DiderotAPIInterface("https://www.diderot.one")
         self.assignments = {}
         if sys.stdin.isatty():
             self.repl()
         else:
             self.login()
 
+    # TODO (rohany): look into this logic for the REPL.
     def repl(self):
         self.running = True
         while self.running:
@@ -119,7 +211,7 @@ class Diderot:
             else:
                 status = RED_MINUS
             try:
-                cmd = str(input('Diderot ({}) > '.format(status))).lower()
+                cmd = str(input('Diderot ({}) > '.format(status)))
             except EOFError:
                 print()
                 exit()
@@ -136,13 +228,16 @@ class Diderot:
                 else:
                     email = args[1]
                     self.login(prompt_email=False, email=email)
-                self.fetch_assignments()
+                # self.fetch_assignments()
             elif cmd == 'help' or cmd == 'h':
                 print(HELP_TEXT)
+            elif cmd == 'list_courses':
+                self.list_courses()
             elif cmd == 'logout':
                 self.logout()
-            elif cmd == 'ls':
-                self.list_assignments()
+            elif cmd.startswith('ls'):
+                args = cmd.split(' ')
+                self.list_assignments(args[1])
             elif cmd == 'refresh':
                 self.fetch_assignments()
             elif cmd.startswith('submit'):
@@ -207,6 +302,8 @@ class Diderot:
             return False
         return True
 
+
+    # TODO: add a URL endpoint for Diderot to fetch all assignments.
     def fetch_assignments(self):
         if not self.check_logged_in():
             return False
@@ -231,9 +328,14 @@ class Diderot:
                 found_homework = False
             hw_number += 1
 
-    def list_assignments(self):
-        for i, name in self.assignments.items():
-            print('[{}] : {}'.format(i, name))
+    def list_courses(self):
+        result = self.api_client.list_all_courses()
+        print("\t".join(result))
+
+    def list_assignments(self, course_label):
+        print(course_label)
+        result = self.api_client.list_assignments(course_label)
+        print("\t".join(result))
 
 
     def logout(self):
@@ -243,6 +345,7 @@ class Diderot:
         self.logged_in = False
         print('Successfully logged out of Diderot.')
         return True
+
     def login(self, prompt_email=False, email=None):
         if sys.stdin.isatty():
             print('Please enter your diderot.one login credentials (blank to abort).')
@@ -260,36 +363,9 @@ class Diderot:
         if email == '' or password == '':
             print('Login aborted!')
             return False
-        if not self.connect():
-            self.logged_in = False
-            return False
 
-        login_data = {'username': email,
-                      'password': password,
-                      'csrfmiddlewaretoken': self.csrftoken,
-                      'next': '/courses/'}
-        assert self.connected, 'Can\'t login if not yet connected to Diderot!'
-
-        r = self.client.post(self.post_url, data=login_data)
-        if len(r.history) > 0:
-            code = r.history[0].status_code
-        else:
-            code = r.status_code
-        if not code == 302:
-            if code == 404:
-                print('Error! Login post returned 404!')
-            elif code >= 500:
-                print('Server failed to fulfill request on login, gave code {}'.format(code))
-            elif code == 200:
-                print('Authentication failed. Perhaps your credentials were incorrect.')
-            else:
-                print('Got HTTP code {} from server on login'.format(code))
-            self.logged_in = False
-            return False
-        self.csrftoken = self.client.cookies['csrftoken']
-        print('Successfully logged in to Diderot!')
         self.logged_in = True
-        return True
+        return self.api_client.login(email, password)
 
     def connect(self):
         self.client = requests.session()
@@ -346,9 +422,10 @@ class Diderot:
             'unlikely your submission was accepted.'.format(response.status_code))
             return False
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-    else:
-        filename = None
-    app = Diderot(class_code=C15210, filename=filename)
+    # if len(sys.argv) > 1:
+    #     filename = sys.argv[1]
+    # else:
+    #     filename = None
+    # app = Diderot(class_code=C15210, filename=filename)
+    DiderotCLI().cmdloop("http://localhost:8000")
 
