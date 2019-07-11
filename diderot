@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
 
-# Outdated message. TODO (rohany): remove
-# ''' a script for uploading tar files directly to Diderot.
-# USE AT YOUR OWN RISK (This is completely unofficial and the consequences of bugs are unknown. I
-# assume no responsibility for late assignments, corrupted files, or anything that comes as a result
-# of this script!
-# 
-# William Paivine
-# bill@paivine.com
-# '''
-
 '''
 Initial script written by William Paivine (bill@paivine.com).
 
@@ -45,59 +35,6 @@ if requests_spec is None:
         exit()
 import requests
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-GREEN_PLUS = bcolors.OKGREEN + '+' + bcolors.ENDC
-WARNING = bcolors.WARNING + '=' + bcolors.ENDC
-RED_MINUS = bcolors.FAIL + 'X' + bcolors.ENDC
-
-HELP = {'help': 'displays this help message',
-        'login (<email>)': 'connects to Diderot and logs in. Uses andrew email by default.',
-        'ls': 'lists detected assignments',
-        'submit <#> (filename)': 'submits file `filename` to homework # (given by ls). If'
-                                 'filename is supplied as a command line argument, `filename` may be omitted',
-        'quit': 'quits the cli',
-        'logout': 'logs out of Diderot',
-        'status': 'displays the current status',
-        'refresh': 'refreshes internal assignment list',
-        'download <#>': 'downloads the handout for assignment number #'}
-
-def build_help_msg(d):
-    length = max([len(k) for k in d]) + 4
-    msg = ''
-    for k in d:
-        msg += k.ljust(length) + d[k] + '\n'
-    return msg
-
-HELP_TEXT = build_help_msg(HELP)
-
-C15210 = 2
-C15251 = 3
-C15859B = 4
-
-def download_file(url):
-    local_filename = url.split('/')[-1]
-    if os.path.isfile(local_filename):
-        print('There is already a file called {}, so I won\'t download a new one.'
-              ' Rename the old one and please try again'.format(local_filename))
-        return False
-
-    print('Trying to download file to {}'.format(local_filename))
-
-    r = requests.get(url, stream=True)
-    with open(local_filename, 'wb') as f:
-        shutil.copyfileobj(r.raw, f)
-
-    return local_filename
-
 class DiderotCLI(cmd.Cmd):
 
     prompt = "DiderotCLI >> "
@@ -105,9 +42,20 @@ class DiderotCLI(cmd.Cmd):
     def cmdloop(self, url):
         self.url = url
         self.api_client = api_calls.DiderotAPIInterface(url)
-        return cmd.Cmd.cmdloop(self, intro=None)
+        self.logged_in = False
+
+        # TODO (rohany): This ctrl + c catching is a bit hacky,
+        # I wonder if there is a better/more principled way to do this.
+        while True:
+            try:
+                return cmd.Cmd.cmdloop(self, intro=None)
+            except KeyboardInterrupt:
+                print("^C")
     
     def preloop(self):
+        if self.logged_in:
+            return True
+        
         username = str(input('Username: '))
         password = getpass.getpass()
 
@@ -117,6 +65,8 @@ class DiderotCLI(cmd.Cmd):
 
         if not self.api_client.login(username, password):
             sys.exit(0)
+
+        self.logged_in = True
     
     def do_list_courses(self, line):
         result = self.api_client.list_all_courses()
@@ -143,18 +93,28 @@ class DiderotCLI(cmd.Cmd):
 
 
     def do_download_assignment(self, args):
+        # TODO (rohany): perform better parsing of arguments
         args = args.split(" ")
         self.api_client.download_assignment(args[0], args[1])
 
-    def help_download_assignment(self, args):
-        pass
+    def help_download_assignment(self):
+        print("Usage: download_assignment [course] [assignment]")
+        print("Download handout materials for an assignment.")
 
 
     def do_submit_assignment(self, args):
-        pass
+        # TODO (rohany): perform better parsing of arguments
+        args = args.split(" ")
+        success, res_url = self.api_client.submit_assignment(args[0], args[1], args[2])
+        if success:
+            print("Assignment submitted successfully. Track your submission's status at the following url: {}".format(res_url))
+        else:
+            # TODO: have more descriptive error messages here.
+            print("Something went wrong. Please try submitting on the Diderot website at: {}".format(self.url))
     
     def help_submit_assignment(self, args):
-        pass
+        print("Usage: submit_assignment [course] [assignment] [path to handin file]")
+        print("Submit handin to Diderot for an assignment")
 
 
     def do_quit(self, line):
@@ -163,269 +123,60 @@ class DiderotCLI(cmd.Cmd):
     def help_quit(self):
         pass
 
+    def do_exit(self, line):
+        sys.exit(0)
+    
+    def help_exit(self):
+        pass
+
     def do_EOF(self, line):
         return True
 
     def help_EOF(self):
         pass
 
-class Diderot:
-    # TODO (rohany): these URL's are probably busted.
-    def __init__(self,
-                 class_code=None,
-                 filename=None,
-                 url='https://www.diderot.one/courses/',
-                 login_url='https://www.diderot.one/login/login/?next=/courses/',
-                 logout_url='https://www.diderot.one/login/logout/',
-                 assignments_url='https://www.diderot.one/code-homeworks/?course_pk={}',
-                 assignment_url='https://www.diderot.one/code-homeworks/view-code-homework/?hw_pk={}',
-                 submission_url='https://www.diderot.one/code-homeworks/view-code-homework/?hw_pk={}'):
+    # def submit(self, hw_number, filename):
+    #     if not self.check_logged_in():
+    #         return False
+    #     if not int(hw_number) in self.assignments:
+    #         print('Invalid homework number {}'.format(hw_number))
+    #         return False
+    #     if int(hw_number) != max(self.assignments.keys()):
+    #         if str(input('It seems that homework {} is not the most recent assignment.\n'
+    #                      'Submit to it anyway, though this could result in late penalties? (type'
+    #                      ' "yes" to continue, no to abort):\n'.format(hw_number))) != 'yes':
+    #             print('Submission aborted')
+    #             return False
+    #         else:
+    #             print('Submission continued.')
 
-        if class_code is None:
-            self.class_code = C15210
-        self.filename = filename
-        self.url = url
-        self.post_url = login_url
-        self.logout_url = logout_url
-        self.assignments_url = assignments_url
-        self.assignment_url = assignment_url
-        self.submission_url = submission_url
-        self.connected = True
-        self.logged_in = False
-        # self.api_client = api_calls.DiderotAPIInterface("https://www.diderot.one")
-        self.assignments = {}
-        if sys.stdin.isatty():
-            self.repl()
-        else:
-            self.login()
+    #     print('Submitting {} to assignment: {}'.format(filename,
+    #         self.assignments[int(hw_number)]))
+    #     url = self.submission_url.format(hw_number)
+    #     r = self.client.get(url)
+    #     if r.status_code != 200:
+    #         print('Error retreiving submission page, aborting submission!')
+    #         return False
 
-    # TODO (rohany): look into this logic for the REPL.
-    def repl(self):
-        self.running = True
-        while self.running:
-            if self.connected:
-                if self.logged_in:
-                    status = GREEN_PLUS
-                else:
-                    status = WARNING
-            else:
-                status = RED_MINUS
-            try:
-                cmd = str(input('Diderot ({}) > '.format(status)))
-            except EOFError:
-                print()
-                exit()
-            except KeyboardInterrupt:
-                print()
-                continue
-            self.cmd = cmd
-            if cmd == 'q' or cmd == 'quit':
-                self.running = False
-            elif cmd.startswith('login'):
-                args = cmd.split(' ')
-                if len(args) < 2:
-                    self.login(prompt_email=False)
-                else:
-                    email = args[1]
-                    self.login(prompt_email=False, email=email)
-                # self.fetch_assignments()
-            elif cmd == 'help' or cmd == 'h':
-                print(HELP_TEXT)
-            elif cmd == 'list_courses':
-                self.list_courses()
-            elif cmd == 'logout':
-                self.logout()
-            elif cmd.startswith('ls'):
-                args = cmd.split(' ')
-                self.list_assignments(args[1])
-            elif cmd == 'refresh':
-                self.fetch_assignments()
-            elif cmd.startswith('submit'):
-                args = cmd.split(' ')
-                if self.filename is None and len(args) < 3:
-                    print('Incorrect number of arguments for `submit`')
-                elif len(args) < 2:
-                    print('Incorrectly formatted `submit` command.')
-                else:
-                    if self.filename and len(args) < 3:
-                        filename = self.filename
-                    else:
-                        filename = args[2]
-                    hw_number = args[1]
-                    self.submit(hw_number, filename)
-            elif cmd == 'status':
-                if self.connected:
-                    print('Connected to Diderot.')
-                    if self.logged_in:
-                        print('Currently logged in as {}'.format(self.user))
-                    else:
-                        print('Not currently logged in')
-                else:
-                    print('No connection to Diderot.')
-            elif cmd.startswith('download'):
-                args = cmd.split(' ')
-                if len(args) < 2:
-                    print('Incorrectly formatted `download` command.')
-                else:
-                    hw_number = args[1]
-                    self.download(hw_number)
-            elif cmd == '':
-                pass
-            else:
-                print('Unrecognized command "{}". Try "help"'.format(cmd))
+    #     headers = {'X-CSRFToken':self.csrftoken}
 
-    def download(self, hw_number):
-        if not self.check_logged_in():
-            return False
-        url = self.submission_url.format(hw_number)
-        r = self.client.get(url)
-        if r.status_code != 200:
-            print('Error retreiving submission page, aborting download.')
-            return False
+    #     response = self.client.post(url, headers=headers, files={'submission':open(filename, 'rb')})
 
-        download_url = r.text.split('Download Handout')[0].split('<a href')[-1].split('"')[1]
-        # super gross html parsing, don't actually do stuff like this (this is bad code!)
-        if download_file(download_url):
-            print('Download successful!')
-        else:
-            print('Download unsuccessful.')
+    #     if response.status_code == 200:
+    #         print('Submission appears successful. You still may want to check that diderot'
+    #         ' accepted your submission (and whether it compiles) in your browser.\nI think the'
+    #         ' url can be found here:\n{}'.format(url))
+    #         return True
+    #     else:
+    #         print('Something went wrong with submission, I got error code {}. It is'
+    #         'unlikely your submission was accepted.'.format(response.status_code))
+    #         return False
 
 
-
-    def check_logged_in(self):
-        cmd = self.cmd.split(' ')[0]
-        if not self.connected:
-            print('Cannot {} if not connected.'.format(cmd))
-            return False
-        if not self.logged_in:
-            print('Cannot {} if not logged in.'.format(cmd))
-            return False
-        return True
-
-
-    # TODO: add a URL endpoint for Diderot to fetch all assignments.
-    def fetch_assignments(self):
-        if not self.check_logged_in():
-            return False
-        hw_number = 1
-        self.assignments = {}
-        found_homework = True
-        while found_homework or hw_number < 10:
-            response = self.client.get(self.assignment_url.format(hw_number))
-            if response.status_code == 200:
-                hw_name = response.text.split('codehomework-breadcrumb')[1].split('</h3')[0].split('>')[-1]
-                try:
-                    due_date = response.text.split('Due: ')[1].split('</h4>')[0]
-                except:
-                    pass
-                # this try except is hyper-gross... This function is basically a hack,
-                # don't ever do anything like this for anything that is real or matters!
-                # In all seriousness, though, these lines above are the most likely thing to break,
-                # since they actually "parse" response html... sorry for hurting your eyes :'(
-                self.assignments[hw_number] = '{} ({})'.format(hw_name, due_date)
-                found_homework = True
-            else:
-                found_homework = False
-            hw_number += 1
-
-    def list_courses(self):
-        result = self.api_client.list_all_courses()
-        print("\t".join(result))
-
-    def list_assignments(self, course_label):
-        print(course_label)
-        result = self.api_client.list_assignments(course_label)
-        print("\t".join(result))
-
-
-    def logout(self):
-        if not self.check_logged_in():
-            return False
-        self.client.get(self.logout_url)
-        self.logged_in = False
-        print('Successfully logged out of Diderot.')
-        return True
-
-    def login(self, prompt_email=False, email=None):
-        if sys.stdin.isatty():
-            print('Please enter your diderot.one login credentials (blank to abort).')
-            if prompt_email:
-                email = str(input('Email: '))
-            elif email is None:
-                email = '{}@andrew.cmu.edu'.format(getpass.getuser())
-                print('Email: {}'.format(email))
-            self.user = email
-            password = getpass.getpass()
-        else:
-            email = sys.stdin.readline().replace('\n','').replace('\r','')
-            password = sys.stdin.readline().replace('\n','').replace('\r','')
-
-        if email == '' or password == '':
-            print('Login aborted!')
-            return False
-
-        self.logged_in = True
-        return self.api_client.login(email, password)
-
-    def connect(self):
-        self.client = requests.session()
-        main_page = self.client.get(self.url)
-        code = main_page.status_code
-        if not code == 200:
-            if code == 404:
-                print('Error! Main page returned 404!')
-            elif code >= 500:
-                print('Server failed to fulfill request for main page, gave code {}'.format(code))
-            else:
-                print('Got HTTP code {} from server on main page'.format(code))
-            self.connected = False
-            return False
-
-        self.csrftoken = self.client.cookies['csrftoken']
-        self.connected = True
-        return True
-
-    def submit(self, hw_number, filename):
-        if not self.check_logged_in():
-            return False
-        if not int(hw_number) in self.assignments:
-            print('Invalid homework number {}'.format(hw_number))
-            return False
-        if int(hw_number) != max(self.assignments.keys()):
-            if str(input('It seems that homework {} is not the most recent assignment.\n'
-                         'Submit to it anyway, though this could result in late penalties? (type'
-                         ' "yes" to continue, no to abort):\n'.format(hw_number))) != 'yes':
-                print('Submission aborted')
-                return False
-            else:
-                print('Submission continued.')
-
-        print('Submitting {} to assignment: {}'.format(filename,
-            self.assignments[int(hw_number)]))
-        url = self.submission_url.format(hw_number)
-        r = self.client.get(url)
-        if r.status_code != 200:
-            print('Error retreiving submission page, aborting submission!')
-            return False
-
-        headers = {'X-CSRFToken':self.csrftoken}
-
-        response = self.client.post(url, headers=headers, files={'submission':open(filename, 'rb')})
-
-        if response.status_code == 200:
-            print('Submission appears successful. You still may want to check that diderot'
-            ' accepted your submission (and whether it compiles) in your browser.\nI think the'
-            ' url can be found here:\n{}'.format(url))
-            return True
-        else:
-            print('Something went wrong with submission, I got error code {}. It is'
-            'unlikely your submission was accepted.'.format(response.status_code))
-            return False
 if __name__ == '__main__':
-    # if len(sys.argv) > 1:
-    #     filename = sys.argv[1]
-    # else:
-    #     filename = None
-    # app = Diderot(class_code=C15210, filename=filename)
-    DiderotCLI().cmdloop("http://localhost:8000")
+    if len(sys.argv) > 1:
+        # TODO: get rid of this ability from the student accessible version.
+        DiderotCLI().cmdloop(sys.argv[1])
+    else:
+        DiderotCLI().cmdloop("http://www.diderot.one")
 

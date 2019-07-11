@@ -103,9 +103,28 @@ class DiderotAPIInterface:
 
     def submit_assignment(self, course, homework, filepath):
         if not self.logged_in:
-            return None
-        # submit_assignment_url = urllib.
-        pass
+            return False, None
+        # TODO: Do I want to submit to a new URL, or just get the appropriate information
+        # back from Diderot, and then just submit to the real URL?
+        submit_assignment_url = urllib.parse.urljoin(self.base_url, "cli/submit-assignment/")
+        headers = {'X-CSRFToken' : self.csrftoken}
+        response = self.client.post(submit_assignment_url, headers=headers, data={'course_label' : course, 'homework_name' : homework})
+        if response.status_code != 200:
+            # TODO (rohany): better/more descriptive error messages!
+            return False, None
+
+        # TODO (rohany): return more information in the response, such as:
+        # homework due date, whether its the latest homework or not, etc.
+        # All this extra stuff that the student would need to confirm
+        # if they want to submit to this assignment.
+        homework_pk = response.json()['homework_pk']
+        full_path = os.path.abspath(os.path.expandvars(os.path.expanduser(filepath)))
+        submit_assignment_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/view-code-homework/?hw_pk={}'.format(homework_pk))
+        # TODO: Support other types of file handins (single file, etc.)
+        response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')})
+
+        # TODO: return some more descriptive output.
+        return response.status_code == 200, submit_assignment_url
 
     def download_assignment(self, course, homework):
         if self.logged_in:
