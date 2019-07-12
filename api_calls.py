@@ -131,10 +131,27 @@ class DiderotAPIInterface:
 
     def download_assignment(self, course, homework):
         if self.logged_in:
-            download_files_url = urllib.parse.urljoin(self.base_url, "cli/download-assignment/")
+            course_info_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
+            homework_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
             headers = {'X-CSRFToken' : self.csrftoken}
-            response = self.client.post(download_files_url, headers=headers, data={'course_label' : course, 'homework_name' : homework})
-            if response.status_code == 200:
-                for v in response.json().values():
-                    self.download_file_helper(v)
 
+            response = self.client.get(course_info_url, headers=headers, params={'label' : course})
+            if response.status_code != 200:
+                return None
+            if len(response.json()) != 1:
+                return None
+            course_info = response.json()[0]
+
+            response = self.client.get(homework_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
+            if response.status_code != 200:
+                return None
+            if len(response.json()) != 1:
+                return None
+            hw_info = response.json()[0]
+
+            base_path = "http://s3.amazonaws.com/" + course_info['s3_autograder_bucket'] + "/" + hw_info['name'] + "/"
+            writeup_path = base_path + 'writeup.pdf'
+            handout_path = base_path + "{}-handout-{}.tgz".format(course_info['number'], hw_info['number'])
+
+            for p in [writeup_path, handout_path]:
+                self.download_file_helper(p)
