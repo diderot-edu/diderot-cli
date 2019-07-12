@@ -69,22 +69,23 @@ class DiderotAPIInterface:
     def list_all_courses(self):
         if not self.logged_in:
             return None
-        list_courses_url = urllib.parse.urljoin(self.base_url, "cli/list-courses/")
+        list_courses_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
         headers = {'X-CSRFToken' : self.csrftoken}
-        response = self.client.post(list_courses_url, headers=headers)
+        response = self.client.get(list_courses_url, headers=headers)
         if response.status_code == 200:
-            return response.json()["courses"]
+            return response.json()
         return None
+
 
     def list_assignments(self, course_label):
         if not self.logged_in:
             return None
-        list_assignments_url = urllib.parse.urljoin(self.base_url, "cli/list-assignments/")
+
+        list_assignments_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
-        response = self.client.post(list_assignments_url, headers=headers, data={'course_label' : course_label})
+        response = self.client.get(list_assignments_url, headers=headers, params={'course__label' : course_label})
         if response.status_code == 200:
-            return response.json()["assignments"]
-        print(response.status_code)
+            return response.json()
         return None
 
     def download_file_helper(self, url):
@@ -104,24 +105,26 @@ class DiderotAPIInterface:
     def submit_assignment(self, course, homework, filepath):
         if not self.logged_in:
             return False, None
-        # TODO: Do I want to submit to a new URL, or just get the appropriate information
-        # back from Diderot, and then just submit to the real URL?
-        submit_assignment_url = urllib.parse.urljoin(self.base_url, "cli/submit-assignment/")
-        headers = {'X-CSRFToken' : self.csrftoken}
-        response = self.client.post(submit_assignment_url, headers=headers, data={'course_label' : course, 'homework_name' : homework})
-        if response.status_code != 200:
-            # TODO (rohany): better/more descriptive error messages!
-            return False, None
 
+        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
+        if response.status_code != 200:
+            # TODO: better error handling?
+            return None
+        resp_body = response.json()
+        if len(resp_body) != 1:
+            # TODO: better error handling?
+            return None
+        homework_pk = resp_body[0]['id']
+        submit_assignment_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/view-code-homework/')
         # TODO (rohany): return more information in the response, such as:
         # homework due date, whether its the latest homework or not, etc.
         # All this extra stuff that the student would need to confirm
         # if they want to submit to this assignment.
-        homework_pk = response.json()['homework_pk']
         full_path = os.path.abspath(os.path.expandvars(os.path.expanduser(filepath)))
-        submit_assignment_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/view-code-homework/?hw_pk={}'.format(homework_pk))
         # TODO: Support other types of file handins (single file, etc.)
-        response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')})
+        response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')}, params={'hw_pk' : homework_pk})
 
         # TODO: return some more descriptive output.
         return response.status_code == 200, submit_assignment_url

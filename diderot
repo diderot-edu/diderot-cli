@@ -70,7 +70,10 @@ class DiderotCLI(cmd.Cmd):
     
     def do_list_courses(self, line):
         result = self.api_client.list_all_courses()
-        print("\t".join(result))
+        if result is None:
+            print("Error retrieving all courses.")
+        else:
+            print("\t".join([c['label'] for c in result]))
 
     def help_list_courses(self):
         print("Usage: list_courses")
@@ -85,7 +88,10 @@ class DiderotCLI(cmd.Cmd):
         else:
             # TODO (rohany): verify that we are given a value course object.
             result = self.api_client.list_assignments(course)
-            print("\t".join(result))
+            if result is None:
+                print("Error retrieving all assignments.")
+            else:
+                print("\t".join([hw['name'] for hw in result]))
 
     def help_list_assignments(self):
         print("Usage: list_assignments [course]")
