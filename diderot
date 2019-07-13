@@ -7,34 +7,35 @@ Updated/Maintined by Rohan Yadav (rohany@alumni.cmu.edu)
 '''
 
 import cmd
-
 import sys
 assert sys.version_info >= (3,6), 'Python3.6 is required'
 import getpass
 import shutil
 import os.path
-
 import api_calls
-
 import importlib
 from importlib import util
 
-
-# TODO (rohany): remove this import logic, just say that we require
-# the requests package. It seems tricky to install it and stuff.
-# Or at least, it didn't work for me on my local computer.
 requests_spec = importlib.util.find_spec('requests')
 if requests_spec is None:
     print('Requests library not found!')
-    if str(input('Should I install it to your local user (y/n)?')) == 'y':
-        import os
-        os.system('pip3 install --user requests')
-    else:
-        print('You can install it locally on andrew linux with:')
-        print('pip3 install --user requests')
-        exit()
+    print('Please install it using `pip3 install --user requests`')
+
 import requests
 
+
+# The basic architecture of this CLI is based on usage of the cmd.Cmd
+# python package, which makes it easy to implement a REPL. The library
+# lets you implement different commands for the REPL by letting users
+# implement do_<cmd name> and help_<cmd name> functions. For example,
+# the function do_list_assignments is called when the command
+# list_assignments is entered into the REPL. It is given the lines,
+# which is the rest of the input to the command. The function
+# help_list_assignments is the same, and is invoked when a user enters
+# help list_assignments. To add a command to the REPL, just add the
+# appropriate function to DiderotCLI class. To interface with
+# the diderot website, the DiderotCLI class makes calls to the
+# helper class DiderotAPIInterface, which makes requests to diderot.
 class DiderotCLI(cmd.Cmd):
 
     prompt = "DiderotCLI >> "
@@ -123,6 +124,7 @@ class DiderotCLI(cmd.Cmd):
         print("Submit handin to Diderot for an assignment")
 
 
+    # Functions to handle when users try and quit from the CLI.
     def do_quit(self, line):
         sys.exit(0)
     
@@ -141,48 +143,9 @@ class DiderotCLI(cmd.Cmd):
     def help_EOF(self):
         pass
 
-    # def submit(self, hw_number, filename):
-    #     if not self.check_logged_in():
-    #         return False
-    #     if not int(hw_number) in self.assignments:
-    #         print('Invalid homework number {}'.format(hw_number))
-    #         return False
-    #     if int(hw_number) != max(self.assignments.keys()):
-    #         if str(input('It seems that homework {} is not the most recent assignment.\n'
-    #                      'Submit to it anyway, though this could result in late penalties? (type'
-    #                      ' "yes" to continue, no to abort):\n'.format(hw_number))) != 'yes':
-    #             print('Submission aborted')
-    #             return False
-    #         else:
-    #             print('Submission continued.')
-
-    #     print('Submitting {} to assignment: {}'.format(filename,
-    #         self.assignments[int(hw_number)]))
-    #     url = self.submission_url.format(hw_number)
-    #     r = self.client.get(url)
-    #     if r.status_code != 200:
-    #         print('Error retreiving submission page, aborting submission!')
-    #         return False
-
-    #     headers = {'X-CSRFToken':self.csrftoken}
-
-    #     response = self.client.post(url, headers=headers, files={'submission':open(filename, 'rb')})
-
-    #     if response.status_code == 200:
-    #         print('Submission appears successful. You still may want to check that diderot'
-    #         ' accepted your submission (and whether it compiles) in your browser.\nI think the'
-    #         ' url can be found here:\n{}'.format(url))
-    #         return True
-    #     else:
-    #         print('Something went wrong with submission, I got error code {}. It is'
-    #         'unlikely your submission was accepted.'.format(response.status_code))
-    #         return False
-
-
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         # TODO: get rid of this ability from the student accessible version.
         DiderotCLI().cmdloop(sys.argv[1])
     else:
         DiderotCLI().cmdloop("http://www.diderot.one")
-
