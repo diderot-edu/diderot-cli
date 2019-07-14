@@ -127,7 +127,7 @@ class DiderotAPIInterface:
         response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')}, params={'hw_pk' : homework_pk})
 
         # TODO: return some more descriptive output.
-        return response.status_code == 200, submit_assignment_url
+        return response.status_code == 200, submit_assignment_url + "?hw_pk={}".format(homework_pk)
 
     def download_assignment(self, course, homework):
         if self.logged_in:

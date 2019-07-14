@@ -124,6 +124,9 @@ class DiderotCLI(cmd.Cmd):
         print("Submit handin to Diderot for an assignment")
 
 
+    def emptyline(self):
+        pass
+
     # Functions to handle when users try and quit from the CLI.
     def do_quit(self, line):
         sys.exit(0)
