@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+'''
+Initial script written by William Paivine (bill@paivine.com).
+
+Updated/Maintined by Rohan Yadav (rohany@alumni.cmu.edu)
+
+Admin version of the Diderot CLI, containing some extra
+commands for instructors / TAs.
+'''
+
+import sys
+import argparse
+from diderot_core import DiderotCLI
+
+class DiderotAdminCLI(DiderotCLI):
+
+    # Hook for updating parts of assignments. For now, we only
+    # aim to support changing the autograder/autograder-Makefile/handout/writeup
+    # and punt finer grained changes to the UI.
+    def do_update_assignment(self, line):
+        args = self.parse_update_assignment(line)
+        if self.api_client.update_assignment(args.course, args.homework, args):
+            print("Success uploading files.")
+        else:
+            print("Uploading files failed. Try using the Web UI.")
+
+    def parse_update_assignment(self, args):
+        # TODO (rohany): it might be too expensive to remake a parser
+        # each time that this command is called.
+        parser = argparse.ArgumentParser(prog="update_assignment")
+        parser.add_argument('course', type=str)
+        parser.add_argument('homework', type=str)
+        parser.add_argument('--autograde-tar', type=str)
+        parser.add_argument('--autograde-makefile', type=str)
+        parser.add_argument('--writeup', type=str)
+        parser.add_argument('--handout', type=str)
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
+    
+    def help_update_assignment(self):
+        pass
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        # TODO: get rid of this ability from the student accessible version.
+        DiderotAdminCLI().cmdloop(sys.argv[1])
+    else:
+        DiderotAdminCLI().cmdloop("http://www.diderot.one")

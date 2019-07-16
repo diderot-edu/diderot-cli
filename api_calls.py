@@ -13,6 +13,10 @@ class DiderotAPIInterface:
         self.logged_in = False
         self.connect()
 
+    # Utility functions here. If this gets too large, pull into its own file.
+    def expand_file_path(self, path):
+        return os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
+
     def connect(self):
         self.client = requests.session()
         main_page = self.client.get(self.base_url)
@@ -122,7 +126,7 @@ class DiderotAPIInterface:
         # homework due date, whether its the latest homework or not, etc.
         # All this extra stuff that the student would need to confirm
         # if they want to submit to this assignment.
-        full_path = os.path.abspath(os.path.expandvars(os.path.expanduser(filepath)))
+        full_path = self.expand_file_path(filepath)
         # TODO: Support other types of file handins (single file, etc.)
         response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')}, params={'hw_pk' : homework_pk})
 
@@ -155,3 +159,36 @@ class DiderotAPIInterface:
 
             for p in [writeup_path, handout_path]:
                 self.download_file_helper(p)
+
+    def update_assignment(self, course, homework, args):
+        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
+        if response.status_code != 200:
+            # TODO: better error handling?
+            return False
+        resp_body = response.json()
+        if len(resp_body) != 1:
+            # TODO: better error handling?
+            return False
+        homework_pk = resp_body[0]['id']
+
+        # send a request to the UploadCodeLabFiles view with the target
+        # files in the request.
+        files = {}
+        if args.autograde_tar is not None:
+            files['autograde-tar'] = open(self.expand_file_path(args.autograde_tar), 'rb')
+        if args.autograde_makefile is not None:
+            files['autograde-makefile'] = open(self.expand_file_path(args.autograde_makefile), 'rb')
+        if args.handout is not None:
+            files['handout'] = open(self.expand_file_path(args.handout), 'rb')
+        if args.writeup is not None:
+            files['writeup'] = open(self.expand_file_path(args.writeup), 'rb')
+
+        if len(files) == 0:
+            return True
+        
+        headers = {'X-CSRFToken' : self.csrftoken}
+        update_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/admin/upload-files/')
+        self.response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
+        return response.status_code == 200
