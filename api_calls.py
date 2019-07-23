@@ -73,7 +73,7 @@ class DiderotAPIInterface:
     def list_all_courses(self):
         if not self.logged_in:
             return None
-        list_courses_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
+        list_courses_url = urllib.parse.urljoin(self.base_url, 'courses/api/courses/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(list_courses_url, headers=headers)
         if response.status_code == 200:
@@ -85,7 +85,7 @@ class DiderotAPIInterface:
         if not self.logged_in:
             return None
 
-        list_assignments_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+        list_assignments_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(list_assignments_url, headers=headers, params={'course__label' : course_label})
         if response.status_code == 200:
@@ -110,7 +110,7 @@ class DiderotAPIInterface:
         if not self.logged_in:
             return False, None
 
-        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
         if response.status_code != 200:
@@ -135,8 +135,8 @@ class DiderotAPIInterface:
 
     def download_assignment(self, course, homework):
         if self.logged_in:
-            course_info_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
-            homework_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+            course_info_url = urllib.parse.urljoin(self.base_url, 'courses/api/courses/')
+            homework_info_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
             headers = {'X-CSRFToken' : self.csrftoken}
 
             response = self.client.get(course_info_url, headers=headers, params={'label' : course})
@@ -161,7 +161,7 @@ class DiderotAPIInterface:
                 self.download_file_helper(p)
 
     def update_assignment(self, course, homework, args):
-        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
         if response.status_code != 200:
