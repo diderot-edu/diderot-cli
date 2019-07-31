@@ -24,7 +24,6 @@ sys.path.insert(0, parent_dir)
 from diderot_core import DiderotCLI
 
 
-
 class DiderotAdminCLI(DiderotCLI):
 
     # Hook for updating parts of assignments. For now, we only
@@ -32,6 +31,8 @@ class DiderotAdminCLI(DiderotCLI):
     # and punt finer grained changes to the UI.
     def do_update_assignment(self, line):
         args = self.parse_update_assignment(line)
+        if args is None:
+            return
         if self.api_client.update_assignment(args.course, args.homework, args):
             print("Success uploading files.")
         else:
@@ -54,6 +55,37 @@ class DiderotAdminCLI(DiderotCLI):
     
     def help_update_assignment(self):
         pass
+
+
+    def do_list_books(self, line):
+        args = self.parse_list_books(line)
+        if args is None:
+            return
+        res = self.api_client.list_books(args.course) 
+        if res is None:
+            print("Error listing books.")
+        else:
+            print("\t".join([c['label'] for c in res]))
+        
+    def parse_list_books(self, args):
+        parser = argparse.ArgumentParser(prog="list_books")
+        parser.add_argument('--course', type=str, default=None)
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
+
+    def help_list_books(self):
+        print("Usage: list_books --course <optional: course label>")
+        print("List all books")
+
+
+    def do_update_book(self, line):
+        pass
+    
+    def help_update_book(self):
+        pass
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

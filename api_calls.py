@@ -192,3 +192,14 @@ class DiderotAPIInterface:
         update_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/admin/upload-files/')
         self.response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
         return response.status_code == 200
+
+    def list_books(self, course=None):
+        get_books_url = urllib.parse.urljoin(self.base_url, 'books/api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {}
+        if course is not None:
+            params['course__label'] = course
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        if response.status_code != 200:
+            return None
+        return response.json()
