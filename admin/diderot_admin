@@ -52,7 +52,7 @@ class DiderotAdminCLI(DiderotCLI):
             return parser.parse_args(args.split())
         except SystemExit:
             return None
-    
+
     def help_update_assignment(self):
         pass
 
@@ -66,7 +66,7 @@ class DiderotAdminCLI(DiderotCLI):
             print("Error listing books.")
         else:
             print("\t".join([c['label'] for c in res]))
-        
+
     def parse_list_books(self, args):
         parser = argparse.ArgumentParser(prog="list_books")
         parser.add_argument('--course', type=str, default=None)
@@ -81,8 +81,52 @@ class DiderotAdminCLI(DiderotCLI):
 
 
     def do_update_book(self, line):
-        pass
-    
+        args = self.parse_update_book(line)
+        if args is None:
+            return
+        if not self.verify_update_book_args(args):
+            return
+
+    def verify_update_book_args(self, args):
+        if args.video_url is not None and not (args.slides is None or args.pdf is None):
+            print("Cannot use --video_url if not uploading slides.")
+            return False
+        if args.images is not None and args.xml is None:
+            print("Cannot use --images if not uploading xml/mlx.")
+            return False
+        return True
+
+    def parse_update_book(self, args):
+        parser = argparse.ArgumentParser(prog="update_book_chapter")
+        parser.add_argument("book", type=str, help="target book label")
+        parser.add_argument("chapter", type=int, help="chapter to upload")
+        file_group = parser.add_mutually_exclusive_group(required=True)
+
+        # We can upload PDF's.
+        file_group.add_argument('--pdf', type=str, default=None, help="upload a pdf")
+
+        # We can upload slides.
+        file_group.add_argument('--slides', type=str, default=None, help="upload slides")
+        # If the user sends slides, we also allow sending a video URL with the slides.
+        parser.add_argument('--video_url', type=str, default=None, help="upload an embeddable video url")
+
+        # TODO: rohany -- when verifying this, check that it is an
+        # xml or mlx file -- or we can just throw this to the server to reject.
+        # However, its probably better to just reject it here.
+        # We can upload XML.
+        file_group.add_argument('--xml', type=str, default=None, help="upload an xml/mlx document")
+        # When uploading XML, the user can pass in a list of images that need
+        # to be uploaded along side the xml.
+        # TODO: rohany -- this could be a glob argument, so make sure to file
+        # expand all the names here.
+        # TODO: rohany -- wait on Umut/Anil to give more info about
+        # what the expected file names are.
+        parser.add_argument('--images', type=str, nargs='+', default=None, help="upload a list of images for the xml/mlx document")
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
+
     def help_update_book(self):
         pass
 

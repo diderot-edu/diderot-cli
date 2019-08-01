@@ -6,12 +6,22 @@ import sys
 import urllib.parse
 import shutil
 import os
+import glob
+import tempfile
 
 class DiderotAPIInterface:
     def __init__(self, base_url):
         self.base_url = base_url
         self.logged_in = False
         self.connect()
+
+    # TODO: integrate this into the other functions
+    def verify_singleton_response(self, response):
+        if response.status_code != 200:
+            return None
+        if len(response.json()) != 1:
+            return None
+        return response.json()[0]
 
     # Utility functions here. If this gets too large, pull into its own file.
     def expand_file_path(self, path):
@@ -187,7 +197,7 @@ class DiderotAPIInterface:
 
         if len(files) == 0:
             return True
-        
+
         headers = {'X-CSRFToken' : self.csrftoken}
         update_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/admin/upload-files/')
         self.response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
@@ -203,3 +213,59 @@ class DiderotAPIInterface:
         if response.status_code != 200:
             return None
         return response.json()
+
+    def update_book(self, book, chapter, args):
+        get_books_url = urllib.parse.urljoin(self.base_url, 'books/api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'label' : book}
+        result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
+        if result is None:
+            return False
+        book_pk = result['id']
+
+        update_url = urllib.parse.urljoin(self.base_url, 'books/manage_book/')
+        update_data = {'pk' : book_pk}
+        update_params = {'kind' : 'upload content'}
+        files = {}
+        if args.pdf is not None:
+            if not args.pdf.lower().endswith(".pdf"):
+                print("PDF argument must be a PDF file.")
+                return False
+            files['input_file_pdf'] = open(self.expand_file_path(args.pdf), 'rb')
+            if args.video_url is not None:
+                update_params['video_url_pdf'] = args.video_url
+        elif args.slides is not None:
+            if not args.slides.lower().endswith(".pdf"):
+                print("Slides argument must be a PDF file.")
+                return False
+            files['input_file_slide'] = open(self.expand_file_path(args.slides), 'rb')
+            if args.video_url is not None:
+                update_params['video_url_slide'] = args.video_url
+        elif args.xml is not None:
+            if not (args.xml.lower().endswith(".xml") or args.xml.lower().endswith(".mlx")):
+                print("XML argument must be an XML or MLX file.")
+                return False
+            files['input_file_xml'] = open(self.expand_file_path(args.xml), 'rb')
+            # TODO: because Diderot wants only the base names, I think
+            # we are going to have to move into a temp directory,
+            # copy all the files into there, add them all, and then move back.
+            if args.images is not None:
+                tmpDir = tempfile.mkdtemp()
+                curPath = os.getcwd()
+                os.chdir(tmpDir)
+                for fg in args.images:
+                    files = glob.glob(fg)
+                    for f in files:
+                        full_path = self.expand_file_path(f)
+                        shutil.copyfile(full_path, os.path.basename(full_path))
+                build = []
+                for f in os.listdir(os.cwd()):
+                    build.append(open(f, 'rb'))
+                files['image'] = build
+
+        # verify that the input arguments are correct.
+        response = self.client.post(update_url, headers=headers, data=update_data, params=update_params, files=files)
+        if response.status != 200:
+            print(response)
+            return False
+        return True
