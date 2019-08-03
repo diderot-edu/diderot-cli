@@ -215,6 +215,7 @@ class DiderotAPIInterface:
         return response.json()
 
     def update_book(self, book, chapter, args):
+        # get the book primary key
         get_books_url = urllib.parse.urljoin(self.base_url, 'books/api/books/')
         headers = {'X-CSRFToken' : self.csrftoken}
         params = {'label' : book}
@@ -223,9 +224,16 @@ class DiderotAPIInterface:
             return False
         book_pk = result['id']
 
-        update_url = urllib.parse.urljoin(self.base_url, 'books/manage_book/')
-        update_data = {'pk' : book_pk}
-        update_params = {'kind' : 'upload content'}
+        # get the primary key of the chapter
+        get_chapters_url = urllib.parse.urljoin(self.base_url, 'chapters/api/chapters/')
+        params = {'book__id' : book_pk, 'label' : chapter}
+        result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
+        if result is None:
+            return False
+        chapter_pk = result['id']
+
+        update_url = urllib.parse.urljoin(self.base_url, 'books/manage_book/{}/'.format(book_pk))
+        update_params = {'kind': 'upload content', 'chapter_pk' : chapter_pk}
         files = {}
         if args.pdf is not None:
             if not args.pdf.lower().endswith(".pdf"):
@@ -262,10 +270,11 @@ class DiderotAPIInterface:
                 for f in os.listdir(os.cwd()):
                     build.append(open(f, 'rb'))
                 files['image'] = build
+            if args.xml_pdf is not None:
+                files['input_file_xml_pdf'] = open(self.expand_file_path(args.xml_pdf), 'rb')
 
-        # verify that the input arguments are correct.
-        response = self.client.post(update_url, headers=headers, data=update_data, params=update_params, files=files)
-        if response.status != 200:
+        response = self.client.post(update_url, headers=headers, files=files, data=update_params)
+        if response.status_code != 200:
             print(response)
             return False
         return True

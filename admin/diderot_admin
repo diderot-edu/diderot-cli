@@ -86,6 +86,11 @@ class DiderotAdminCLI(DiderotCLI):
             return
         if not self.verify_update_book_args(args):
             return
+        success = self.api_client.update_book(args.book, args.chapter, args)
+        if not success:
+            print("Failure uploading book.")
+        else:
+            print("Book uploaded successfully.")
 
     def verify_update_book_args(self, args):
         if args.video_url is not None and not (args.slides is None or args.pdf is None):
@@ -99,7 +104,7 @@ class DiderotAdminCLI(DiderotCLI):
     def parse_update_book(self, args):
         parser = argparse.ArgumentParser(prog="update_book_chapter")
         parser.add_argument("book", type=str, help="target book label")
-        parser.add_argument("chapter", type=int, help="chapter to upload")
+        parser.add_argument("chapter", type=str, help="target chapter label")
         file_group = parser.add_mutually_exclusive_group(required=True)
 
         # We can upload PDF's.
@@ -110,18 +115,14 @@ class DiderotAdminCLI(DiderotCLI):
         # If the user sends slides, we also allow sending a video URL with the slides.
         parser.add_argument('--video_url', type=str, default=None, help="upload an embeddable video url")
 
-        # TODO: rohany -- when verifying this, check that it is an
-        # xml or mlx file -- or we can just throw this to the server to reject.
-        # However, its probably better to just reject it here.
         # We can upload XML.
         file_group.add_argument('--xml', type=str, default=None, help="upload an xml/mlx document")
         # When uploading XML, the user can pass in a list of images that need
         # to be uploaded along side the xml.
-        # TODO: rohany -- this could be a glob argument, so make sure to file
-        # expand all the names here.
-        # TODO: rohany -- wait on Umut/Anil to give more info about
-        # what the expected file names are.
         parser.add_argument('--images', type=str, nargs='+', default=None, help="upload a list of images for the xml/mlx document")
+        # When uploading XML, the user can also pass in a PDF version of the XML
+        # for easy downloading.
+        parser.add_argument('--xml_pdf', type=str, default=None, help="PDF version of the XML document")
         try:
             return parser.parse_args(args.split())
         except SystemExit:
