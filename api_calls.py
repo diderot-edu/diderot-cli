@@ -19,6 +19,7 @@ class DiderotAPIInterface:
     def verify_singleton_response(self, response):
         if response.status_code != 200:
             return None
+        print("response", response.json())
         if len(response.json()) != 1:
             return None
         return response.json()[0]
@@ -234,47 +235,42 @@ class DiderotAPIInterface:
 
         update_url = urllib.parse.urljoin(self.base_url, 'books/manage_book/{}/'.format(book_pk))
         update_params = {'kind': 'upload content', 'chapter_pk' : chapter_pk}
-        files = {}
+
+        # Populate the input set of files.
+        files = []
         if args.pdf is not None:
             if not args.pdf.lower().endswith(".pdf"):
                 print("PDF argument must be a PDF file.")
                 return False
-            files['input_file_pdf'] = open(self.expand_file_path(args.pdf), 'rb')
+            files.append(('input_file_pdf', open(self.expand_file_path(args.pdf), 'rb')))
             if args.video_url is not None:
                 update_params['video_url_pdf'] = args.video_url
         elif args.slides is not None:
             if not args.slides.lower().endswith(".pdf"):
                 print("Slides argument must be a PDF file.")
                 return False
-            files['input_file_slide'] = open(self.expand_file_path(args.slides), 'rb')
+            files.append(('input_file_slide', open(self.expand_file_path(args.slides), 'rb')))
             if args.video_url is not None:
                 update_params['video_url_slide'] = args.video_url
         elif args.xml is not None:
             if not (args.xml.lower().endswith(".xml") or args.xml.lower().endswith(".mlx")):
                 print("XML argument must be an XML or MLX file.")
                 return False
-            files['input_file_xml'] = open(self.expand_file_path(args.xml), 'rb')
-            # TODO: because Diderot wants only the base names, I think
-            # we are going to have to move into a temp directory,
-            # copy all the files into there, add them all, and then move back.
+            files.append(('input_file_xml', open(self.expand_file_path(args.xml), 'rb')))
             if args.images is not None:
                 tmpDir = tempfile.mkdtemp()
                 curPath = os.getcwd()
                 os.chdir(tmpDir)
                 for fg in args.images:
-                    files = glob.glob(fg)
-                    for f in files:
+                    file_glob = glob.glob(self.expand_file_path(fg))
+                    for f in file_glob:
                         full_path = self.expand_file_path(f)
                         shutil.copyfile(full_path, os.path.basename(full_path))
-                build = []
-                for f in os.listdir(os.cwd()):
-                    build.append(open(f, 'rb'))
-                files['image'] = build
+                for f in os.listdir(os.getcwd()):
+                    files.append(('image', open(f, 'rb')))
             if args.xml_pdf is not None:
-                files['input_file_xml_pdf'] = open(self.expand_file_path(args.xml_pdf), 'rb')
-
+                files.append(('input_file_xml_pdf', open(self.expand_file_path(args.xml_pdf), 'rb')))
         response = self.client.post(update_url, headers=headers, files=files, data=update_params)
         if response.status_code != 200:
-            print(response)
             return False
         return True
