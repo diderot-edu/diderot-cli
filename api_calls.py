@@ -19,7 +19,6 @@ class DiderotAPIInterface:
     def verify_singleton_response(self, response):
         if response.status_code != 200:
             return None
-        print("response", response.json())
         if len(response.json()) != 1:
             return None
         return response.json()[0]
@@ -262,10 +261,20 @@ class DiderotAPIInterface:
                 curPath = os.getcwd()
                 os.chdir(tmpDir)
                 for fg in args.images:
-                    file_glob = glob.glob(self.expand_file_path(fg))
-                    for f in file_glob:
-                        full_path = self.expand_file_path(f)
-                        shutil.copyfile(full_path, os.path.basename(full_path))
+                    image_path = self.expand_file_path(fg)
+                    if os.path.isdir(image_path):
+                        for root, _, fi in os.walk(image_path):
+                            for name in fi:
+                                full_path = os.path.join(root, name)
+                                shutil.copyfile(full_path, os.path.basename(full_path))
+                    else:
+                        file_glob = glob.glob(image_path)
+                        if len(file_glob) == 0:
+                            print("Invalid input: ", fg)
+                            return False
+                        for f in file_glob:
+                            full_path = self.expand_file_path(f)
+                            shutil.copyfile(full_path, os.path.basename(full_path))
                 for f in os.listdir(os.getcwd()):
                     files.append(('image', open(f, 'rb')))
             if args.xml_pdf is not None:
