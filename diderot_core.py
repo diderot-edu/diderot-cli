@@ -122,7 +122,6 @@ class DiderotCLI(cmd.Cmd):
 
 
     def do_submit_assignment(self, args):
-        # TODO (rohany): perform better parsing of arguments
         args = self.parse_submit_assignment(args)
         if args is None:
             return
@@ -130,8 +129,7 @@ class DiderotCLI(cmd.Cmd):
         if success:
             print("Assignment submitted successfully. Track your submission's status at the following url: {}".format(res_url))
         else:
-            # TODO: have more descriptive error messages here.
-            print("Something went wrong. Please try submitting on the Diderot website at: {}".format(self.url))
+            print("Something went wrong. Please try submitting on the Diderot website.")
 
     def parse_submit_assignment(self, args):
         parser = argparse.ArgumentParser(prog="submit_assignment")
@@ -142,7 +140,7 @@ class DiderotCLI(cmd.Cmd):
             return parser.parse_args(args.split())
         except SystemExit:
             return None
-    
+
     def help_submit_assignment(self, args):
         print("Usage: submit_assignment [course] [assignment] [path to handin file]")
         print("Submit handin to Diderot for an assignment")
