@@ -7,6 +7,7 @@ import os.path
 import api_calls
 import importlib
 from importlib import util
+import argparse
 
 requests_spec = importlib.util.find_spec('requests')
 if requests_spec is None:
@@ -43,11 +44,11 @@ class DiderotCLI(cmd.Cmd):
                 return cmd.Cmd.cmdloop(self, intro=None)
             except KeyboardInterrupt:
                 print("^C")
-    
+
     def preloop(self):
         if self.logged_in:
             return True
-        
+
         username = str(input('Username: '))
         password = getpass.getpass()
 
@@ -59,7 +60,8 @@ class DiderotCLI(cmd.Cmd):
             sys.exit(0)
 
         self.logged_in = True
-    
+
+    # TODO: ignore extra arguments
     def do_list_courses(self, line):
         result = self.api_client.list_all_courses()
         if result is None:
@@ -72,18 +74,23 @@ class DiderotCLI(cmd.Cmd):
         print("List all courses.")
 
 
-    # TODO (rohany): error handling here!
-    def do_list_assignments(self, course):
-        # Parse the course info.
-        if not course:
-            print("Provide a course (number or label). list_assignments [course]")
+    def do_list_assignments(self, args):
+        args = self.parse_list_assignments(args)
+        if args is None:
+            return
+        result = self.api_client.list_assignments(args.course)
+        if result is None:
+            print("Error retrieving all assignments.")
         else:
-            # TODO (rohany): verify that we are given a value course object.
-            result = self.api_client.list_assignments(course)
-            if result is None:
-                print("Error retrieving all assignments.")
-            else:
-                print("\t".join([hw['name'] for hw in result]))
+            print("\t".join([hw['name'] for hw in result]))
+
+    def parse_list_assignments(self, args):
+        parser = argparse.ArgumentParser(prog="list_assignments")
+        parser.add_argument('course', help="Course label")
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
 
     def help_list_assignments(self):
         print("Usage: list_assignments [course]")
@@ -91,9 +98,23 @@ class DiderotCLI(cmd.Cmd):
 
 
     def do_download_assignment(self, args):
-        # TODO (rohany): perform better parsing of arguments
-        args = args.split(" ")
-        self.api_client.download_assignment(args[0], args[1])
+        args = self.parse_download_assignment(args)
+        if args is None:
+            return
+        result = self.api_client.download_assignment(args.course, args.homework)
+        if result is None:
+            print("Failed to download assignment")
+        else:
+            print("Successfully downloaded assignment")
+
+    def parse_download_assignment(self, args):
+        parser = argparse.ArgumentParser(prog="download_assignment")
+        parser.add_argument('course', help='Course label')
+        parser.add_argument('homework', help='Homework name')
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
 
     def help_download_assignment(self):
         print("Usage: download_assignment [course] [assignment]")
@@ -102,13 +123,25 @@ class DiderotCLI(cmd.Cmd):
 
     def do_submit_assignment(self, args):
         # TODO (rohany): perform better parsing of arguments
-        args = args.split(" ")
-        success, res_url = self.api_client.submit_assignment(args[0], args[1], args[2])
+        args = self.parse_submit_assignment(args)
+        if args is None:
+            return
+        success, res_url = self.api_client.submit_assignment(args.course, args.homework, args.handin_path)
         if success:
             print("Assignment submitted successfully. Track your submission's status at the following url: {}".format(res_url))
         else:
             # TODO: have more descriptive error messages here.
             print("Something went wrong. Please try submitting on the Diderot website at: {}".format(self.url))
+
+    def parse_submit_assignment(self, args):
+        parser = argparse.ArgumentParser(prog="submit_assignment")
+        parser.add_argument('course', help='Course label')
+        parser.add_argument('homework', help='Assignment name')
+        parser.add_argument('handin_path', help='Path to handin')
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
     
     def help_submit_assignment(self, args):
         print("Usage: submit_assignment [course] [assignment] [path to handin file]")

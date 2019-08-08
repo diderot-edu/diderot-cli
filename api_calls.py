@@ -15,7 +15,6 @@ class DiderotAPIInterface:
         self.logged_in = False
         self.connect()
 
-    # TODO: integrate this into the other functions
     def verify_singleton_response(self, response):
         if response.status_code != 200:
             return None
@@ -53,7 +52,7 @@ class DiderotAPIInterface:
             code = r.history[0].status_code
         else:
             code = r.status_code
-        
+
         if not code == 302:
             if code == 404:
                 print("Error: unable to connect to Diderot (error 404)!")
@@ -79,28 +78,42 @@ class DiderotAPIInterface:
         print("Successfully logged out of Diderot.")
         return True
 
-    # TODO: what is good error handling here?
+    def verify_course_label(self, course_label):
+        headers = {'X-CSRFToken' : self.csrftoken}
+        list_courses_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
+        response = self.client.get(list_courses_url, headers=headers, params={'label': course_label})
+        result = self.verify_singleton_response(response)
+        if result is None:
+            print("Invalid input course label.")
+            return False
+        return True
+
     def list_all_courses(self):
         if not self.logged_in:
+            print("User is not logged in.")
             return None
-        list_courses_url = urllib.parse.urljoin(self.base_url, 'courses/api/courses/')
+        list_courses_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(list_courses_url, headers=headers)
-        if response.status_code == 200:
-            return response.json()
-        return None
+        if response.status_code != 200:
+            print("Unable to make a request to Diderot.")
+            return None
+        return response.json()
 
 
     def list_assignments(self, course_label):
         if not self.logged_in:
+            print("User is not logged in.")
             return None
-
-        list_assignments_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
+        if not self.verify_course_label(course_label):
+            return None
+        list_assignments_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
         response = self.client.get(list_assignments_url, headers=headers, params={'course__label' : course_label})
-        if response.status_code == 200:
-            return response.json()
-        return None
+        if response.status_code != 200:
+            print("Unable to make a request to Diderot.")
+            return None
+        return response.json()
 
     def download_file_helper(self, url):
         r = requests.get(url, stream=True)
@@ -120,18 +133,15 @@ class DiderotAPIInterface:
         if not self.logged_in:
             return False, None
 
-        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
+        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
-        if response.status_code != 200:
-            # TODO: better error handling?
-            return None
-        resp_body = response.json()
-        if len(resp_body) != 1:
-            # TODO: better error handling?
-            return None
-        homework_pk = resp_body[0]['id']
-        submit_assignment_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/view-code-homework/')
+        result = self.verify_singleton_response(response)
+        if result is None:
+            return False
+        homework_pk = result['id']
+        course_pk = result['course']
+        submit_assignment_url = urllib.parse.urljoin(self.base_url, 'course/{}/code-homeworks/view-code-homework/'.format(course_pk))
         # TODO (rohany): return more information in the response, such as:
         # homework due date, whether its the latest homework or not, etc.
         # All this extra stuff that the student would need to confirm
@@ -145,23 +155,23 @@ class DiderotAPIInterface:
 
     def download_assignment(self, course, homework):
         if self.logged_in:
-            course_info_url = urllib.parse.urljoin(self.base_url, 'courses/api/courses/')
-            homework_info_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
+            course_info_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
+            homework_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
             headers = {'X-CSRFToken' : self.csrftoken}
 
             response = self.client.get(course_info_url, headers=headers, params={'label' : course})
-            if response.status_code != 200:
+            result = self.verify_singleton_response(response)
+            if result is None:
+                print("Invalid course label")
                 return None
-            if len(response.json()) != 1:
-                return None
-            course_info = response.json()[0]
+            course_info = result
 
             response = self.client.get(homework_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
-            if response.status_code != 200:
+            result = self.verify_singleton_response(response)
+            if result is None:
+                print("Invalid homework assignment name")
                 return None
-            if len(response.json()) != 1:
-                return None
-            hw_info = response.json()[0]
+            hw_info = result
 
             base_path = "http://s3.amazonaws.com/" + course_info['s3_autograder_bucket'] + "/" + hw_info['name'] + "/"
             writeup_path = base_path + 'writeup.pdf'
@@ -171,17 +181,17 @@ class DiderotAPIInterface:
                 self.download_file_helper(p)
 
     def update_assignment(self, course, homework, args):
-        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/api/codehomeworks/')
+        get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
+        if not self.verify_course_label(course):
+            return False
         response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
-        if response.status_code != 200:
-            # TODO: better error handling?
+        result = self.verify_singleton_response(response)
+        if result is None:
+            print("Invalid homework name.")
             return False
-        resp_body = response.json()
-        if len(resp_body) != 1:
-            # TODO: better error handling?
-            return False
-        homework_pk = resp_body[0]['id']
+        homework_pk = result['id']
+        course_pk = result['course']
 
         # send a request to the UploadCodeLabFiles view with the target
         # files in the request.
@@ -199,16 +209,19 @@ class DiderotAPIInterface:
             return True
 
         headers = {'X-CSRFToken' : self.csrftoken}
-        update_url = urllib.parse.urljoin(self.base_url, 'code-homeworks/admin/upload-files/')
+        update_url = urllib.parse.urljoin(self.base_url, 'course/{}/code-homeworks/admin/upload-files/'.format(course_pk))
         self.response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
         return response.status_code == 200
 
     def list_books(self, course=None):
-        get_books_url = urllib.parse.urljoin(self.base_url, 'books/api/books/')
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
         headers = {'X-CSRFToken' : self.csrftoken}
         params = {}
         if course is not None:
             params['course__label'] = course
+            if not self.verify_course_label(course):
+                return None
+
         response = self.client.get(get_books_url, headers=headers, params=params)
         if response.status_code != 200:
             return None
@@ -216,23 +229,24 @@ class DiderotAPIInterface:
 
     def update_book(self, book, chapter, args):
         # get the book primary key
-        get_books_url = urllib.parse.urljoin(self.base_url, 'books/api/books/')
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
         headers = {'X-CSRFToken' : self.csrftoken}
         params = {'label' : book}
         result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
         if result is None:
             return False
         book_pk = result['id']
+        course_pk = result['course']
 
         # get the primary key of the chapter
-        get_chapters_url = urllib.parse.urljoin(self.base_url, 'chapters/api/chapters/')
+        get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
         params = {'book__id' : book_pk, 'label' : chapter}
         result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
         if result is None:
             return False
         chapter_pk = result['id']
 
-        update_url = urllib.parse.urljoin(self.base_url, 'books/manage_book/{}/'.format(book_pk))
+        update_url = urllib.parse.urljoin(self.base_url, 'course/{}/books/manage_book/{}/'.format(course_pk, book_pk))
         update_params = {'kind': 'upload content', 'chapter_pk' : chapter_pk}
 
         # Populate the input set of files.

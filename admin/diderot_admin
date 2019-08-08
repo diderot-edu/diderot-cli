@@ -61,7 +61,7 @@ class DiderotAdminCLI(DiderotCLI):
         args = self.parse_list_books(line)
         if args is None:
             return
-        res = self.api_client.list_books(args.course) 
+        res = self.api_client.list_books(args.course)
         if res is None:
             print("Error listing books.")
         else:
