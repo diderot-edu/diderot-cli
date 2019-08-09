@@ -54,7 +54,7 @@ class DiderotAdminCLI(DiderotCLI):
             return None
 
     def help_update_assignment(self):
-        pass
+        self.parse_update_assignment("update_assignment -h")
 
 
     def do_list_books(self, line):
@@ -76,8 +76,7 @@ class DiderotAdminCLI(DiderotCLI):
             return None
 
     def help_list_books(self):
-        print("Usage: list_books --course <optional: course label>")
-        print("List all books")
+        self.parse_list_books("list_books -h")
 
 
     def do_update_book(self, line):
@@ -129,7 +128,7 @@ class DiderotAdminCLI(DiderotCLI):
             return None
 
     def help_update_book(self):
-        pass
+        self.parse_update_book("update_book -h")
 
 
 if __name__ == '__main__':
