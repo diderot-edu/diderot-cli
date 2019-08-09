@@ -76,13 +76,36 @@ class DiderotAdminCLI(DiderotCLI):
         self.parse_list_books("list_books -h")
 
 
+    def do_list_chapters(self, line):
+        args = self.parse_list_chapters(line)
+        if args is None:
+            return
+        res = self.api_client.list_chapters(args.course, args.book)
+        if res is None:
+            print("Error listing books.")
+        else:
+            # TODO (rohany): use some fancy terminal printing for this output.
+            print("\n".join(["{}. {}".format(str(float(c['rank'])).rstrip('0').rstrip('.'), c['title']) for c in res]))
+
+    def parse_list_chapters(self, args):
+        parser = self.create_course_parser("list_chapters")
+        parser.add_argument("book", help="Book label")
+        try:
+            return self.fix_course_args(parser.parse_args(args.split()))
+        except SystemExit:
+            return None
+
+    def help_list_chapters(self):
+        self.parse_list_chapters("list_chapters -h")
+
+
     def do_update_book(self, line):
         args = self.parse_update_book(line)
         if args is None:
             return
         if not self.verify_update_book_args(args):
             return
-        success = self.api_client.update_book(args.book, args.chapter, args)
+        success = self.api_client.update_book(args.course, args.book, args.chapter, args)
         if not success:
             print("Failure uploading book.")
         else:
@@ -97,9 +120,9 @@ class DiderotAdminCLI(DiderotCLI):
             return False
         return True
 
-    # TODO: add course handling to parse_update_book.
+
     def parse_update_book(self, args):
-        parser = argparse.ArgumentParser(prog="update_book_chapter")
+        parser = self.create_course_parser("update_book")
         parser.add_argument("book", type=str, help="target book label")
         parser.add_argument("chapter", type=str, help="target chapter label")
         file_group = parser.add_mutually_exclusive_group(required=True)
@@ -121,7 +144,7 @@ class DiderotAdminCLI(DiderotCLI):
         # for easy downloading.
         parser.add_argument('--xml_pdf', type=str, default=None, help="PDF version of the XML document")
         try:
-            return parser.parse_args(args.split())
+            return self.fix_course_args(parser.parse_args(args.split()))
         except SystemExit:
             return None
 

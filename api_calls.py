@@ -237,24 +237,55 @@ class DiderotAPIInterface:
             return None
         return response.json()
 
-    def update_book(self, book, chapter, args):
-        # get the book primary key
+    def list_chapters(self, course, book):
+        if not self.verify_course_label(course):
+            return None
         get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
         headers = {'X-CSRFToken' : self.csrftoken}
-        params = {'label' : book}
+        params = {'course__label' : course, 'label' : book}
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        res = self.verify_singleton_response(response)
+        if res is None:
+            print("Input book not found.")
+            return None
+        book_pk = res['id']
+
+        get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
+        params = {'course__label' : course, 'book__id' : book_pk}
+        response = self.client.get(get_chapters_url, headers=headers, params=params)
+        if response.status_code != 200:
+            print("Chapters request to diderot failed.")
+            return None
+        return response.json()
+
+    def update_book(self, course, book, chapter, args):
+        if not self.verify_course_label(course):
+            return False
+        # get the book and course primary key
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'label' : book, 'course__label' : course}
         result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
         if result is None:
+            print("Input book not found.")
             return False
         book_pk = result['id']
         course_pk = result['course']
 
         # get the primary key of the chapter
         get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
-        params = {'book__id' : book_pk, 'label' : chapter}
+        params = {'course__id' : course_pk, 'book__id' : book_pk, 'rank' : chapter}
         result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
         if result is None:
+            print("Input chapter not found.")
             return False
         chapter_pk = result['id']
+
+        confStr = "Begin upload to Course: {}, Book: {}, Chapter Number: {}, Chapter Title: {}? Enter yes to proceed. Any other input will cancel the upload.\n"
+        conf = input(confStr.format(course, book, str(float(result['rank'])).rstrip('0').rstrip('.'), result['title']))
+        if conf != "yes":
+            print("User terminated upload")
+            return False
 
         update_url = urllib.parse.urljoin(self.base_url, 'course/{}/books/manage_book/{}/'.format(course_pk, book_pk))
         update_params = {'kind': 'upload content', 'chapter_pk' : chapter_pk}
@@ -300,6 +331,7 @@ class DiderotAPIInterface:
                             full_path = self.expand_file_path(f)
                             shutil.copyfile(full_path, os.path.basename(full_path))
                 for f in os.listdir(os.getcwd()):
+                    print("Uploading file: {}".format(f))
                     files.append(('image', open(f, 'rb')))
             if args.xml_pdf is not None:
                 files.append(('input_file_xml_pdf', open(self.expand_file_path(args.xml_pdf), 'rb')))
