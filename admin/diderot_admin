@@ -124,7 +124,7 @@ class DiderotAdminCLI(DiderotCLI):
     def parse_update_book(self, args):
         parser = self.create_course_parser("update_book")
         parser.add_argument("book", type=str, help="target book label")
-        parser.add_argument("chapter", type=str, help="target chapter label")
+        parser.add_argument("chapter", type=str, help="target chapter number")
         file_group = parser.add_mutually_exclusive_group(required=True)
 
         # We can upload PDF's.
