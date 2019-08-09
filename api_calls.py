@@ -8,6 +8,7 @@ import shutil
 import os
 import glob
 import tempfile
+import time
 
 class DiderotAPIInterface:
     def __init__(self, base_url):
@@ -304,5 +305,34 @@ class DiderotAPIInterface:
                 files.append(('input_file_xml_pdf', open(self.expand_file_path(args.xml_pdf), 'rb')))
         response = self.client.post(update_url, headers=headers, files=files, data=update_params)
         if response.status_code != 200:
+            print("Chapter upload request was not successful.")
             return False
+
+        # wait until the book becomes unlocked
+        while True:
+            print("Waiting for book upload to complete...")
+            time.sleep(5)
+            params = {'id' : book_pk}
+            result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
+            if result is None:
+                print("Book primary keys must be unique.")
+                return False
+            if not bool(result['is_locked']):
+                break
+
+        # get back error + warning information from uploading!
+        params = {'id' : chapter_pk}
+        result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
+        if result is None:
+            print("Chapter primary keys must be unique.")
+            return False
+
+        warnings = result['upload_warnings']
+        if len(warnings) != 0:
+            print(warnings)
+        errors = result['upload_errors']
+        if len(errors) != 0:
+            print(errors)
+            return False
+
         return True
