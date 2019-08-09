@@ -39,17 +39,14 @@ class DiderotAdminCLI(DiderotCLI):
             print("Uploading files failed. Try using the Web UI.")
 
     def parse_update_assignment(self, args):
-        # TODO (rohany): it might be too expensive to remake a parser
-        # each time that this command is called.
-        parser = argparse.ArgumentParser(prog="update_assignment")
-        parser.add_argument('course', type=str)
+        parse = self.create_course_parser("update_assignment")
         parser.add_argument('homework', type=str)
         parser.add_argument('--autograde-tar', type=str)
         parser.add_argument('--autograde-makefile', type=str)
         parser.add_argument('--writeup', type=str)
         parser.add_argument('--handout', type=str)
         try:
-            return parser.parse_args(args.split())
+            return self.fix_course_args(parser.parse_args(args.split()))
         except SystemExit:
             return None
 
@@ -68,7 +65,7 @@ class DiderotAdminCLI(DiderotCLI):
             print("\t".join([c['label'] for c in res]))
 
     def parse_list_books(self, args):
-        parser = argparse.ArgumentParser(prog="list_books")
+        parser = argparse.ArgumentParser(prog="list_books", description="List all books, specify course if desired.")
         parser.add_argument('--course', type=str, default=None)
         try:
             return parser.parse_args(args.split())
@@ -100,6 +97,7 @@ class DiderotAdminCLI(DiderotCLI):
             return False
         return True
 
+    # TODO: add course handling to parse_update_book.
     def parse_update_book(self, args):
         parser = argparse.ArgumentParser(prog="update_book_chapter")
         parser.add_argument("book", type=str, help="target book label")

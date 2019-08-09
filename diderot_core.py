@@ -36,6 +36,7 @@ class DiderotCLI(cmd.Cmd):
         self.url = url
         self.api_client = api_calls.DiderotAPIInterface(url)
         self.logged_in = False
+        self.course = None
 
         # TODO (rohany): This ctrl + c catching is a bit hacky,
         # I wonder if there is a better/more principled way to do this.
@@ -60,6 +61,58 @@ class DiderotCLI(cmd.Cmd):
             sys.exit(0)
 
         self.logged_in = True
+
+    def create_course_parser(self, progName):
+        parser = argparse.ArgumentParser(prog=progName)
+        if self.course is None:
+            parser.add_argument('course', help="Course label")
+        return parser
+
+    # Must only be used by arguments generated from
+    # parsers created with `create_course_parser`
+    def fix_course_args(self, args):
+        if self.course is not None:
+            args.course = self.course
+        return args
+
+    def do_set_course(self, line):
+        args = self.parse_set_course(line)
+        if args is None:
+            return
+        if not self.api_client.verify_course_label(args.course):
+            return
+        self.course = args.course
+        self.prompt = "DiderotCLI/{} >> ".format(args.course)
+        print("Course set successfully.")
+
+    def parse_set_course(self, args):
+        parser = argparse.ArgumentParser(prog="set_course")
+        parser.add_argument('course', help="Course label")
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
+
+    def help_set_course(self, line):
+        self.parse_set_course("set_course -h")
+
+    def do_unset_course(self, line):
+        args = self.parse_unset_course(line)
+        if args is None:
+            return
+        self.course = None
+        self.prompt = "DiderotCLI >> "
+        print("Course unset successfully.")
+
+    def parse_unset_course(self, args):
+        parser = argparse.ArgumentParser(prog="unset_course")
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
+
+    def help_unset_course(self, line):
+        self.parse_unset_course("unset_course -h")
 
 
     def do_list_courses(self, line):
@@ -93,10 +146,9 @@ class DiderotCLI(cmd.Cmd):
             print("\t".join([hw['name'] for hw in result]))
 
     def parse_list_assignments(self, args):
-        parser = argparse.ArgumentParser(prog="list_assignments")
-        parser.add_argument('course', help="Course label")
+        parser = self.create_course_parser("list_assignments")
         try:
-            return parser.parse_args(args.split())
+            return self.fix_course_args(parser.parse_args(args.split()))
         except SystemExit:
             return None
 
@@ -115,11 +167,10 @@ class DiderotCLI(cmd.Cmd):
             print("Successfully downloaded assignment")
 
     def parse_download_assignment(self, args):
-        parser = argparse.ArgumentParser(prog="download_assignment")
-        parser.add_argument('course', help='Course label')
+        parser = self.create_course_parser("download_assignment")
         parser.add_argument('homework', help='Homework name')
         try:
-            return parser.parse_args(args.split())
+            return self.fix_course_args(parser.parse_args(args.split()))
         except SystemExit:
             return None
 
@@ -138,12 +189,11 @@ class DiderotCLI(cmd.Cmd):
             print("Something went wrong. Please try submitting on the Diderot website.")
 
     def parse_submit_assignment(self, args):
-        parser = argparse.ArgumentParser(prog="submit_assignment")
-        parser.add_argument('course', help='Course label')
+        parser = self.create_course_parser("submit_assignment")
         parser.add_argument('homework', help='Assignment name')
         parser.add_argument('handin_path', help='Path to handin')
         try:
-            return parser.parse_args(args.split())
+            return self.fix_course_args(parser.parse_args(args.split()))
         except SystemExit:
             return None
 
