@@ -237,6 +237,27 @@ class DiderotAPIInterface:
             return None
         return response.json()
 
+    def list_parts(self, course, book):
+        if not self.verify_course_label(course):
+            return None
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'course__label' : course, 'label' : book}
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        res = self.verify_singleton_response(response)
+        if res is None:
+            print("Input book not found.")
+            return None
+        book_pk = res['id']
+
+        get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts/')
+        params = {'book__id' : book_pk}
+        response = self.client.get(get_parts_url, headers=headers, params=params)
+        if response.status_code != 200:
+            print("Parts request to diderot failed.")
+            return None
+        return response.json()
+
     def list_chapters(self, course, book):
         if not self.verify_course_label(course):
             return None
@@ -257,6 +278,55 @@ class DiderotAPIInterface:
             print("Chapters request to diderot failed.")
             return None
         return response.json()
+
+    def create_chapter(self, args):
+        if not self.verify_course_label(args.course):
+            return False
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'course__label' : args.course, 'label' : args.book}
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        res = self.verify_singleton_response(response)
+        if res is None:
+            print("Input book not found.")
+            return None
+        book_pk = res['id']
+        course_pk = res['course']
+
+        # verify that the desired part exists.
+        get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts/')
+        params = {'book__id' : book_pk, 'rank' : args.part}
+        result = self.verify_singleton_response(self.client.get(get_parts_url, headers=headers, params=params))
+        if result is None:
+            print("Input part not found.")
+            return False
+        part_pk = result['id']
+
+        # see if a chapter like this exists already.
+        get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
+        params = {'course__id' : course_pk, 'book__id' : book_pk, 'rank' : args.number}
+        response = self.client.get(get_chapters_url, headers=headers, params=params)
+        if response.status_code != 200:
+            print("Chapters request to diderot failed.")
+            return None
+        if len(response.json()) != 0:
+            print("Existing chapter for Course: {}, Book: {} and Number: {} found.".format(args.course, args.book, args.number))
+            return False
+
+        # actually create the chapter now.
+        create_url = urllib.parse.urljoin(self.base_url, 'course/{}/books/manage_book/{}/'.format(course_pk, book_pk))
+        create_params = {'kind': 'create chapter', 'part_pk' : part_pk, 'rank' : args.number}
+        if args.title is not None:
+            create_params['title'] = args.title
+        if args.label is not None:
+            create_params['label'] = args.label
+
+        response = self.client.post(create_url, headers=headers, data=create_params)
+        if response.status_code != 200:
+            print("Chapter creation request was not successful.")
+            return False
+
+        return True
 
     def update_book(self, course, book, chapter, args):
         if not self.verify_course_label(course):

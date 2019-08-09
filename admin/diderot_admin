@@ -75,7 +75,29 @@ class DiderotAdminCLI(DiderotCLI):
     def help_list_books(self):
         self.parse_list_books("list_books -h")
 
+    def do_list_parts(self, line):
+        args = self.parse_list_parts(line)
+        if args is None:
+            return
+        res = self.api_client.list_parts(args.course, args.book)
+        if res is None:
+            print("Error listing parts.")
+        else:
+            print("\n".join(["{}. {}".format(c['rank'], c['title']) for c in res]))
 
+    def parse_list_parts(self, args):
+        parser = self.create_course_parser("list_parts")
+        parser.add_argument("book", help="Book label")
+        try:
+            return self.fix_course_args(parser.parse_args(args.split()))
+        except SystemExit:
+            return None
+
+    def help_list_parts(self):
+        self.parse_list_parts("list_parts -h")
+
+
+    # TODO (rohany): optionally constrain this lookup by part
     def do_list_chapters(self, line):
         args = self.parse_list_chapters(line)
         if args is None:
@@ -97,6 +119,31 @@ class DiderotAdminCLI(DiderotCLI):
 
     def help_list_chapters(self):
         self.parse_list_chapters("list_chapters -h")
+
+
+    def do_create_chapter(self, line):
+        args = self.parse_create_chapter(line)
+        if args is None:
+            return
+        if self.api_client.create_chapter(args):
+            print("Successfully created chapter.")
+        else:
+            print("Chapter creation failed.")
+
+    def parse_create_chapter(self, args):
+        parser = self.create_course_parser("create_chapter")
+        parser.add_argument("book", help="Book label")
+        parser.add_argument("--part", help="Part number", required=True)
+        parser.add_argument("--number", help="New chapter number", required=True)
+        parser.add_argument("--title", help="Optional chapter title (default = Chapter)", default=None)
+        parser.add_argument("--label", help="Optional chapter label (default = randomly generated)", default=None)
+        try:
+            return self.fix_course_args(parser.parse_args(args.split()))
+        except SystemExit:
+            return None
+
+    def help_create_chapter(self):
+        self.parse_create_chapter("create_chapter -h")
 
 
     def do_update_book(self, line):
