@@ -131,6 +131,10 @@ class DiderotAPIInterface:
 
     def submit_assignment(self, course, homework, filepath):
         if not self.logged_in:
+            print("User is not logged in.")
+            return False, None
+
+        if not self.verify_course_label(course):
             return False, None
 
         get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
@@ -138,7 +142,8 @@ class DiderotAPIInterface:
         response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
         result = self.verify_singleton_response(response)
         if result is None:
-            return False
+            print("No such homework exists.")
+            return False, None
         homework_pk = result['id']
         course_pk = result['course']
         submit_assignment_url = urllib.parse.urljoin(self.base_url, 'course/{}/code-homeworks/view-code-homework/'.format(course_pk))
@@ -147,7 +152,11 @@ class DiderotAPIInterface:
         # All this extra stuff that the student would need to confirm
         # if they want to submit to this assignment.
         full_path = self.expand_file_path(filepath)
+        if not os.path.exists(full_path):
+            print("Input file does not exist")
+            return False, None
         # TODO: Support other types of file handins (single file, etc.)
+
         response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')}, params={'hw_pk' : homework_pk})
 
         # TODO: return some more descriptive output.

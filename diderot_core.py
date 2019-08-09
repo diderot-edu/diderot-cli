@@ -61,17 +61,25 @@ class DiderotCLI(cmd.Cmd):
 
         self.logged_in = True
 
-    # TODO: ignore extra arguments
+
     def do_list_courses(self, line):
+        if self.parse_list_courses(line) is None:
+            return
         result = self.api_client.list_all_courses()
         if result is None:
             print("Error retrieving all courses.")
         else:
             print("\t".join([c['label'] for c in result]))
 
+    def parse_list_courses(self, args):
+        parser = argparse.ArgumentParser(prog="list_courses")
+        try:
+            return parser.parse_args(args.split())
+        except SystemExit:
+            return None
+
     def help_list_courses(self):
-        print("Usage: list_courses")
-        print("List all courses.")
+        self.parse_list_courses("list_courses -h")
 
 
     def do_list_assignments(self, args):
@@ -93,8 +101,7 @@ class DiderotCLI(cmd.Cmd):
             return None
 
     def help_list_assignments(self):
-        print("Usage: list_assignments [course]")
-        print("List all assignments for a course.")
+        self.parse_list_assignments("list_assignments -h")
 
 
     def do_download_assignment(self, args):
@@ -117,8 +124,7 @@ class DiderotCLI(cmd.Cmd):
             return None
 
     def help_download_assignment(self):
-        print("Usage: download_assignment [course] [assignment]")
-        print("Download handout materials for an assignment.")
+        self.parse_download_assignment("download_assignment -h")
 
 
     def do_submit_assignment(self, args):
@@ -142,8 +148,7 @@ class DiderotCLI(cmd.Cmd):
             return None
 
     def help_submit_assignment(self, args):
-        print("Usage: submit_assignment [course] [assignment] [path to handin file]")
-        print("Submit handin to Diderot for an assignment")
+        self.parse_submit_assignment("submit_assignment -h")
 
 
     def emptyline(self):
@@ -152,13 +157,13 @@ class DiderotCLI(cmd.Cmd):
     # Functions to handle when users try and quit from the CLI.
     def do_quit(self, line):
         sys.exit(0)
-    
+
     def help_quit(self):
         pass
 
     def do_exit(self, line):
         sys.exit(0)
-    
+
     def help_exit(self):
         pass
 

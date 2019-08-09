@@ -14,4 +14,4 @@ if __name__ == '__main__':
         # TODO: get rid of this ability from the student accessible version.
         DiderotCLI().cmdloop(sys.argv[1])
     else:
-        DiderotCLI().cmdloop("http://www.diderot.one")
+        DiderotCLI().cmdloop("https://www.diderot.one")
