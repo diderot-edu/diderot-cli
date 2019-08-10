@@ -39,7 +39,7 @@ class DiderotAdminCLI(DiderotCLI):
             print("Uploading files failed. Try using the Web UI.")
 
     def parse_update_assignment(self, args):
-        parse = self.create_course_parser("update_assignment")
+        parser = self.create_course_parser("update_assignment")
         parser.add_argument('homework', type=str)
         parser.add_argument('--autograde-tar', type=str)
         parser.add_argument('--autograde-makefile', type=str)
