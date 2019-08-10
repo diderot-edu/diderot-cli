@@ -197,7 +197,7 @@ class DiderotCLI(cmd.Cmd):
         except SystemExit:
             return None
 
-    def help_submit_assignment(self, args):
+    def help_submit_assignment(self):
         self.parse_submit_assignment("submit_assignment -h")
 
 
