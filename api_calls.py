@@ -381,11 +381,11 @@ class DiderotAPIInterface:
                 print("XML argument must be an XML or MLX file.")
                 return False
             files.append(('input_file_xml', open(self.expand_file_path(args.xml), 'rb')))
-            if args.images is not None:
+            if args.attach is not None:
                 tmpDir = tempfile.mkdtemp()
                 curPath = os.getcwd()
                 os.chdir(tmpDir)
-                for fg in args.images:
+                for fg in args.attach:
                     image_path = self.expand_file_path(fg)
                     if os.path.isdir(image_path):
                         for root, _, fi in os.walk(image_path):
