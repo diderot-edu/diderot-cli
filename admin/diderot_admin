@@ -188,7 +188,7 @@ class DiderotAdminCLI(DiderotCLI):
         file_group.add_argument('--xml', type=str, default=None, help="upload an xml/mlx document")
         # When uploading XML, the user can pass in a list of images that need
         # to be uploaded along side the xml.
-        parser.add_argument('--images', type=str, nargs='+', default=None, help="upload a list of images for the xml/mlx document")
+        parser.add_argument('--attach', type=str, nargs='+', default=None, help="upload a list of attachments for the xml/mlx document")
         # When uploading XML, the user can also pass in a PDF version of the XML
         # for easy downloading.
         parser.add_argument('--xml_pdf', type=str, default=None, help="PDF version of the XML document")
