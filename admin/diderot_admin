@@ -148,19 +148,19 @@ class DiderotAdminCLI(DiderotCLI):
         self.parse_create_chapter("create_chapter -h")
 
 
-    def do_update_book(self, line):
-        args = self.parse_update_book(line)
+    def do_upload_chapter(self, line):
+        args = self.parse_upload_chapter(line)
         if args is None:
             return
-        if not self.verify_update_book_args(args):
+        if not self.verify_upload_chapter_args(args):
             return
-        success = self.api_client.update_book(args.course, args.book, args.chapter, args)
+        success = self.api_client.upload_chapter(args.course, args.book, args.chapter, args)
         if not success:
-            print("Failure uploading book.")
+            print("Failure uploading chapter.")
         else:
             print("Book uploaded successfully.")
 
-    def verify_update_book_args(self, args):
+    def verify_upload_chapter_args(self, args):
         if args.video_url is not None and not (args.slides is None or args.pdf is None):
             print("Cannot use --video_url if not uploading slides.")
             return False
@@ -170,8 +170,8 @@ class DiderotAdminCLI(DiderotCLI):
         return True
 
 
-    def parse_update_book(self, args):
-        parser = self.create_course_parser("update_book")
+    def parse_upload_chapter(self, args):
+        parser = self.create_course_parser("upload_chapter")
         parser.add_argument("book", type=str, help="target book label")
         parser.add_argument("chapter", type=str, help="target chapter number")
         file_group = parser.add_mutually_exclusive_group(required=True)
@@ -197,8 +197,8 @@ class DiderotAdminCLI(DiderotCLI):
         except SystemExit:
             return None
 
-    def help_update_book(self):
-        self.parse_update_book("update_book -h")
+    def help_upload_chapter(self):
+        self.parse_upload_chapter("upload_chapter -h")
 
 
 if __name__ == '__main__':

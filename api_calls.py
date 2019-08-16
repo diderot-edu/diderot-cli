@@ -328,7 +328,7 @@ class DiderotAPIInterface:
 
         return True
 
-    def update_book(self, course, book, chapter, args):
+    def upload_chapter(self, course, book, chapter, args):
         if not self.verify_course_label(course):
             return False
         # get the book and course primary key
