@@ -163,8 +163,8 @@ class DiderotAdminCLI(DiderotCLI):
         if args.video_url is not None and not (args.slides is None or args.pdf is None):
             print("Cannot use --video_url if not uploading slides.")
             return False
-        if args.images is not None and args.xml is None:
-            print("Cannot use --images if not uploading xml/mlx.")
+        if args.attach is not None and args.xml is None:
+            print("Cannot use --attach if not uploading xml/mlx.")
             return False
         return True
 
