@@ -22,6 +22,7 @@ parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_dir)
 
 from diderot_core import DiderotCLI
+import shlex
 
 
 class DiderotAdminCLI(DiderotCLI):
@@ -46,7 +47,7 @@ class DiderotAdminCLI(DiderotCLI):
         parser.add_argument('--writeup', type=str)
         parser.add_argument('--handout', type=str)
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
@@ -68,7 +69,7 @@ class DiderotAdminCLI(DiderotCLI):
         parser = argparse.ArgumentParser(prog="list_books", description="List all books, specify course if desired.")
         parser.add_argument('--course', type=str, default=None)
         try:
-            return parser.parse_args(args.split())
+            return parser.parse_args(shlex.split(args))
         except SystemExit:
             return None
 
@@ -89,7 +90,7 @@ class DiderotAdminCLI(DiderotCLI):
         parser = self.create_course_parser("list_parts")
         parser.add_argument("book", help="Book label")
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
@@ -113,7 +114,7 @@ class DiderotAdminCLI(DiderotCLI):
         parser = self.create_course_parser("list_chapters")
         parser.add_argument("book", help="Book label")
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
@@ -123,8 +124,6 @@ class DiderotAdminCLI(DiderotCLI):
 
     def do_create_chapter(self, line):
         args = self.parse_create_chapter(line)
-        if args.title is not None:
-            args.title = " ".join(args.title)
         if args is None:
             return
         if self.api_client.create_chapter(args):
@@ -137,10 +136,10 @@ class DiderotAdminCLI(DiderotCLI):
         parser.add_argument("book", help="Book label")
         parser.add_argument("--part", help="Part number", required=True)
         parser.add_argument("--number", help="New chapter number", required=True)
-        parser.add_argument("--title", help="Optional chapter title (default = Chapter). To have a multi-word title, do not use quotes. For example, if the title 'My Chapter' is desired, invoke using '--title My Chapter'", default=None, nargs='+')
+        parser.add_argument("--title", help="Optional chapter title (default = Chapter)", default=None)
         parser.add_argument("--label", help="Optional chapter label (default = randomly generated)", default=None)
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
@@ -194,7 +193,7 @@ class DiderotAdminCLI(DiderotCLI):
         # for easy downloading.
         parser.add_argument('--xml_pdf', type=str, default=None, help="PDF version of the XML document")
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 

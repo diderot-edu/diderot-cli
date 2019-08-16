@@ -8,6 +8,7 @@ import api_calls
 import importlib
 from importlib import util
 import argparse
+import shlex
 
 requests_spec = importlib.util.find_spec('requests')
 if requests_spec is None:
@@ -112,7 +113,7 @@ class DiderotCLI(cmd.Cmd):
         parser = argparse.ArgumentParser(prog="set_course")
         parser.add_argument('course', help="Course label")
         try:
-            return parser.parse_args(args.split())
+            return parser.parse_args(shlex.split(args))
         except SystemExit:
             return None
 
@@ -130,7 +131,7 @@ class DiderotCLI(cmd.Cmd):
     def parse_unset_course(self, args):
         parser = argparse.ArgumentParser(prog="unset_course")
         try:
-            return parser.parse_args(args.split())
+            return parser.parse_args(shlex.split(args))
         except SystemExit:
             return None
 
@@ -150,7 +151,7 @@ class DiderotCLI(cmd.Cmd):
     def parse_list_courses(self, args):
         parser = argparse.ArgumentParser(prog="list_courses")
         try:
-            return parser.parse_args(args.split())
+            return parser.parse_args(shlex.split(args))
         except SystemExit:
             return None
 
@@ -171,7 +172,7 @@ class DiderotCLI(cmd.Cmd):
     def parse_list_assignments(self, args):
         parser = self.create_course_parser("list_assignments")
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
@@ -193,7 +194,7 @@ class DiderotCLI(cmd.Cmd):
         parser = self.create_course_parser("download_assignment")
         parser.add_argument('homework', help='Homework name')
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
@@ -216,7 +217,7 @@ class DiderotCLI(cmd.Cmd):
         parser.add_argument('homework', help='Assignment name')
         parser.add_argument('handin_path', help='Path to handin')
         try:
-            return self.fix_course_args(parser.parse_args(args.split()))
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
         except SystemExit:
             return None
 
