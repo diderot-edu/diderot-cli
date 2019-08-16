@@ -40,7 +40,7 @@ class DiderotAPIInterface:
                 sys.exit(0)
         self.csrftoken = self.client.cookies['csrftoken']
 
-    def login(self, username, password):
+    def login(self, username, password, shouldPrint=True):
         if self.logged_in:
             return True
         login_data = {'username' : username,
@@ -66,7 +66,8 @@ class DiderotAPIInterface:
                 self.logged_in = False
                 return False
         self.csrftoken = self.client.cookies['csrftoken']
-        print("Successfully logged in to Diderot.")
+        if shouldPrint:
+            print("Successfully logged in to Diderot.")
         self.logged_in = True
         return True
 
