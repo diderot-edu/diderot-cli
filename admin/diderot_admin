@@ -186,7 +186,7 @@ class DiderotAdminCLI(DiderotCLI):
         # If the user sends slides, we also allow sending a video URL with the slides.
         parser.add_argument('--video_url', type=str, default=None, help="upload an embeddable video url")
 
-        # When uploading XML, the user can pass in a list of images that need
+        # When uploading XML, the user can pass in a list of attachments that need
         # to be uploaded along side the xml.
         parser.add_argument('--attach', type=str, nargs='+', default=None, help="upload a list of attachments for the xml/mlx document")
         # When uploading XML, the user can also pass in a PDF version of the XML
