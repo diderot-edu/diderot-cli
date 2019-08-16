@@ -181,11 +181,12 @@ class DiderotAdminCLI(DiderotCLI):
 
         # We can upload slides.
         file_group.add_argument('--slides', type=str, default=None, help="upload slides")
+        # We can upload XML.
+        file_group.add_argument('--xml', type=str, default=None, help="upload an xml/mlx document")
+
         # If the user sends slides, we also allow sending a video URL with the slides.
         parser.add_argument('--video_url', type=str, default=None, help="upload an embeddable video url")
 
-        # We can upload XML.
-        file_group.add_argument('--xml', type=str, default=None, help="upload an xml/mlx document")
         # When uploading XML, the user can pass in a list of images that need
         # to be uploaded along side the xml.
         parser.add_argument('--attach', type=str, nargs='+', default=None, help="upload a list of attachments for the xml/mlx document")
