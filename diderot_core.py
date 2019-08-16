@@ -40,6 +40,22 @@ class Formatter(argparse.HelpFormatter):
         # prefix with 'usage:'
         return '%s%s\n\n' % (prefix, usage)
 
+# Argument generator for the CLI
+class DiderotCLIArgumentGenerator(object):
+    @staticmethod
+    def generate_args():
+        parser = argparse.ArgumentParser(prog="diderot_admin", description="Diderot admin CLI")
+        parser.add_argument("--url", default="https://www.diderot.one")
+        parser.add_argument("--username", default=None)
+        parser.add_argument("--password", default=None)
+        parser.add_argument("--command", default=None, help="Use this argument with a string to execute that specific command and return rather than entering the repl.")
+        args = parser.parse_args()
+        if (args.password is None and args.username is not None) or \
+           (args.password is not None and args.username is None):
+            print("Please supply both username and password")
+            sys.exit(0)
+        return args
+
 # The basic architecture of this CLI is based on usage of the cmd.Cmd
 # python package, which makes it easy to implement a REPL. The library
 # lets you implement different commands for the REPL by letting users
@@ -56,12 +72,17 @@ class DiderotCLI(cmd.Cmd):
 
     prompt = "DiderotCLI >> "
 
-    def cmdloop(self, url):
+    def __init__(self, url, username, password, shouldPrintLoginMessage=True):
         self.url = url
         self.api_client = api_calls.DiderotAPIInterface(url)
         self.logged_in = False
         self.course = None
+        self.username = username
+        self.password = password
+        self.shouldPrintLoginMessage = shouldPrintLoginMessage
+        super().__init__()
 
+    def cmdloop(self):
         # TODO (rohany): This ctrl + c catching is a bit hacky,
         # I wonder if there is a better/more principled way to do this.
         while True:
@@ -70,21 +91,26 @@ class DiderotCLI(cmd.Cmd):
             except KeyboardInterrupt:
                 print("^C")
 
-    def preloop(self):
+    def initialize(self):
         if self.logged_in:
             return True
+        if self.username is None:
+            username = str(input('Username: '))
+            password = getpass.getpass()
+            if username == '' or password == '':
+                print('Login aborted!')
+                return False
+        else:
+            username = self.username
+            password = self.password
 
-        username = str(input('Username: '))
-        password = getpass.getpass()
-
-        if username == '' or password == '':
-            print('Login aborted!')
-            return False
-
-        if not self.api_client.login(username, password):
+        if not self.api_client.login(username, password, shouldPrint=self.shouldPrintLoginMessage):
             sys.exit(0)
 
         self.logged_in = True
+
+    def preloop(self):
+        self.initialize()
 
     def create_course_parser(self, progName):
         parser = argparse.ArgumentParser(prog=progName, formatter_class=Formatter)
