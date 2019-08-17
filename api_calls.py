@@ -129,7 +129,7 @@ class DiderotAPIInterface:
         response = self.client.get(get_assignment_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
         result = self.verify_singleton_response(response)
         if result is None:
-            print("No such homework exists.")
+            print("Invalid homework name.")
             return False, None
         homework_pk = result['id']
         course_pk = result['course']
@@ -140,20 +140,22 @@ class DiderotAPIInterface:
         # if they want to submit to this assignment.
         full_path = self.expand_file_path(filepath)
         if not os.path.exists(full_path):
-            print("Input file does not exist")
+            print("Input file does not exist.")
             return False, None
         # TODO: Support other types of file handins (single file, etc.)
-
-        response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : open(full_path, 'rb')}, params={'hw_pk' : homework_pk})
+        f = open(full_path, 'rb')
+        response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : f}, params={'hw_pk' : homework_pk})
+        f.close()
 
         # TODO: return some more descriptive output.
         return response.status_code == 200, submit_assignment_url + "?hw_pk={}".format(homework_pk)
 
     def download_assignment(self, course, homework):
+        if not self.verify_course_label(course):
+            return None
         course_info_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
         homework_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
         headers = {'X-CSRFToken' : self.csrftoken}
-
         response = self.client.get(course_info_url, headers=headers, params={'label' : course})
         result = self.verify_singleton_response(response)
         if result is None:
@@ -164,7 +166,7 @@ class DiderotAPIInterface:
         response = self.client.get(homework_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
         result = self.verify_singleton_response(response)
         if result is None:
-            print("Invalid homework assignment name")
+            print("Invalid homework name.")
             return None
         hw_info = result
 
@@ -174,6 +176,7 @@ class DiderotAPIInterface:
 
         for p in [writeup_path, handout_path]:
             self.download_file_helper(p)
+        return True
 
     def update_assignment(self, course, homework, args):
         get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
@@ -205,7 +208,9 @@ class DiderotAPIInterface:
 
         headers = {'X-CSRFToken' : self.csrftoken}
         update_url = urllib.parse.urljoin(self.base_url, 'course/{}/code-homeworks/admin/upload-files/'.format(course_pk))
-        self.response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
+        response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
+        for _,v in files.items():
+            v.close()
         return response.status_code == 200
 
     def list_books(self, course, all=False):
@@ -219,7 +224,6 @@ class DiderotAPIInterface:
             params['course__label'] = course
             if not self.verify_course_label(course):
                 return None
-
         bookresponse = self.client.get(get_books_url, headers=headers, params=params)
         if bookresponse.status_code != 200:
             return None
@@ -288,7 +292,7 @@ class DiderotAPIInterface:
         book_pk = res['id']
         course_pk = res['course']
 
-        get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts')
+        get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts/')
         params = {'book__id' : book_pk, 'rank' : args.number}
         response = self.client.get(get_parts_url, headers=headers, params=params)
         if response.status_code != 200:
@@ -367,7 +371,7 @@ class DiderotAPIInterface:
 
         return True
 
-    def upload_chapter(self, course, book, chapter, args):
+    def upload_chapter(self, course, book, chapter, args, sleep_time=5):
         if not self.verify_course_label(course):
             return False
         # get the book and course primary key
@@ -442,7 +446,7 @@ class DiderotAPIInterface:
         # wait until the book becomes unlocked
         while True:
             print("Waiting for book upload to complete...")
-            time.sleep(5)
+            time.sleep(sleep_time)
             params = {'id' : book_pk}
             result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
             if result is None:
