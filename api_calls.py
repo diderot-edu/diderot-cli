@@ -352,12 +352,6 @@ class DiderotAPIInterface:
             return False
         chapter_pk = result['id']
 
-        confStr = "Begin upload to Course: {}, Book: {}, Chapter Number: {}, Chapter Title: {}? Enter yes to proceed. Any other input will cancel the upload.\n"
-        conf = input(confStr.format(course, book, str(float(result['rank'])).rstrip('0').rstrip('.'), result['title']))
-        if conf != "yes":
-            print("User terminated upload")
-            return False
-
         update_url = urllib.parse.urljoin(self.base_url, 'course/{}/books/manage_book/{}/'.format(course_pk, book_pk))
         update_params = {'kind': 'upload content', 'chapter_pk' : chapter_pk}
 
