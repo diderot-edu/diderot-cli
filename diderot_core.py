@@ -9,6 +9,7 @@ import importlib
 from importlib import util
 import argparse
 import shlex
+from pathlib import Path
 
 requests_spec = importlib.util.find_spec('requests')
 if requests_spec is None:
@@ -48,11 +49,15 @@ class DiderotCLIArgumentGenerator(object):
         parser.add_argument("--url", default="https://www.diderot.one")
         parser.add_argument("--username", default=None)
         parser.add_argument("--password", default=None)
+        parser.add_argument("--credentials", default=None)
         parser.add_argument("--command", default=None, help="Use this argument with a string to execute that specific command and return rather than entering the repl.")
         args = parser.parse_args()
         if (args.password is None and args.username is not None) or \
            (args.password is not None and args.username is None):
             print("Please supply both username and password")
+            sys.exit(0)
+        if args.credentials is not None and (args.username is not None or args.password is not None):
+            print("Cannot use a credentials file and input a username/password")
             sys.exit(0)
         return args
 
@@ -72,13 +77,20 @@ class DiderotCLI(cmd.Cmd):
 
     prompt = "DiderotCLI >> "
 
-    def __init__(self, url, username, password, shouldPrintLoginMessage=True):
+    def __init__(self, url, username, password, credPath, shouldPrintLoginMessage=True):
         self.url = url
         self.api_client = api_calls.DiderotAPIInterface(url)
         self.logged_in = False
         self.course = None
         self.username = username
         self.password = password
+
+        if credPath is not None:
+            p = Path(credPath).expanduser()
+            data = p.open('r').read().strip().split('\n')
+            self.username = data[0]
+            self.password = data[1]
+
         self.shouldPrintLoginMessage = shouldPrintLoginMessage
         super().__init__()
 

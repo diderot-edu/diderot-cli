@@ -12,8 +12,8 @@ from diderot_core import DiderotCLI, DiderotCLIArgumentGenerator
 if __name__ == '__main__':
     args = DiderotCLIArgumentGenerator.generate_args()
     if args.command != None:
-        cli = DiderotCLI(args.url, args.username, args.password, shouldPrintLoginMessage=False)
+        cli = DiderotCLI(args.url, args.username, args.password, args.credentials, shouldPrintLoginMessage=False)
         cli.initialize()
         cli.onecmd(args.command)
     else:
-        DiderotCLI(args.url, args.username, args.password).cmdloop()
+        DiderotCLI(args.url, args.username, args.password, args.credentials).cmdloop()

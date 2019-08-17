@@ -204,8 +204,8 @@ class DiderotAdminCLI(DiderotCLI):
 if __name__ == '__main__':
     args = DiderotCLIArgumentGenerator.generate_args()
     if args.command != None:
-        cli = DiderotAdminCLI(args.url, args.username, args.password, shouldPrintLoginMessage=False)
+        cli = DiderotAdminCLI(args.url, args.username, args.password, args.credentials, shouldPrintLoginMessage=False)
         cli.initialize()
         cli.onecmd(args.command)
     else:
-        DiderotAdminCLI(args.url, args.username, args.password).cmdloop()
+        DiderotAdminCLI(args.url, args.username, args.password, args.credentials).cmdloop()
