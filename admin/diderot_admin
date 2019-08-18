@@ -125,6 +125,30 @@ class DiderotAdminCLI(DiderotCLI):
     def help_list_chapters(self):
         self.parse_list_chapters("list_chapters -h")
 
+    def do_create_part(self, line):
+        args = self.parse_create_part(line)
+        if args is None:
+            return
+        if self.api_client.create_part(args):
+            print("Successfully created part.")
+        else:
+            print("Part creation failed.")
+
+    def parse_create_part(self, args):
+        parser = self.create_course_parser("create_part")
+        parser.add_argument("book", help="Book label")
+        parser.add_argument("title", help="Title of the part")
+        parser.add_argument("number", help="New number of the part")
+        parser.add_argument(
+            "--label", help="Label for the new part (default = random)", default=None)
+        try:
+            return self.fix_course_args(parser.parse_args(shlex.split(args)))
+        except SystemExit:
+            return None
+
+    def help_create_part(self):
+        self.parse_create_part("create_part -h")
+
     def do_create_chapter(self, line):
         args = self.parse_create_chapter(line)
         if args is None:

@@ -274,6 +274,43 @@ class DiderotAPIInterface:
             return None
         return response.json()
 
+    def create_part(self, args):
+        if not self.verify_course_label(args.course):
+            return False
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'course__label' : args.course, 'label' : args.book}
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        res = self.verify_singleton_response(response)
+        if res is None:
+            print("Input book not found.")
+            return False
+        book_pk = res['id']
+        course_pk = res['course']
+
+        get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts')
+        params = {'book__id' : book_pk, 'rank' : args.number}
+        response = self.client.get(get_parts_url, headers=headers, params=params)
+        if response.status_code != 200:
+            print("Parts request to diderot failed.")
+            return False
+        if len(response.json()) != 0:
+            print("Existing part for Course: {}, Book: {}, and Number: {} found.".format(args.course, args.book, args.number))
+            return False
+
+        # create the part now.
+        create_url = urllib.parse.urljoin(self.base_url, 'course/{}/books/manage_book/{}/'.format(course_pk, book_pk))
+        create_params = {'kind': 'create part', 'title': args.title, 'rank' : args.number}
+        if args.label is not None:
+            create_params['label'] = args.label
+
+        response = self.client.post(create_url, headers=headers, data=create_params)
+        if response.status_code != 200:
+            print("Part creation request was not successful.")
+            return False
+        return True
+
+
     def create_chapter(self, args):
         if not self.verify_course_label(args.course):
             return False
