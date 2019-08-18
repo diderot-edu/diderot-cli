@@ -227,19 +227,29 @@ class DiderotAPIInterface:
         self.response = self.client.post(update_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
         return response.status_code == 200
 
-    def list_books(self, course=None):
+    def list_books(self, course, all=False):
         get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
         headers = {'X-CSRFToken' : self.csrftoken}
         params = {}
-        if course is not None:
+        if not all:
+            if course is None:
+                print("A course label is required if not listing all books.")
+                return None
             params['course__label'] = course
             if not self.verify_course_label(course):
                 return None
 
-        response = self.client.get(get_books_url, headers=headers, params=params)
-        if response.status_code != 200:
+        bookresponse = self.client.get(get_books_url, headers=headers, params=params)
+        if bookresponse.status_code != 200:
             return None
-        return response.json()
+        if not all:
+            return bookresponse.json()
+        else:
+            # filter the books by what courses can be seen.
+            courses = self.list_all_courses()
+            # turn it into a map
+            course_dict = dict([(course['id'], course) for course in courses])
+            return [book for book in bookresponse.json() if book['course'] in course_dict]
 
     def list_parts(self, course, book):
         if not self.verify_course_label(course):
