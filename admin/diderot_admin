@@ -134,7 +134,7 @@ class DiderotAdminCLI(DiderotCLI):
     def parse_create_chapter(self, args):
         parser = self.create_course_parser("create_chapter")
         parser.add_argument("book", help="Book label")
-        parser.add_argument("--part", help="Part number", required=True)
+        parser.add_argument("--part", help="Part number -- this field is required if the book is not a booklet", default=None)
         parser.add_argument("--number", help="New chapter number", required=True)
         parser.add_argument("--title", help="Optional chapter title (default = Chapter)", default=None)
         parser.add_argument("--label", help="Optional chapter label (default = randomly generated)", default=None)

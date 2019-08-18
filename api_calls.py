@@ -297,9 +297,16 @@ class DiderotAPIInterface:
         book_pk = res['id']
         course_pk = res['course']
 
-        # verify that the desired part exists.
         get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts/')
-        params = {'book__id' : book_pk, 'rank' : args.part}
+        if bool(res['is_booklet']):
+            params = {'book__id' : book_pk}
+        else:
+            if args.part is None:
+                print('--part must be set. {} is not a booklet.'.format(args.book))
+                return None
+            params = {'book__id' : book_pk, 'rank' : args.part}
+
+        # verify that the desired part exists.
         result = self.verify_singleton_response(self.client.get(get_parts_url, headers=headers, params=params))
         if result is None:
             print("Input part not found.")
