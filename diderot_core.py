@@ -1,24 +1,25 @@
+import requests
+from pathlib import Path
+import shlex
+import argparse
+from importlib import util
+import importlib
+import api_calls
+import os.path
+import shutil
+import getpass
 import cmd
 import sys
-assert sys.version_info >= (3,6), 'Python3.6 is required'
-import getpass
-import shutil
-import os.path
-import api_calls
-import importlib
-from importlib import util
-import argparse
-import shlex
-from pathlib import Path
+assert sys.version_info >= (3, 6), 'Python3.6 is required'
 
 requests_spec = importlib.util.find_spec('requests')
 if requests_spec is None:
     print('Requests library not found!')
     print('Please install it using `pip3 install --user requests`')
 
-import requests
 
 # custom formatter for argparse
+
 class Formatter(argparse.HelpFormatter):
     # use defined argument order to display usage
     def _format_usage(self, usage, actions, groups, prefix):
@@ -35,31 +36,35 @@ class Formatter(argparse.HelpFormatter):
         elif usage is None:
             prog = '%(prog)s' % dict(prog=self._prog)
             # build full usage string
-            action_usage = self._format_actions_usage(actions, groups) # NEW
+            action_usage = self._format_actions_usage(actions, groups)  # NEW
             usage = ' '.join([s for s in [prog, action_usage] if s])
             # omit the long line wrapping code
         # prefix with 'usage:'
         return '%s%s\n\n' % (prefix, usage)
 
+
 # Argument generator for the CLI
 class DiderotCLIArgumentGenerator(object):
     @staticmethod
     def generate_args():
-        parser = argparse.ArgumentParser(prog="diderot_admin", description="Diderot admin CLI")
+        parser = argparse.ArgumentParser(
+            prog="diderot_admin", description="Diderot admin CLI")
         parser.add_argument("--url", default="https://www.diderot.one")
         parser.add_argument("--username", default=None)
         parser.add_argument("--password", default=None)
-        parser.add_argument("--credentials", default=None)
-        parser.add_argument("--command", default=None, help="Use this argument with a string to execute that specific command and return rather than entering the repl.")
+        parser.add_argument("--credentials", default="~/.diderot/credentials")
+        parser.add_argument("--command", default=None,
+                            help="Use this argument with a string to execute that specific command and return rather than entering the repl.")
         args = parser.parse_args()
         if (args.password is None and args.username is not None) or \
            (args.password is not None and args.username is None):
             print("Please supply both username and password")
             sys.exit(0)
-        if args.credentials is not None and (args.username is not None or args.password is not None):
+        if args.credentials != '~/.diderot/credentials' and (args.username is not None or args.password is not None):
             print("Cannot use a credentials file and input a username/password")
             sys.exit(0)
         return args
+
 
 # The basic architecture of this CLI is based on usage of the cmd.Cmd
 # python package, which makes it easy to implement a REPL. The library
@@ -85,8 +90,8 @@ class DiderotCLI(cmd.Cmd):
         self.username = username
         self.password = password
 
-        if credPath is not None:
-            p = Path(credPath).expanduser()
+        p = Path(credPath).expanduser()
+        if p.is_file() and self.username is None:
             data = p.open('r').read().strip().split('\n')
             self.username = data[0]
             self.password = data[1]
@@ -125,7 +130,8 @@ class DiderotCLI(cmd.Cmd):
         self.initialize()
 
     def create_course_parser(self, progName):
-        parser = argparse.ArgumentParser(prog=progName, formatter_class=Formatter)
+        parser = argparse.ArgumentParser(
+            prog=progName, formatter_class=Formatter)
         if self.course is None:
             parser.add_argument('course', help="Course label")
         return parser
@@ -176,7 +182,6 @@ class DiderotCLI(cmd.Cmd):
     def help_unset_course(self, line):
         self.parse_unset_course("unset_course -h")
 
-
     def do_list_courses(self, line):
         if self.parse_list_courses(line) is None:
             return
@@ -195,7 +200,6 @@ class DiderotCLI(cmd.Cmd):
 
     def help_list_courses(self):
         self.parse_list_courses("list_courses -h")
-
 
     def do_list_assignments(self, args):
         args = self.parse_list_assignments(args)
@@ -217,12 +221,12 @@ class DiderotCLI(cmd.Cmd):
     def help_list_assignments(self):
         self.parse_list_assignments("list_assignments -h")
 
-
     def do_download_assignment(self, args):
         args = self.parse_download_assignment(args)
         if args is None:
             return
-        result = self.api_client.download_assignment(args.course, args.homework)
+        result = self.api_client.download_assignment(
+            args.course, args.homework)
         if result is None:
             print("Failed to download assignment")
         else:
@@ -239,12 +243,12 @@ class DiderotCLI(cmd.Cmd):
     def help_download_assignment(self):
         self.parse_download_assignment("download_assignment -h")
 
-
     def do_submit_assignment(self, args):
         args = self.parse_submit_assignment(args)
         if args is None:
             return
-        success, res_url = self.api_client.submit_assignment(args.course, args.homework, args.handin_path)
+        success, res_url = self.api_client.submit_assignment(
+            args.course, args.homework, args.handin_path)
         if success:
             print("Assignment submitted successfully. Track your submission's status at the following url: {}".format(res_url))
         else:
@@ -261,7 +265,6 @@ class DiderotCLI(cmd.Cmd):
 
     def help_submit_assignment(self):
         self.parse_submit_assignment("submit_assignment -h")
-
 
     def emptyline(self):
         pass
