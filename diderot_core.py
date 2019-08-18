@@ -130,7 +130,13 @@ class DiderotCLI(cmd.Cmd):
         self.initialize()
 
     def print_list(self, l):
-        print("\n".join(l))
+        cols, _ = os.get_terminal_size(0)
+        maxLen = max([len(x) for x in l])
+        n = cols // maxLen
+        final = [l[i * n:(i + 1) * n] for i in range((len(l) + n - 1) // n)]
+        for row in final:
+            print(" ".join(["{: <" + str(maxLen) + "}"]
+                           * len(row)).format(*row))
 
     def create_course_parser(self, progName):
         parser = argparse.ArgumentParser(
