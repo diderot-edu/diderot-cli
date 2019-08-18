@@ -61,7 +61,7 @@ class DiderotAdminCLI(DiderotCLI):
         if res is None:
             print("Error listing books.")
         else:
-            print("\t".join([c['label'] for c in res]))
+            self.print_list([c['label'] for c in res])
 
     def parse_list_books(self, args):
         parser = argparse.ArgumentParser(
@@ -86,8 +86,8 @@ class DiderotAdminCLI(DiderotCLI):
         if res is None:
             print("Error listing parts.")
         else:
-            print(
-                "\n".join(["{}. {}".format(c['rank'], c['title']) for c in res]))
+            self.print_list(["{}. {}".format(c['rank'], c['title'])
+                             for c in res])
 
     def parse_list_parts(self, args):
         parser = self.create_course_parser("list_parts")
@@ -110,9 +110,8 @@ class DiderotAdminCLI(DiderotCLI):
         if res is None:
             print("Error listing books.")
         else:
-            # TODO (rohany): use some fancy terminal printing for this output.
-            print("\n".join(["{}. {}".format(str(float(c['rank'])).rstrip(
-                '0').rstrip('.'), c['title']) for c in res]))
+            self.print_list(["{}. {}".format(str(float(c['rank'])).rstrip(
+                '0').rstrip('.'), c['title']) for c in res])
 
     def parse_list_chapters(self, args):
         parser = self.create_course_parser("list_chapters")
