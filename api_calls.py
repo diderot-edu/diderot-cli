@@ -10,6 +10,9 @@ import glob
 import tempfile
 import time
 
+from contextlib import ExitStack
+from pathlib import Path
+
 class DiderotAPIInterface:
     def __init__(self, base_url):
         self.base_url = base_url
@@ -361,46 +364,42 @@ class DiderotAPIInterface:
             if not args.pdf.lower().endswith(".pdf"):
                 print("PDF argument must be a PDF file.")
                 return False
-            files.append(('input_file_pdf', open(self.expand_file_path(args.pdf), 'rb')))
+            files.append(('input_file_pdf', Path(args.pdf)))
             if args.video_url is not None:
                 update_params['video_url_pdf'] = args.video_url
         elif args.slides is not None:
             if not args.slides.lower().endswith(".pdf"):
                 print("Slides argument must be a PDF file.")
                 return False
-            files.append(('input_file_slide', open(self.expand_file_path(args.slides), 'rb')))
+            files.append(('input_file_slide', Path(args.slides)))
             if args.video_url is not None:
                 update_params['video_url_slide'] = args.video_url
         elif args.xml is not None:
             if not (args.xml.lower().endswith(".xml") or args.xml.lower().endswith(".mlx")):
                 print("XML argument must be an XML or MLX file.")
                 return False
-            files.append(('input_file_xml', open(self.expand_file_path(args.xml), 'rb')))
+            files.append(('input_file_xml', Path(args.xml)))
             if args.attach is not None:
-                tmpDir = tempfile.mkdtemp()
-                curPath = os.getcwd()
-                os.chdir(tmpDir)
                 for fg in args.attach:
-                    image_path = self.expand_file_path(fg)
-                    if os.path.isdir(image_path):
-                        for root, _, fi in os.walk(image_path):
-                            for name in fi:
-                                full_path = os.path.join(root, name)
-                                shutil.copyfile(full_path, os.path.basename(full_path))
-                    else:
-                        file_glob = glob.glob(image_path)
-                        if len(file_glob) == 0:
-                            print("Invalid input: ", fg)
-                            return False
-                        for f in file_glob:
-                            full_path = self.expand_file_path(f)
-                            shutil.copyfile(full_path, os.path.basename(full_path))
-                for f in os.listdir(os.getcwd()):
-                    print("Uploading file: {}".format(f))
-                    files.append(('image', open(f, 'rb')))
+                    for g in glob.glob(self.expand_file_path(fg)):
+                        f = Path(g).expanduser()
+                        if f.is_dir():
+                            # If it is a directory, include all children.
+                            files.extend([("image", m) for m in f.glob("**/*")])
+                        else:
+                            # If it is a file, add it directly.
+                            files.append(("image", f))
             if args.xml_pdf is not None:
-                files.append(('input_file_xml_pdf', open(self.expand_file_path(args.xml_pdf), 'rb')))
-        response = self.client.post(update_url, headers=headers, files=files, data=update_params)
+                files.append(('input_file_xml_pdf', Path(args.xml_pdf)))
+
+        for _, p in files:
+            print("Uploading file:", p.name)
+
+        with ExitStack() as stack:
+            opened_files = [(typ, (path.name, stack.enter_context(
+                path.expanduser().open('rb')))) for typ, path in files]
+            response = self.client.post(update_url, headers=headers, files=opened_files, data=update_params)
+
         if response.status_code != 200:
             print("Chapter upload request was not successful.")
             return False
