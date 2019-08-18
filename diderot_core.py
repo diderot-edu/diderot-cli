@@ -129,6 +129,9 @@ class DiderotCLI(cmd.Cmd):
     def preloop(self):
         self.initialize()
 
+    def print_list(self, l):
+        print("\n".join(l))
+
     def create_course_parser(self, progName):
         parser = argparse.ArgumentParser(
             prog=progName, formatter_class=Formatter)
@@ -189,7 +192,7 @@ class DiderotCLI(cmd.Cmd):
         if result is None:
             print("Error retrieving all courses.")
         else:
-            print("\t".join([c['label'] for c in result]))
+            self.print_list([c['label'] for c in result])
 
     def parse_list_courses(self, args):
         parser = argparse.ArgumentParser(prog="list_courses")
@@ -209,7 +212,7 @@ class DiderotCLI(cmd.Cmd):
         if result is None:
             print("Error retrieving all assignments.")
         else:
-            print("\t".join([hw['name'] for hw in result]))
+            self.print_list([hw['name'] for hw in result])
 
     def parse_list_assignments(self, args):
         parser = self.create_course_parser("list_assignments")
