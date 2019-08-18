@@ -16,7 +16,6 @@ from pathlib import Path
 class DiderotAPIInterface:
     def __init__(self, base_url):
         self.base_url = base_url
-        self.logged_in = False
         self.connect()
 
     def verify_singleton_response(self, response):
@@ -44,8 +43,6 @@ class DiderotAPIInterface:
         self.csrftoken = self.client.cookies['csrftoken']
 
     def login(self, username, password, shouldPrint=True):
-        if self.logged_in:
-            return True
         login_data = {'username' : username,
                       'password' : password,
                       'csrfmiddlewaretoken': self.csrftoken,
@@ -66,20 +63,15 @@ class DiderotAPIInterface:
                 sys.exit(0)
             elif code == 200:
                 print("Authentication failed. Your credentials might be incorrect.")
-                self.logged_in = False
                 return False
         self.csrftoken = self.client.cookies['csrftoken']
         if shouldPrint:
             print("Successfully logged in to Diderot.")
-        self.logged_in = True
         return True
 
     def logout(self):
-        if not self.logged_in:
-            return True
         logout_url = urllib.parse.urljoin(self.base_url, "login/logout/")
         self.client.get(logout_url)
-        self.logged_in = False
         print("Successfully logged out of Diderot.")
         return True
 
@@ -94,9 +86,6 @@ class DiderotAPIInterface:
         return True
 
     def list_all_courses(self):
-        if not self.logged_in:
-            print("User is not logged in.")
-            return None
         list_courses_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
         headers = {'X-CSRFToken' : self.csrftoken}
         response = self.client.get(list_courses_url, headers=headers)
@@ -107,9 +96,6 @@ class DiderotAPIInterface:
 
 
     def list_assignments(self, course_label):
-        if not self.logged_in:
-            print("User is not logged in.")
-            return None
         headers = {'X-CSRFToken' : self.csrftoken}
         if not self.verify_course_label(course_label):
             return None
@@ -135,10 +121,6 @@ class DiderotAPIInterface:
         return False
 
     def submit_assignment(self, course, homework, filepath):
-        if not self.logged_in:
-            print("User is not logged in.")
-            return False, None
-
         if not self.verify_course_label(course):
             return False, None
 
@@ -168,31 +150,30 @@ class DiderotAPIInterface:
         return response.status_code == 200, submit_assignment_url + "?hw_pk={}".format(homework_pk)
 
     def download_assignment(self, course, homework):
-        if self.logged_in:
-            course_info_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
-            homework_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
-            headers = {'X-CSRFToken' : self.csrftoken}
+        course_info_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
+        homework_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
+        headers = {'X-CSRFToken' : self.csrftoken}
 
-            response = self.client.get(course_info_url, headers=headers, params={'label' : course})
-            result = self.verify_singleton_response(response)
-            if result is None:
-                print("Invalid course label")
-                return None
-            course_info = result
+        response = self.client.get(course_info_url, headers=headers, params={'label' : course})
+        result = self.verify_singleton_response(response)
+        if result is None:
+            print("Invalid course label")
+            return None
+        course_info = result
 
-            response = self.client.get(homework_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
-            result = self.verify_singleton_response(response)
-            if result is None:
-                print("Invalid homework assignment name")
-                return None
-            hw_info = result
+        response = self.client.get(homework_info_url, headers=headers, params={'course__label' : course, 'name' : homework})
+        result = self.verify_singleton_response(response)
+        if result is None:
+            print("Invalid homework assignment name")
+            return None
+        hw_info = result
 
-            base_path = "http://s3.amazonaws.com/" + course_info['s3_autograder_bucket'] + "/" + hw_info['name'] + "/"
-            writeup_path = base_path + 'writeup.pdf'
-            handout_path = base_path + "{}-handout-{}.tgz".format(course_info['number'], hw_info['number'])
+        base_path = "http://s3.amazonaws.com/" + course_info['s3_autograder_bucket'] + "/" + hw_info['name'] + "/"
+        writeup_path = base_path + 'writeup.pdf'
+        handout_path = base_path + "{}-handout-{}.tgz".format(course_info['number'], hw_info['number'])
 
-            for p in [writeup_path, handout_path]:
-                self.download_file_helper(p)
+        for p in [writeup_path, handout_path]:
+            self.download_file_helper(p)
 
     def update_assignment(self, course, homework, args):
         get_assignment_info_url = urllib.parse.urljoin(self.base_url, 'api/codehomeworks/')
