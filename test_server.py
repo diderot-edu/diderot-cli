@@ -4,7 +4,6 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from test import chapters, courses, codehomeworks, books, parts, ADDR, PORT, SERVURL, log
 import json
 from io import StringIO
-from requests_toolbelt.multipart import decoder
 import cgi
 
 
