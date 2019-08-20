@@ -37,8 +37,13 @@ class Formatter(argparse.HelpFormatter):
         return '%s%s\n\n' % (prefix, usage)
 
 
+DEFAULT_CRED_LOCATIONS = [
+    '~/private/.diderot/credentials', '~/.diderot/credentials']
+
 # Command line argument generator for the CLI.
 # Returns a parser that can be extended with additional commands.
+
+
 class DiderotCLIArgs(object):
     # Generate a base parser object for use by both the user and admin CLI's.
     @staticmethod
@@ -49,7 +54,7 @@ class DiderotCLIArgs(object):
         parser.add_argument("--url", default="https://www.diderot.one")
         parser.add_argument("--username", default=None)
         parser.add_argument("--password", default=None)
-        parser.add_argument("--credentials", default="~/.diderot/credentials",
+        parser.add_argument("--credentials", default=None,
                             help="Read credentials from a credientials file. \
                                   The credential file format is a text file with the \
                                   username on the first line and the password on the second.")
@@ -193,15 +198,11 @@ class DiderotCLIArgs(object):
     # Verify argument information about both the admin and user CLI's.
     @staticmethod
     def validate_args(args):
-        if not (args.password is not None or args.username is not None) and \
-                args.credentials is None:
-            print("Supply credentials via the CLI or a credentials file!")
-            sys.exit(0)
         if (args.password is None and args.username is not None) or \
            (args.password is not None and args.username is None):
             print("Please supply both username and password")
             sys.exit(0)
-        if args.credentials != "~/.diderot/credentials" and (args.username is not None or args.password is not None):
+        if args.credentials is not None and (args.username is not None or args.password is not None):
             print("Cannot use a credentials file and input a username/password")
             sys.exit(0)
 
@@ -221,13 +222,30 @@ class DiderotUser(object):
     def setup_client(self):
         self.username = self.args.username
         self.password = self.args.password
-        p = Path(self.args.credentials).expanduser()
-        if p.is_file() and self.username is None:
-            f = p.open('r')
-            data = f.read().strip().split('\n')
-            self.username = data[0]
-            self.password = data[1]
-            f.close()
+        if self.username is None:
+            if self.args.credentials is not None:
+                p = Path(self.args.credentials).expanduser()
+                if not p.is_file():
+                    print("Input credentials path is invalid.")
+                    sys.exit(0)
+                f = p.open('r')
+                data = f.read().strip().split('\n')
+                self.username = data[0]
+                self.password = data[1]
+                f.close()
+            else:
+                for c in DEFAULT_CRED_LOCATIONS:
+                    p = Path(c).expanduser()
+                    if p.is_file():
+                        f = p.open('r')
+                        data = f.read().strip().split('\n')
+                        self.username = data[0]
+                        self.password = data[1]
+                        f.close()
+                        break
+        if self.username is None:
+            print("Supply your credentials via the CLI or a credentials file!")
+            sys.exit(0)
         self.api_client = DiderotAPIInterface(self.args.url)
         if not self.api_client.login(self.username, self.password, shouldPrint=False):
             sys.exit(0)
