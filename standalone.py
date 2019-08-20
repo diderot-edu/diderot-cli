@@ -176,8 +176,12 @@ class DiderotCLIArgs(object):
             "course", help="Course to upload chapter to.")
         upload_chapter.add_argument(
             "book", help="Book that the chapter belongs to.")
-        upload_chapter.add_argument(
-            "chapter", help="Number of the chapter to upload to.")
+        chapter_id_group = upload_chapter.add_mutually_exclusive_group(
+            required=True)
+        chapter_id_group.add_argument(
+            '--chapter_number', default=None, help="Number of chapter to upload to.")
+        chapter_id_group.add_argument(
+            '--chapter_label', default=None, help="Lable of chapter to upload to.")
         file_type_group = upload_chapter.add_mutually_exclusive_group(
             required=True)
         file_type_group.add_argument(
@@ -390,7 +394,7 @@ class DiderotAdmin(DiderotUser):
             print("Failure uploading chapter.")
             return
         success = self.api_client.upload_chapter(
-            self.args.course, self.args.book, self.args.chapter, self.args, sleep_time=self.sleep_time)
+            self.args.course, self.args.book, self.args, sleep_time=self.sleep_time)
         if not success:
             print("Failure uploading chapter.")
         else:
