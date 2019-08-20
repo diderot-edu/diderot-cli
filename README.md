@@ -6,6 +6,12 @@ We welcome contributors! If you are interested in contributing, read CONTRIBUTIN
 
 We thank William Paivine for his initial work on this project.
 
+## Installation
+
+To install the CLI, clone this repo. The CLI depends only on python's `requests` package, and requires python 3.6 or higher.
+
+To install the requests package, use `pip3 install requests`.
+
 ## Basic Usage
 
 Use the `diderot_student` or `diderot_admin` script depending on your use case. The `diderot_student` and `diderot_admin` scripts accept a `--url` flag, which is meant solely for development (this connects the CLI to a particular instance of Diderot which is different that `http://www.diderot.one`). The remaining arguments are managing credentials.
