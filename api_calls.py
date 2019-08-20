@@ -375,7 +375,7 @@ class DiderotAPIInterface:
 
         return True
 
-    def upload_chapter(self, course, book, chapter, args, sleep_time=5):
+    def upload_chapter(self, course, book, args, sleep_time=5):
         if not self.verify_course_label(course):
             return False
         # get the book and course primary key
@@ -391,7 +391,14 @@ class DiderotAPIInterface:
 
         # get the primary key of the chapter
         get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
-        params = {'course__id' : course_pk, 'book__id' : book_pk, 'rank' : chapter}
+        params = {'course__id' : course_pk, 'book__id' : book_pk}
+        if args.chapter_number is not None:
+            params['rank'] = args.chapter_number
+        elif args.chapter_label is not None:
+            params['label'] = args.chapter_label
+        else:
+            print("Chapter label or Chapter number must be provided.")
+            return False
         result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
         if result is None:
             print("Input chapter not found.")

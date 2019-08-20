@@ -425,37 +425,43 @@ class TestDiderotAdminCLI(unittest.TestCase):
     def test_upload_chapter(self):
         # test invalid course label
         output = runAdminCmd(
-            "upload_chapter fakecourse fakebook 10 --pdf fakepdf")
+            "upload_chapter fakecourse fakebook --chapter_number 10 --pdf fakepdf")
         self.assertTrue("Invalid input course label." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         # test invalid book
         output = runAdminCmd(
-            "upload_chapter TestCourse0 fakebook 10 --pdf fakepdf")
+            "upload_chapter TestCourse0 fakebook --chapter_number 10 --pdf fakepdf")
         self.assertTrue("Input book not found." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
-        # Test invalid chapter
+        # Test invalid chapter number
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 10 --pdf fakepdf")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 10 --pdf fakepdf")
+        self.assertTrue("Input chapter not found." in output)
+        self.assertTrue("Failure uploading chapter." in output)
+
+        # Test invalid chapter label
+        output = runAdminCmd(
+            "upload_chapter TestCourse0 TestBook1 --chapter_label fakelabel --pdf fakepdf")
         self.assertTrue("Input chapter not found." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         # Test acceptance / not acceptance of certain argument combinations
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --xml dummy.xml --video_url fakeurl")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml dummy.xml --video_url fakeurl")
         self.assertTrue(
             "Cannot use --video_url with xml uploads." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --pdf dummy.pdf --attach dummy")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf dummy.pdf --attach dummy")
         self.assertTrue(
             "Cannot use --attach if not uploading xml/mlx." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --slides dummy.pdf --attach dummy")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides dummy.pdf --attach dummy")
         self.assertTrue(
             "Cannot use --attach if not uploading xml/mlx." in output)
         self.assertTrue("Failure uploading chapter." in output)
@@ -465,51 +471,59 @@ class TestDiderotAdminCLI(unittest.TestCase):
         # pdf upload test
         # expect an error if used not on a pdf
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --pdf testdata/book.xml --video_url fakeurl")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf testdata/book.xml --video_url fakeurl")
         self.assertTrue("PDF argument must be a PDF file." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --pdf testdata/chapter.pdf --video_url fakeurl")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf testdata/chapter.pdf --video_url fakeurl")
         self.assertTrue("Chapter uploaded successfully." in output)
 
         # slides upload test
         # expect an error if used not on a pdf
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --slides testdata/book.xml --video_url fakeurl")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides testdata/book.xml --video_url fakeurl")
         self.assertTrue("Slides argument must be a PDF file." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --slides testdata/slides.pdf --video_url fakeurl")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides testdata/slides.pdf --video_url fakeurl")
         self.assertTrue("Chapter uploaded successfully." in output)
 
         # xml/mlx upload test
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --xml testdata/book.xml --xml_pdf testdata/book.pdf")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml testdata/book.xml --xml_pdf testdata/book.pdf")
         self.assertTrue("Chapter uploaded successfully." in output)
 
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf")
+            "upload_chapter TestCourse0 TestBook1 --chapter_label TestChapter1 --xml testdata/book.xml --xml_pdf testdata/book.pdf")
+        self.assertTrue("Chapter uploaded successfully." in output)
+
+        output = runAdminCmd(
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf")
+        self.assertTrue("Chapter uploaded successfully." in output)
+
+        output = runAdminCmd(
+            "upload_chapter TestCourse0 TestBook1 --chapter_label TestChapter1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf")
         self.assertTrue("Chapter uploaded successfully." in output)
 
         # test folder
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf --attach testdata/images/")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf --attach testdata/images/")
         self.assertTrue("Uploading file: test1.png" in output)
         self.assertTrue("Uploading file: test2.png" in output)
         self.assertTrue("Chapter uploaded successfully." in output)
 
         # test glob
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf --attach testdata/images/*")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf --attach testdata/images/*")
         self.assertTrue("Uploading file: test1.png" in output)
         self.assertTrue("Uploading file: test2.png" in output)
         self.assertTrue("Chapter uploaded successfully." in output)
 
         # test file list
         output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf --attach testdata/images/test1.png testdata/images/test2.png")
+            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml testdata/book.mlx --xml_pdf testdata/book.pdf --attach testdata/images/test1.png testdata/images/test2.png")
         self.assertTrue("Uploading file: test1.png" in output)
         self.assertTrue("Uploading file: test2.png" in output)
         self.assertTrue("Chapter uploaded successfully." in output)
