@@ -292,6 +292,10 @@ class DiderotAPIInterface:
         book_pk = res['id']
         course_pk = res['course']
 
+        if bool(res['is_booklet']):
+            print("Part creation is disallowed on booklets.")
+            return False
+
         get_parts_url = urllib.parse.urljoin(self.base_url, 'api/parts/')
         params = {'book__id' : book_pk, 'rank' : args.number}
         response = self.client.get(get_parts_url, headers=headers, params=params)
