@@ -16,11 +16,32 @@ Credentials are passed to the CLI in one of two ways. The first is to simply pas
 
 ## Student Version
 
-The student CLI contains basic commands to list, download, and submit assignments via the CLI. Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
+The student CLI contains basic commands to list, download, and submit assignments via the CLI.
+
+The CLI supports the following student commands.
+
+* `list_courses`
+* `list_assignments`
+* `download_assignment`
+* `submit_assignment`
+
+Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
 
 ## Admin Version
 
-The admin CLI contains all the commands of the student CLI along with commands to create and update book components. Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
+The admin CLI contains all the commands of the student CLI along with commands to create and update book components.
+
+The CLI supports the following admin commands.
+
+* `list_books`
+* `list_parts`
+* `list_chapters`
+* `create_part`
+* `create_chapter`
+* `upload_chapter`
+* `update_assignment`
+
+Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
 
 ## Testing
 
