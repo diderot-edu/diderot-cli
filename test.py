@@ -319,6 +319,11 @@ class TestDiderotAdminCLI(unittest.TestCase):
         self.assertTrue("Existing part for Course" in output)
         self.assertTrue("Part creation failed." in output)
 
+        # test error on a booklet
+        output = runAdminCmd("create_part TestCourse0 TestBook2 NewTestPart 3")
+        self.assertTrue("Part creation is disallowed on booklets." in output)
+        self.assertTrue("Part creation failed." in output)
+
         # expect successful response
         output = runAdminCmd(
             "create_part TestCourse0 TestBook1 NewTestPart 3 --label NewTestPart")
