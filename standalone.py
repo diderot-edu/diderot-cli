@@ -227,26 +227,26 @@ class DiderotUser(object):
         self.username = self.args.username
         self.password = self.args.password
         if self.username is None:
+            creds = DEFAULT_CRED_LOCATIONS
             if self.args.credentials is not None:
-                p = Path(self.args.credentials).expanduser()
-                if not p.is_file():
-                    print("Input credentials path is invalid.")
-                    sys.exit(0)
-                f = p.open('r')
-                data = f.read().strip().split('\n')
-                self.username = data[0]
-                self.password = data[1]
-                f.close()
-            else:
-                for c in DEFAULT_CRED_LOCATIONS:
-                    p = Path(c).expanduser()
-                    if p.is_file():
-                        f = p.open('r')
-                        data = f.read().strip().split('\n')
-                        self.username = data[0]
-                        self.password = data[1]
-                        f.close()
-                        break
+                creds = [self.args.credentials] + creds
+            for c in creds:
+                p = Path(c).expanduser()
+                if p.is_file():
+                    if (p.stat().st_mode & 0o177) != 0:
+                        print(
+                            "Credentials file must have 0600 permissions. Run `chmod 600 <credentials>` first.")
+                        sys.exit(0)
+                    f = p.open('r')
+                    data = f.read().strip().split('\n')
+                    self.username = data[0]
+                    self.password = data[1]
+                    f.close()
+                    break
+                else:
+                    if c == self.args.credentials:
+                        print("Input credentials path is invalid.")
+                        sys.exit(0)
         if self.username is None:
             print("Supply your credentials via the CLI or a credentials file!")
             sys.exit(0)
