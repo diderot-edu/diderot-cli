@@ -132,6 +132,7 @@ class DiderotAPIInterface:
             print("Invalid homework name.")
             return False, None
         homework_pk = result['id']
+        handin_type = result['handin_style']
         course_pk = result['course']
         submit_assignment_url = urllib.parse.urljoin(self.base_url, 'course/{}/code-homeworks/view-code-homework/'.format(course_pk))
         # TODO (rohany): return more information in the response, such as:
@@ -142,9 +143,17 @@ class DiderotAPIInterface:
         if not os.path.exists(full_path):
             print("Input file does not exist.")
             return False, None
-        # TODO: Support other types of file handins (single file, etc.)
+
         f = open(full_path, 'rb')
-        response = self.client.post(submit_assignment_url, headers=headers, files={'submission_tar' : f}, params={'hw_pk' : homework_pk})
+        files = {}
+        if handin_type == 'TR':
+            files['submission_tar'] = f
+        elif handin_type == 'FU':
+            files['submission_files'] = f
+        else:
+            print("For copy-paste or per problem copy-paste handins, use the web interface.")
+            return False, None
+        response = self.client.post(submit_assignment_url, headers=headers, files=files, params={'hw_pk' : homework_pk})
         f.close()
 
         # TODO: return some more descriptive output.

@@ -101,7 +101,16 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
             # assert that submission tar is indeed in the request files
             self.rfile.readline()
             line = str(self.rfile.readline())
-            success = 'name="submission_tar"' in line and success
+
+            # depending on the upload type of the homework, check that
+            # the appropriate tag is in the header
+            hws = [chw for chw in codehomeworks if chw['id'] == get_params['hw_pk']]
+            success = len(hws) == 1 and success
+            if hws[0]['handin_style'] == 'TR':
+                success = 'name="submission_tar"' in line and success
+            elif hws[0]['handin_style'] == 'FU':
+                success = 'name="submission_files"' in line and success
+
             if success:
                 self.send_response(200)
             else:
