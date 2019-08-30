@@ -44,7 +44,8 @@ codehomeworks = [
         'name': 'TestHW1',
         'number': '0',
         'course': '0',
-        'course__label': "TestCourse0"
+        'course__label': "TestCourse0",
+        'handin_style' : 'TR'
         # TODO (rohany): not including other fields here.
     },
     {
@@ -52,7 +53,8 @@ codehomeworks = [
         'name': 'TestHW2',
         'number': '1',
         'course': '0',
-        'course__label': "TestCourse0"
+        'course__label': "TestCourse0",
+        'handin_style' : 'FU'
     },
     {
         'id': '2',
@@ -261,6 +263,11 @@ class TestDiderotUserCLI(unittest.TestCase):
         # Expect successful execution here!
         output = runUserCmd(
             "submit_assignment TestCourse0 TestHW1 testdata/test_handin.tar")
+        self.assertTrue("Assignment submitted successfully." in output)
+
+        # Expect successful execution for a file upload homework as well.
+        output = runUserCmd(
+            "submit_assignment TestCourse0 TestHW2 testdata/test_handin.tar")
         self.assertTrue("Assignment submitted successfully." in output)
 
 
