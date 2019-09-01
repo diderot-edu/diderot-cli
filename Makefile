@@ -9,5 +9,9 @@ student_release:
 test:
 	./test.py -v
 
+coverage:
+	coverage run --source='.' ./test.py
+	coverage report
+
 clean:
 	rm -f admin_release.tar student_release.tar

@@ -1,3 +1,5 @@
+![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiZ2NjRndxM3AybjBlRXYvWDdrOWFxTVIrMkkxa3NTRmkrb3VhUVF1eS9tT3E5VEJOVHhST0lHcWcraE9MTkFNNGNNODI0YUFCaXdkYVFnQmx1UDFPb2FzPSIsIml2UGFyYW1ldGVyU3BlYyI6Ilg4emtuM3V0bG5WVDBDMTMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+
 # diderot-cli
 
 Command line interface to interact with [Diderot](http://www.umut-acar.org/diderot).
