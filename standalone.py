@@ -256,7 +256,10 @@ class DiderotUser(object):
 
     # Utility function for pretty printing of list data.
     def print_list(self, l):
-        cols, _ = os.get_terminal_size(0)
+        try:
+            cols, _ = os.get_terminal_size(0)
+        except:
+            cols = 40
         if len(l) == 0:
             maxLen = 20
         else:
