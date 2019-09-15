@@ -385,6 +385,49 @@ class DiderotAPIInterface:
 
         return True
 
+    # TODO (rohany): There is some gross code duplication happening here.
+    # Figure out if theres a way we can refactor getting the chapter pk here.
+    # Probably can do something like dispatch to a more specific function
+    # set given the book, course and chapter pk's.
+    def release_unrelease_chapter(self, course, book, args, release=True):
+        if not self.verify_course_label(course):
+            return False
+        # get the book and course primary key
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'label' : book, 'course__label' : course}
+        result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
+        if result is None:
+            print("Input book not found.")
+            return False
+        book_pk = result['id']
+        course_pk = result['course']
+        # get the primary key of the chapter
+        get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
+        params = {'course__id' : course_pk, 'book__id' : book_pk}
+        if args.chapter_number is not None:
+            params['rank'] = args.chapter_number
+        elif args.chapter_label is not None:
+            params['label'] = args.chapter_label
+        else:
+            print("Chapter label or Chapter number must be provided.")
+            return False
+        result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
+        if result is None:
+            print("Input chapter not found.")
+            return False
+        chapter_pk = result['id']
+
+        release_url = urllib.parse.urljoin(self.base_url, 'course/{}/books/manage_book/{}/'.format(course_pk, book_pk))
+        release_params = {'chapter_pk' : chapter_pk}
+        if release:
+            release_params['kind'] = 'release'
+        else:
+            release_params['kind'] = 'unrelease'
+
+        response = self.client.post(release_url, headers=headers, data=release_params)
+        return response.status_code == 200
+
     def upload_chapter(self, course, book, args, sleep_time=5):
         if not self.verify_course_label(course):
             return False

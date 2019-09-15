@@ -104,7 +104,8 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
 
             # depending on the upload type of the homework, check that
             # the appropriate tag is in the header
-            hws = [chw for chw in codehomeworks if chw['id'] == get_params['hw_pk']]
+            hws = [chw for chw in codehomeworks if chw['id']
+                   == get_params['hw_pk']]
             success = len(hws) == 1 and success
             if hws[0]['handin_style'] == 'TR':
                 success = 'name="submission_tar"' in line and success
@@ -153,7 +154,8 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
                 else:
                     # None of the files are in here!
                     success = False
-
+            elif params['kind'] == 'release' or params['kind'] == 'unrelease':
+                success = 'chapter_pk' in params and success
             else:
                 success = False
             if success:
