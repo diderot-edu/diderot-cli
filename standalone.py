@@ -7,7 +7,7 @@ import os
 
 from pathlib import Path
 
-from api_calls import DiderotAPIInterface
+from api_calls import DiderotAPIInterface, exit_with_error
 
 import sys
 assert sys.version_info >= (3, 6), 'Python3.6 is required'
@@ -40,10 +40,9 @@ class Formatter(argparse.HelpFormatter):
 DEFAULT_CRED_LOCATIONS = [
     '~/private/.diderot/credentials', '~/.diderot/credentials']
 
+
 # Command line argument generator for the CLI.
 # Returns a parser that can be extended with additional commands.
-
-
 class DiderotCLIArgs(object):
     # Generate a base parser object for use by both the user and admin CLI's.
     @staticmethod
@@ -204,11 +203,10 @@ class DiderotCLIArgs(object):
     def validate_args(args):
         if (args.password is None and args.username is not None) or \
            (args.password is not None and args.username is None):
-            print("Please supply both username and password")
-            sys.exit(0)
+            exit_with_error("Please supply both username and password")
         if args.credentials is not None and (args.username is not None or args.password is not None):
-            print("Cannot use a credentials file and input a username/password")
-            sys.exit(0)
+            exit_with_error(
+                "Cannot use a credentials file and input a username/password")
 
 
 # Class implementing the DiderotUser CLI
@@ -234,9 +232,8 @@ class DiderotUser(object):
                 p = Path(c).expanduser()
                 if p.is_file():
                     if (p.stat().st_mode & 0o177) != 0:
-                        print(
+                        exit_with_error(
                             "Credentials file must have 0600 permissions. Run `chmod 600 <credentials>` first.")
-                        sys.exit(0)
                     f = p.open('r')
                     data = f.read().strip().split('\n')
                     self.username = data[0]
@@ -245,14 +242,13 @@ class DiderotUser(object):
                     break
                 else:
                     if c == self.args.credentials:
-                        print("Input credentials path is invalid.")
-                        sys.exit(0)
+                        exit_with_error("Input credentials path is invalid.")
         if self.username is None:
-            print("Supply your credentials via the CLI or a credentials file!")
-            sys.exit(0)
+            exit_with_error(
+                "Supply your credentials via the CLI or a credentials file!")
         self.api_client = DiderotAPIInterface(self.args.url)
         if not self.api_client.login(self.username, self.password, shouldPrint=False):
-            sys.exit(0)
+            exit_with_error("Login failed.")
 
     # Utility function for pretty printing of list data.
     def print_list(self, l):
@@ -279,8 +275,7 @@ class DiderotUser(object):
         }
         func = commands.get(self.args.command, None)
         if func is None:
-            print("Error parsing.")
-            sys.exit(0)
+            exit_with_error("Error parsing.")
         func()
         self.api_client.client.close()
 
@@ -288,21 +283,21 @@ class DiderotUser(object):
 
     def download_assignment(self):
         if self.api_client.download_assignment(self.args.course, self.args.homework) is None:
-            print("Failed to download assignment.")
+            exit_with_error("Failed to download assignment.")
         else:
             print("Successfully downloaded assignment.")
 
     def list_assignments(self):
         result = self.api_client.list_assignments(self.args.course)
         if result is None:
-            print("Error retrieving all assignments.")
+            exit_with_error("Error retrieving all assignments.")
         else:
             self.print_list([hw['name'] for hw in result])
 
     def list_courses(self):
         result = self.api_client.list_all_courses()
         if result is None:
-            print("Error retrieving all courses.")
+            exit_with_error("Error retrieving all courses.")
         else:
             self.print_list([c['label'] for c in result])
 
@@ -312,7 +307,8 @@ class DiderotUser(object):
         if success:
             print("Assignment submitted successfully. Track your submission's status at the following url: {}".format(res_url))
         else:
-            print("Something went wrong. Please try submitting on the Diderot website.")
+            exit_with_error(
+                "Something went wrong. Please try submitting on the Diderot website.")
 
 
 # Class implementing DiderotAdmin CLI
@@ -350,25 +346,25 @@ class DiderotAdmin(DiderotUser):
         if self.api_client.create_chapter(self.args):
             print("Successfully created chapter.")
         else:
-            print("Chapter creation failed.")
+            exit_with_error("Chapter creation failed.")
 
     def create_part(self):
         if self.api_client.create_part(self.args):
             print("Successfully created part.")
         else:
-            print("Part creation failed.")
+            exit_with_error("Part creation failed.")
 
     def list_books(self):
         res = self.api_client.list_books(self.args.course, all=self.args.all)
         if res is None:
-            print("Error listing books.")
+            exit_with_error("Error listing books.")
         else:
             self.print_list([c['label'] for c in res])
 
     def list_chapters(self):
         res = self.api_client.list_chapters(self.args.course, self.args.book)
         if res is None:
-            print("Error listing chapters.")
+            exit_with_error("Error listing chapters.")
         else:
             self.print_list(["{}. {}".format(str(float(c['rank'])).rstrip(
                 '0').rstrip('.'), c['title']) for c in res])
@@ -376,7 +372,7 @@ class DiderotAdmin(DiderotUser):
     def list_parts(self):
         res = self.api_client.list_parts(self.args.course, self.args.book)
         if res is None:
-            print("Error listing parts.")
+            exit_with_error("Error listing parts.")
         else:
             self.print_list(["{}. {}".format(c['rank'], c['title'])
                              for c in res])
@@ -385,20 +381,18 @@ class DiderotAdmin(DiderotUser):
         if self.api_client.update_assignment(self.args.course, self.args.homework, self.args):
             print("Success uploading files.")
         else:
-            print("Uploading files failed. Try using the Web UI.")
+            exit_with_error("Uploading files failed. Try using the Web UI.")
 
     def upload_chapter(self):
         if self.args.video_url is not None and self.args.xml is not None:
-            print("Cannot use --video_url with xml uploads.")
-            print("Failure uploading chapter.")
-            return
+            exit_with_error(
+                "Cannot use --video_url with xml uploads.\nFailure uploading chapter.")
         if self.args.attach is not None and self.args.xml is None:
-            print("Cannot use --attach if not uploading xml/mlx.")
-            print("Failure uploading chapter.")
-            return
+            exit_with_error(
+                "Cannot use --attach if not uploading xml/mlx.\nFailure uploading chapter.")
         success = self.api_client.upload_chapter(
             self.args.course, self.args.book, self.args, sleep_time=self.sleep_time)
         if not success:
-            print("Failure uploading chapter.")
+            exit_with_error("Failure uploading chapter.")
         else:
             print("Chapter uploaded successfully.")
