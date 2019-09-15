@@ -13,6 +13,11 @@ import time
 from contextlib import ExitStack
 from pathlib import Path
 
+
+def exit_with_error(error_msg):
+    print(error_msg)
+    sys.exit(1)
+
 class DiderotAPIInterface:
     def __init__(self, base_url):
         self.base_url = base_url
@@ -35,11 +40,9 @@ class DiderotAPIInterface:
         code = main_page.status_code
         if not code == 200:
             if code == 404:
-                print("Error: unable to connect to Diderot (error 404)!")
-                sys.exit(0)
+                exit_with_error("Error: unable to connect to Diderot (error 404)!")
             elif code >= 500:
-                print("Server failed to fulfill request for main page. (Code: {})".format(code))
-                sys.exit(0)
+                exit_with_error("Server failed to fulfill request for main page. (Code: {})".format(code))
         self.csrftoken = self.client.cookies['csrftoken']
 
     def login(self, username, password, shouldPrint=True):
@@ -56,13 +59,11 @@ class DiderotAPIInterface:
 
         if not code == 302:
             if code == 404:
-                print("Error: unable to connect to Diderot (error 404)!")
-                sys.exit(0)
+                exit_with_error("Error: unable to connect to Diderot (error 404)!")
             elif code >= 500:
-                print("Server failed to fulfill request for main page. (Code: {})".format(code))
-                sys.exit(0)
+                exit_with_error("Server failed to fulfill request for main page. (Code: {})".format(code))
             elif code == 200:
-                print("Authentication failed. Your credentials might be incorrect.")
+                exit_with_error("Authentication failed. Your credentials might be incorrect.")
                 return False
         self.csrftoken = self.client.cookies['csrftoken']
         if shouldPrint:

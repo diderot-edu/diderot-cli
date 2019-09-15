@@ -45,7 +45,7 @@ codehomeworks = [
         'number': '0',
         'course': '0',
         'course__label': "TestCourse0",
-        'handin_style' : 'TR'
+        'handin_style': 'TR'
         # TODO (rohany): not including other fields here.
     },
     {
@@ -54,7 +54,7 @@ codehomeworks = [
         'number': '1',
         'course': '0',
         'course__label': "TestCourse0",
-        'handin_style' : 'FU'
+        'handin_style': 'FU'
     },
     {
         'id': '2',
@@ -192,7 +192,10 @@ def runUserCmd(cmd):
     baseCmd = "--url {} --username test --password test".format(SERVURL)
     fullCmd = baseCmd + " " + cmd
     with Capture() as output:
-        DiderotUser(line=fullCmd).dispatch()
+        try:
+            DiderotUser(line=fullCmd).dispatch()
+        except SystemExit:
+            pass
     return cleanOutput(output[0])
 
 
@@ -200,7 +203,10 @@ def runAdminCmd(cmd):
     baseCmd = "--url {} --username test --password test".format(SERVURL)
     fullCmd = baseCmd + " " + cmd
     with Capture() as output:
-        DiderotAdmin(line=fullCmd, sleep_time=0).dispatch()
+        try:
+            DiderotAdmin(line=fullCmd, sleep_time=0).dispatch()
+        except SystemExit:
+            pass
     return cleanOutput(output[0])
 
 
