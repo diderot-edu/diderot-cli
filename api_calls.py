@@ -182,7 +182,7 @@ class DiderotAPIInterface:
 
         base_path = "http://s3.amazonaws.com/" + course_info['s3_autograder_bucket'] + "/" + hw_info['name'] + "/"
         writeup_path = base_path + 'writeup.pdf'
-        handout_path = base_path + "{}-handout-{}.tgz".format(course_info['number'], hw_info['number'])
+        handout_path = base_path + "{}-handout-{}.tgz".format(course_info['number'], hw_info['name'])
 
         for p in [writeup_path, handout_path]:
             self.download_file_helper(p)
