@@ -82,7 +82,7 @@ class DiderotAPIInterface:
         response = self.client.get(list_courses_url, headers=headers, params={'label': course_label})
         result = self.verify_singleton_response(response)
         if result is None:
-            print("Invalid input course label.")
+            print("The requested course label does not exist. You might not be a member of the requested course if it exists.")
             return False
         return True
 

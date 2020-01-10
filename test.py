@@ -223,7 +223,7 @@ class TestDiderotUserCLI(unittest.TestCase):
     def test_list_assignments(self):
         # test invalid course label
         output = runUserCmd("list_assignments fakelabel")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Error retrieving all assignments." in output)
 
         # test that assignment data is correct when switching on course
@@ -238,7 +238,7 @@ class TestDiderotUserCLI(unittest.TestCase):
     def test_download_assignment(self):
         # test invalid course label
         output = runUserCmd("download_assignment fakelabel fakehw")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Failed to download assignment." in output)
 
         # test invalid homework name
@@ -253,7 +253,7 @@ class TestDiderotUserCLI(unittest.TestCase):
     def test_submit_assignment(self):
         # test invalid course label
         output = runUserCmd("submit_assignment fakelabel fakehw fakepath")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Something went wrong." in output)
 
         # test invalid homework name
@@ -281,7 +281,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
     def test_create_chapter(self):
         # test invalid course label
         output = runAdminCmd("create_chapter fakecourse fakebook --number 1")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Chapter creation failed." in output)
 
         # test invalid book label
@@ -319,7 +319,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
     def test_create_part(self):
         # test invalid course label
         output = runAdminCmd("create_part fakecourse fakebook NewTestPart 1")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Part creation failed." in output)
 
         # test invalid book label
@@ -351,7 +351,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
 
         # Test with invalid course label
         output = runAdminCmd("list_books fakecourse")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Error listing books." in output)
 
         # Test with a valid input course label
@@ -371,7 +371,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
     def test_list_chapters(self):
         # test invalid course label
         output = runAdminCmd("list_chapters fakecourse fakebook")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Error listing chapters." in output)
 
         # test invalid book label
@@ -394,7 +394,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
     def test_list_parts(self):
         # test invalid course label
         output = runAdminCmd("list_parts fakecourse fakebook")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Error listing parts." in output)
 
         # test invalid book label
@@ -419,11 +419,11 @@ class TestDiderotAdminCLI(unittest.TestCase):
         # test invalid course label
         output = runAdminCmd(
             "release_chapter fakecourse fakebook --chapter_number 10")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Failure releasing chapter." in output)
         output = runAdminCmd(
             "unrelease_chapter fakecourse fakebook --chapter_number 10")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Failure unreleasing chapter." in output)
 
         # test invalid book
@@ -474,7 +474,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
     def test_update_assignment(self):
         # test invalid course label
         output = runAdminCmd("update_assignment fakecourse fakehw")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue(
             "Uploading files failed. Try using the Web UI." in output)
 
@@ -495,7 +495,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
         # test invalid course label
         output = runAdminCmd(
             "upload_chapter fakecourse fakebook --chapter_number 10 --pdf fakepdf")
-        self.assertTrue("Invalid input course label." in output)
+        self.assertTrue("The requested course label does not exist." in output)
         self.assertTrue("Failure uploading chapter." in output)
 
         # test invalid book
