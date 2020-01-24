@@ -18,7 +18,7 @@ To install the requests package, use `pip3 install requests`.
 
 Use the `diderot_student` or `diderot_admin` script depending on your use case. The `diderot_student` and `diderot_admin` scripts accept a `--url` flag, which is meant solely for development (this connects the CLI to a particular instance of Diderot which is different that `http://www.diderot.one`). The remaining arguments are managing credentials.
 
-For more details see (https://www.diderot.one/course/15/chapters/736/)[the guide].
+For more details see [the guide](https://www.diderot.one/course/15/chapters/736/).
 
 ### Credential Management
 
