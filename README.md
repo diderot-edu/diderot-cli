@@ -18,6 +18,8 @@ To install the requests package, use `pip3 install requests`.
 
 Use the `diderot_student` or `diderot_admin` script depending on your use case. The `diderot_student` and `diderot_admin` scripts accept a `--url` flag, which is meant solely for development (this connects the CLI to a particular instance of Diderot which is different that `http://www.diderot.one`). The remaining arguments are managing credentials.
 
+For more details see (https://www.diderot.one/course/15/chapters/736/)[the guide].
+
 ### Credential Management
 
 Credentials are passed to the CLI in one of two ways. The first is to simply pass your credentials via the CLI using the `--username` and `--password` flags on the CLI. A more convenient way is to use a credentials file. The credential file format is simply a text file with your username on the first line and your password on the second. Use the --credentials argument to point the CLI towards a file containing your credentials. For easier usage, the CLI automatically looks at the file `~/private/.diderot/credentials` and then `~/.diderot/credentials` for a credentials file of this form. If this file exists, then the CLI will automatically log you in, and no credentials need to be explicitly provided to the CLI. An important note is that your credentials file must have only "owner can read and write" permissions. To do this, run `chmod 600 <credentials file>`.
