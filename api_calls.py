@@ -86,6 +86,37 @@ class DiderotAPIInterface:
             return False
         return True
 
+    # TODO (rohany): Refactor existing code to use these checks.
+    def is_booklet(self, course, book):
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'course__label' : course, 'label' : book}
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        res = self.verify_singleton_response(response)
+        if res is None:
+            print("Input book not found.")
+            return None
+        return bool(res['is_booklet'])
+
+    def chapter_exists(self, course, book, chapter_num):
+        # TODO (rohany): When we can filter by course label and book label for chapters,
+        #  these additional accesses can be removed.
+        if not self.verify_course_label(course):
+            return False
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'label' : book, 'course__label' : course}
+        result = self.verify_singleton_response(self.client.get(get_books_url, headers=headers, params=params))
+        if result is None:
+            print("Input book not found.")
+            return False
+        book_pk = result['id']
+        course_pk = result['course']
+        get_chapters_url = urllib.parse.urljoin(self.base_url, 'api/chapters/')
+        params = {'course__id' : course_pk, 'book__id' : book_pk, 'rank': chapter_num}
+        result = self.verify_singleton_response(self.client.get(get_chapters_url, headers=headers, params=params))
+        return result is not None
+
     def list_all_courses(self):
         list_courses_url = urllib.parse.urljoin(self.base_url, 'api/courses/')
         headers = {'X-CSRFToken' : self.csrftoken}
@@ -328,7 +359,6 @@ class DiderotAPIInterface:
             return False
         return True
 
-
     def create_chapter(self, args):
         if not self.verify_course_label(args.course):
             return False
@@ -484,7 +514,12 @@ class DiderotAPIInterface:
             files.append(('input_file_xml', Path(args.xml)))
             if args.attach is not None:
                 for fg in args.attach:
-                    for g in glob.glob(self.expand_file_path(fg)):
+                    base_path = Path(fg)
+                    file_glob = glob.glob(self.expand_file_path(fg))
+                    if not base_path.exists() and len(file_glob) == 0:
+                        print("Cannot find file {}. Exiting.".format(fg))
+                        return
+                    for g in file_glob:
                         f = Path(g).expanduser()
                         if f.is_dir():
                             # If it is a directory, include all children.

@@ -4,6 +4,7 @@ import importlib
 import argparse
 import shlex
 import os
+import json
 
 from pathlib import Path
 
@@ -223,6 +224,11 @@ class DiderotCLIArgs(object):
         upload_chapter.add_argument("--attach", type=str, nargs='+', default=None,
                                     help="A list of files, folders, or globs to upload as attachments for an XML/MLX document. \
                                           Folders are recursively traversed.")
+
+        upload_book = subparsers.add_parser(
+            "upload_book", help="Perform bulk upload of book content.", formatter_class=Formatter)
+        upload_book.add_argument(
+            "upload_data", help="JSON upload details file.")
         return parser, subparsers
 
     # Verify argument information about both the admin and user CLI's.
@@ -361,6 +367,7 @@ class DiderotAdmin(DiderotUser):
             'release_chapter': self.release_chapter,
             'unrelease_chapter': self.unrelease_chapter,
             'update_assignment': self.update_assignment,
+            'upload_book': self.upload_book,
             'upload_chapter': self.upload_chapter,
         }
         func = commands.get(self.args.command, None)
@@ -370,6 +377,86 @@ class DiderotAdmin(DiderotUser):
             func()
 
     # For maintainability, keep the dispatch functions in alphabetical order.
+
+    def upload_book(self):
+        file_path = self.api_client.expand_file_path(self.args.upload_data)
+        if not os.path.exists(file_path):
+            exit_with_error("input file path {} does not exist".format(file_path))
+        with open(file_path, 'rb') as schema:
+            try:
+                book_data = json.load(schema)
+            except Exception as e:
+                exit_with_error("Failed loading json schema with error: {}".format(e))
+
+        def get_or_none(obj, field):
+            if field in obj:
+                return obj[field]
+            return None
+
+        file_prefix = os.path.dirname(file_path)
+
+        def adjust_search_path(path):
+            if path is None:
+                return None
+            return os.path.join(file_prefix, path)
+
+        # TODO (rohany): If the API of the api_client was better, we wouldn't
+        #  need to do all of this various argument setting.
+        course_label = get_or_none(book_data, "course")
+        if course_label is None:
+            exit_with_error("invalid JSON: could not find field 'course'")
+        book_label = get_or_none(book_data, "book")
+        if book_label is None:
+            exit_with_error("invalid JSON: could not find field 'book'")
+        chapters = get_or_none(book_data, "chapters")
+        if chapters is None:
+            exit_with_error("invalid JSON: could not find field 'chapters'")
+        for chapter in chapters:
+            # Set up args for upload chapter.
+            self.args.chapter_number = get_or_none(chapter, "number")
+            if self.args.chapter_number is None:
+                exit_with_error(
+                    "invalid JSON: must provide field 'number' for chapter {}".format(chapter)
+                )
+
+            # TODO (rohany): If the create_chapter function was idempotent, we could
+            #  use it here...
+            if not self.api_client.chapter_exists(course_label, book_label, self.args.chapter_number):
+                print("Chapter {} does not exist. Creating...".format(self.args.chapter_number))
+                self.args.course = course_label
+                self.args.book = book_label
+                self.args.number = self.args.chapter_number
+                part_num = get_or_none(chapter, "part")
+                if not self.api_client.is_booklet(course_label, book_label) and part_num is None:
+                    exit_with_error("Chapter creation in a book requires 'part' field for chapters")
+                self.args.part = part_num
+                # Set default arguments that create_chapter won't use.
+                self.args.label = None
+                self.args.title = None
+                success = self.api_client.create_chapter(self.args)
+                if not success:
+                    exit_with_error("Error creating chapter. Aborting.")
+                print("Successfully created chapter {}.".format(self.args.chapter_number))
+
+            # TODO (rohany): accept more input types than xml.
+            self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
+            self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
+            attachments = get_or_none(chapter, "attachments")
+            if attachments is not None:
+                self.args.attach = [adjust_search_path(path) for path in attachments]
+            # Set default arguments that we wont use, but upload_chapter expects.
+            self.args.pdf = None
+            self.args.slides = None
+            print("Uploading chapter {}...".format(self.args.chapter_number))
+            success = self.api_client.upload_chapter(
+                course_label,
+                book_label,
+                self.args,
+                sleep_time=self.sleep_time
+            )
+            if not success:
+                exit_with_error("Failure uploading chapter. Aborting.")
+            print("Successfully uploaded chapter.")
 
     def create_chapter(self):
         if self.api_client.create_chapter(self.args):
