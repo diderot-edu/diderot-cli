@@ -1,13 +1,27 @@
-DIDEROT_ADMIN  = ../diderot_admin
+#### USAGE
+## These variables must be specified by the host (outer) Makefile
+## that includes this file
+## DIDEROT_ADMIN  = "please specify your diderot admin script via dider
+## LABEL_COURSE  = "please specify label of your course"
+## LABEL_TEXTBOOK =  "please specify label of the textbook"
+##
+## The makefile can then include rules of the form
+## upload_exam: NO=2
+## upload_exam: FILE=exam
+## upload_exam: ATTACH=media/
+## upload_exam: exam.xml upload_xml_attach
+## the last line could be
+## upload_exam: exam.xml upload_xml_pdf_attach
+## or 
+## upload_exam: exam.xml upload_xml_pdf
+####
 
-
-# Set up some variables
+# Set up some target-specific variables
 NO=0
 PART_NO=0
 FILE=""
 ATTACH="does_not_exist"
-LABEL_COURSE="please specify label of your course"
-LABEL_TEXTBOOK="please specify label of the textbook"
+
 
 
 ######################################################################
