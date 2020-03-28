@@ -6,6 +6,9 @@ NO=0
 PART_NO=0
 FILE=""
 ATTACH="does_not_exist"
+LABEL_COURSE="please specify label of your course"
+LABEL_TEXTBOOK="please specify label of the textbook"
+
 
 ######################################################################
 ## BEGIN: Diderot Upload Rules
