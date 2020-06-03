@@ -517,8 +517,9 @@ class DiderotAPIInterface:
                     base_path = Path(fg)
                     file_glob = glob.glob(self.expand_file_path(fg))
                     if not base_path.exists() and len(file_glob) == 0:
-                        print("Cannot find file {}. Exiting.".format(fg))
-                        return
+                        print("Warning: cannot find file {}. Skipping.".format(fg))
+                        
+                        continue
                     for g in file_glob:
                         f = Path(g).expanduser()
                         if f.is_dir():
