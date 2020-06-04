@@ -228,6 +228,8 @@ class DiderotCLIArgs(object):
         upload_book = subparsers.add_parser(
             "upload_book", help="Perform bulk upload of book content.", formatter_class=Formatter)
         upload_book.add_argument(
+            "course", help="Course that the book belongs to.")
+        upload_book.add_argument(
             "upload_data", help="JSON upload details file.")
         return parser, subparsers
 
@@ -402,9 +404,11 @@ class DiderotAdmin(DiderotUser):
 
         # TODO (rohany): If the API of the api_client was better, we wouldn't
         #  need to do all of this various argument setting.
-        course_label = get_or_none(book_data, "course")
-        if course_label is None:
-            exit_with_error("invalid JSON: could not find field 'course'")
+        course_label = self.args.course
+
+        if not self.api_client.verify_course_label(course_label):
+            exit_with_error("Please specify a valid course for the book upload")
+
         book_label = get_or_none(book_data, "book")
         if book_label is None:
             exit_with_error("invalid JSON: could not find field 'book'")

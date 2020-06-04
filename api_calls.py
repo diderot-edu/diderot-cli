@@ -82,7 +82,7 @@ class DiderotAPIInterface:
         response = self.client.get(list_courses_url, headers=headers, params={'label': course_label})
         result = self.verify_singleton_response(response)
         if result is None:
-            print("The requested course label does not exist. You might not be a member of the requested course if it exists.")
+            print(f"The requested course label ({course_label}) does not exist. You might not be a member of the requested course if it exists.")
             return False
         return True
 
@@ -517,8 +517,9 @@ class DiderotAPIInterface:
                     base_path = Path(fg)
                     file_glob = glob.glob(self.expand_file_path(fg))
                     if not base_path.exists() and len(file_glob) == 0:
-                        print("Cannot find file {}. Exiting.".format(fg))
-                        return
+                        print("Warning: cannot find file {}. Skipping.".format(fg))
+                        
+                        continue
                     for g in file_glob:
                         f = Path(g).expanduser()
                         if f.is_dir():
