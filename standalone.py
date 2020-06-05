@@ -1,11 +1,13 @@
 import argparse
+import json
+import os
 import shlex
 import sys
 from pathlib import Path
 
 from api_calls import APIError, DiderotAPIInterface
 from models import Book, Chapter, Course, Lab, Part
-from utils import print_list
+from utils import expand_file_path, print_list
 
 assert sys.version_info >= (3, 6), "Python3.6 is required"
 
@@ -197,6 +199,14 @@ class DiderotCLIArgs(object):
             help="A list of files, folders, or globs to upload as attachments for an XML/MLX document. \
                                           Folders are recursively traversed.",
         )
+
+        # Subparser for bulk book uploads.
+        upload_book = subparsers.add_parser(
+            "upload_book", help="Perform bulk upload of book content.", formatter_class=Formatter
+        )
+        upload_book.add_argument("course", help="Course that the book belongs to.")
+        upload_book.add_argument("upload_data", help="JSON upload details file.")
+
         return parser, subparsers
 
     # Verify argument information about both the admin and user CLI's.
@@ -312,6 +322,7 @@ class DiderotAdmin(DiderotUser):
             "release_chapter": self.release_chapter,
             "unrelease_chapter": self.unrelease_chapter,
             "update_assignment": self.update_assignment,
+            "upload_book": self.upload_book,
             "upload_chapter": self.upload_chapter,
         }
         func = commands.get(self.args.command, None)
@@ -373,10 +384,95 @@ class DiderotAdmin(DiderotUser):
             print(str(e))
             exit_with_error("Uploading files failed. Try using the Web UI.")
 
+    def upload_book(self):
+        file_path = expand_file_path(self.args.upload_data)
+        if not os.path.exists(file_path):
+            exit_with_error("input file path {} does not exist".format(file_path))
+        with open(file_path, "rb") as schema:
+            try:
+                book_data = json.load(schema)
+            except Exception as e:
+                exit_with_error("Failed loading json schema with error: {}".format(e))
+
+        def get_or_none(obj, field):
+            if field in obj:
+                return obj[field]
+            return None
+
+        file_prefix = os.path.dirname(file_path)
+
+        def adjust_search_path(path):
+            if path is None:
+                return None
+            return os.path.join(file_prefix, path)
+
+        # Collect the necessary Diderot objects.
+        course = Course(self.api_client.client, self.args.course)
+        book_label = get_or_none(book_data, "book")
+        if book_label is None:
+            exit_with_error("Please specify a valid course for the book upload")
+        book = Book(course, book_label)
+
+        # If the upload contains parts, create them.
+        parts = get_or_none(book_data, "parts")
+        if parts is not None:
+            for part in parts:
+                if not Part.exists(course, book, get_or_none(part, "number")):
+                    self.api_client.create_part(
+                        course.label,
+                        book.label,
+                        get_or_none(part, "number"),
+                        get_or_none(part, "title"),
+                        get_or_none(part, "label"),
+                    )
+
+        # Upload and maybe create the chapters in the input.
+        chapters = get_or_none(book_data, "chapters")
+        if chapters is None:
+            exit_with_error("invalid JSON: could not find field 'chapters'")
+        for chapter in chapters:
+            number = get_or_none(chapter, "number")
+            if number is None:
+                exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")
+            # If the target chapter does not exist, then create it.
+            if not Chapter.exists(course, book, number):
+                part_num = get_or_none(chapter, "part")
+                # Non-booklets need parts for their chapters.
+                if not book.is_booklet and part_num is None:
+                    exit_with_error("Chapter creation in a book requires 'part' field for chapters")
+                self.api_client.create_chapter(course.label, book.label, part_num, number, None, None)
+                print(f"Successfully created chapter number: {number}.")
+
+            # Upload the target files to the chapter now.
+            self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
+            self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
+            attachments = get_or_none(chapter, "attachments")
+            self.args.attach = None
+            if attachments is not None:
+                self.args.attach = [adjust_search_path(path) for path in attachments]
+            # Set default arguments that we wont use, but upload_chapter expects.
+            self.args.pdf = None
+            self.args.slides = None
+            print(f"Uploading chapter number: {number}...")
+            try:
+                self.api_client.upload_chapter(
+                    course.label, book.label, number, None, self.args, sleep_time=self.sleep_time,
+                )
+            except APIError as e:
+                exit_with_error("Failure uploading chapter. Aborting")
+            print("Successfully uploaded chapter.")
+
     def upload_chapter(self):
         if self.args.video_url is not None and self.args.xml is not None:
             exit_with_error("Cannot use --video_url with xml uploads.\nFailure uploading chapter.")
         if self.args.attach is not None and self.args.xml is None:
             exit_with_error("Cannot use --attach if not uploading xml/mlx.\nFailure uploading chapter.")
-        self.api_client.upload_chapter(self.args.course, self.args.book, self.args, sleep_time=self.sleep_time)
+        self.api_client.upload_chapter(
+            self.args.course,
+            self.args.book,
+            self.args.chapter_number,
+            self.args.chapter_label,
+            self.args,
+            sleep_time=self.sleep_time,
+        )
         print("Chapter uploaded successfully.")

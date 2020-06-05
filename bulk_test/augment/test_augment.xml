@@ -1,0 +1,1862 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment name='chapter'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Augmenting Binary Search Trees
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Augmenting Binary Search Trees
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+ch:bst::augment
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:prmbl:bst::augment::discussions
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='preamble'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+prmbl:bst::augment::discussions
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>In our discussions of BSTs thus far, we only stored the left and right children, the key, and some balance information (the priority for treaps) within each node. In many cases, we wish to augment trees with more information. In this chapter, we describe how we might augment BSTs with such additional information, e.g., additional values, subtree sizes, and other aggregate values of the subtree, such as the sum of the keys.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+In our discussions of BSTs thus far, we only stored the left and right
+children, the key, and some balance information (the priority for
+treaps) within each node.
+In many cases, we wish to augment trees with more information.
+In this chapter, we describe how we might augment BSTs with such
+additional information, e.g., additional values, subtree sizes, and
+other aggregate values of the subtree, such as the sum of the keys.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- preamble -->
+
+</segment> <!-- cluster -->
+
+
+<segment name='section'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Augmenting with Key-Value Pairs
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Augmenting with Key-Value Pairs
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::augment::kv
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:tch:bst::augment::think
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='teachnote'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+tch:bst::augment::think
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Can you think of an application where we would want to associate a value with each key?</p>
+<p>For example, you might want to maintain an address book as a BST keyed by the names of your friends and associate each name with a phone number or email. Such a BST would allow you to locate the phone number of your friend quickly, while also allowing you to do other operations such as joining two address books, and updating entries.</p>
+<p>How can we change a BST data structure to associate values with keys?</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Can you think of an application where we would want to associate a
+value with each key?
+
+For example, you might want to maintain an address book as a BST keyed
+by the names of your friends and associate each name with a phone
+number or email.  Such a BST would allow you to locate the phone
+number of your friend quickly, while also allowing you to do other
+operations such as joining two address books, and updating entries.
+
+How can we change a BST data structure to associate values with keys?
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- teachnote -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::perhaps
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::perhaps
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Perhaps the simplest form of augmentation involves storing in the BST a key-value pair instead of just a key. Implementing BSTs augmented with key-value pairs is relatively straightforward. All we need is to update the relevant parts of the ADT so that key-value pairs are treated as a unit. For example, to accommodate values, we can change the BST data type to include a key-value pair, and update the implementation of the functions to carry the value along with the key, making sure to never separate a a key-value pair. In some cases, we might need to change the return types of functions. For example, in <span class="math inline">\(\mathit{find}\)</span> and <span class="math inline">\(\mathit{split}\)</span> we would return the value along with the key (if any).</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Perhaps the simplest form of augmentation involves storing in the BST
+a key-value pair instead of just a key.
+Implementing BSTs augmented with key-value pairs is relatively
+straightforward.
+All we need is to update the relevant parts of the ADT so that
+key-value pairs are treated as a unit.
+For example, to accommodate values, we can change the BST data type to
+include a key-value pair, and update the implementation of the
+functions to carry the value along with the key, making sure to never
+separate a a key-value pair. 
+In some cases, we might need to change the return types of functions. 
+For example, in~$\cdvar{find}$ and~$\cdvar{split}$ we would return the
+value along with the key (if any).
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+
+</segment> <!-- section -->
+
+<segment name='section'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Augmenting with Size
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Augmenting with Size
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::augment::size
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='flex'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::complex
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::complex
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>As a more complex augmentation, we might want to associate with each node in the tree a size field that tells us how many keys there are in the subtree rooted at that node is.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+As a more complex augmentation, we might want to associate with each
+node in the tree a size field that tells us how many keys there are in the subtree
+rooted at that node is.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+<atom name='example'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+xmpl:bst::augment::keys
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>An example BST, where keys are ordered lexicographically and the nodes are augmented with the sizes of subtrees.</p>
+<p><img src="./bsts/media-augment/augtree-size.jpg" alt="image" style="width:3.8in" /></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+An example BST, where keys are ordered lexicographically and the nodes
+are augmented with the sizes of subtrees.
+\begin{center}
+  \includegraphics[width=3.8in]{./bsts/media-augment/augtree-size.jpg}
+\end{center}
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- example -->
+
+</segment> <!-- flex -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::size-in-work
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+Size in <span class="math inline">\(O(1)\)</span> Work
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Size in $O(1)$ Work
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::size-in-work
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>To implement a size-augmented tree, we can keep a <span class="math inline">\(\mathit{size}\)</span> field at each node and compute the size of the nodes as they are created. To support this field in our a tree data structure, such as treaps, we can make sure each tree node has a size field. For example, for treaps a node could be defined as</p>
+<p><span class="math display">\[\begin{array}{lcl}  
+      \texttt{type} ~{\mathbb{T}}&amp;= &amp;\mathit{TLeaf}\\  
+                               &amp; | &amp; \mathit{TNode} ~\texttt{of} ~({\mathbb{T}}
+                                     \times {\mathbb{K}}\times \mathbb{Z}\times  
+                                     \mathbb{Z}\times {\mathbb{T}})   
+    \end{array}\]</span> where the <span class="math inline">\(\mathit{TNode}\)</span> type consists of a 5 tuple <span class="math inline">\((L,k,p,n,R)\)</span>, with <span class="math inline">\(L\)</span> as the left child, <span class="math inline">\(k\)</span> as the key, <span class="math inline">\(p\)</span> as the priority, <span class="math inline">\(n\)</span> as the size, and <span class="math inline">\(R\)</span> as the right child. We could then read the size in <span class="math inline">\(O(1)\)</span> work, as in: <span class="math display">\[\begin{array}{lcl}  
+      \mathit{size}~T =\\  
+      ~~~~\texttt{case}~T~\texttt{of}\\  
+      ~~~~~~~~\mathit{TLeaf}~\Rightarrow 0\\  
+      ~~~~~~|~\mathit{TNode}(\_,\_,\_,n,\_)~\Rightarrow n  
+    \end{array}\]</span></p>
+<p>Whenever we create a new node we can calculate its size by summing the sizes of the two subtree and adding one more for the node itself. For treaps we could define <span class="math display">\[\begin{array}{lcl}  
+      \mathit{makeNode}~(L,k,p,R) =\\  
+      ~~~~\mathit{TNode}(L,k,p,size(L)+size(R)+1, R)  
+    \end{array}\]</span> Then in the <a href="ds:bst::treaps">join algorithm for Treaps</a>, we could replace the three occurrences <span class="math inline">\(\mathit{TNode}(\cdot, \cdot, \cdot,  
+\cdot)\)</span> with <span class="math inline">\(\mathit{makeNode}\)</span>. That is the only change that needs to be made.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+To implement a size-augmented tree, we can keep a~$\cdvar{size}$ field at
+each node and compute the size of the nodes as they are created.
+To support this field in our a tree data structure, such as treaps,
+we can make sure each tree node has a size field.  For example, for
+treaps a node could be defined as
+
+  \[
+    \begin{array}{lcl}
+      \cd{type} ~\tttt &= &\cdvar{TLeaf}\\
+                               & | & \cdvar{TNode} ~\cd{of} ~(\tttt 
+                                     \times \kkk \times \tyint \times
+                                     \tyint \times \tttt) 
+    \end{array}
+  \]
+  where the $\cdvar{TNode}$ type consists of a 5 tuple $(L,k,p,n,R)$, 
+    with $L$ as the left child, $k$ as the key, $p$ as the priority,
+    $n$ as the size, and $R$ as the right child.     We could then
+    read the size in $O(1)$ work, as in:
+  \[
+    \begin{array}{lcl}
+      \cdvar{size}~T =\\
+      ~~~~\cd{case}~T~\cd{of}\\
+      ~~~~~~~~\cdvar{TLeaf}~\Rightarrow 0\\
+      ~~~~~~|~\cdvar{TNode}(\_,\_,\_,n,\_)~\Rightarrow n
+    \end{array}
+  \]
+    
+Whenever we create a new node we can calculate its size by summing the
+sizes of the two subtree and adding one more for the node itself.   For treaps we could define
+  \[
+    \begin{array}{lcl}
+      \cdvar{makeNode}~(L,k,p,R) =\\
+      ~~~~\cdvar{TNode}(L,k,p,size(L)+size(R)+1, R)
+    \end{array}
+  \]
+Then in the \href{ds:bst::treaps}{join algorithm for Treaps}, we could
+replace the three occurrences $\cdvar{TNode}(\cdot, \cdot, \cdot,
+\cdot)$ with $\cdvar{makeNode}$.    That is the only change that needs
+to be made.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+
+<segment name='subsection'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Example: Rank and Select in BSTs
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Example: Rank and Select in BSTs
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::augment::size::rank-select
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::suppose
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::suppose
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Suppose that we wish to extend the <a href="adt:bst::adt">BST ADT</a> with the following additional functions.</p>
+<ul>
+<li><p>Function <span class="math inline">\(\mathit{rank}~T~k\)</span> returns the rank of the key <span class="math inline">\(k\)</span> in the tree, i.e., the number of keys in <span class="math inline">\(t\)</span> that are less than or equal to <span class="math inline">\(k\)</span>.</p></li>
+<li><p>Function <span class="math inline">\(\mathit{select}~T~i\)</span> returns the key with the rank <span class="math inline">\(i\)</span> in <span class="math inline">\(t\)</span>.</p></li>
+</ul>
+<p>Such functions arise in many applications.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Suppose that we wish to extend the 
+\href{adt:bst::adt}{BST ADT}
+with the following additional functions.
+\begin{itemize}
+\item Function~$\cdvar{rank}~T~k$ returns the rank of the key~$k$ in
+  the tree, i.e., the number of keys in~$t$ that are less than or
+  equal to~$k$.
+
+\item Function~$\cdvar{select}~T~i$ returns the key with the rank~$i$ in~$t$.
+
+\end{itemize}
+
+Such functions arise in many applications.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:alg:bst::augment::size::rank-select
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='algorithm'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+Rank and Select
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Rank and Select
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+alg:bst::augment::size::rank-select
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>If we have a way to count the number of nodes in a subtree, then we can easily implement the <span class="math inline">\(\mathit{rank}\)</span> and <span class="math inline">\(\mathit{select}\)</span> functions. The algorithms below give implementations by using a size operation for computing the size of a tree, written <span class="math inline">\(|t|\)</span> for tree <span class="math inline">\(t\)</span>.</p>
+<p><span class="math display">\[\begin{array}{ll}  
+1 &amp; \mathit{rank} ~T ~k =  
+\\  
+2 &amp; ~~~~\texttt{case} ~\mathit{expose}~T ~\texttt{of}  
+\\  
+3 &amp; ~~~~~~~~\mathit{Leaf} \Rightarrow 0  
+\\  
+4 &amp; ~~~~~~|~\mathit{Node} ~(L, k&#39;, R) \Rightarrow  
+\\  
+5 &amp; ~~~~~~~~~~~~~~~\texttt{case}~\mathit{compare} ~(k,k&#39;) ~\texttt{of}  
+\\  
+6 &amp; ~~~~~~~~~~~~~~~~~~~\mathit{Less} \Rightarrow \mathit{rank} ~L ~k  
+\\  
+7 &amp; ~~~~~~~~~~~~~~~~~|~\mathit{Equal} \Rightarrow |L| + 1  
+\\  
+8 &amp; ~~~~~~~~~~~~~~~~~|~\mathit{Greater} \Rightarrow |L| + 1 + (\mathit{rank} ~R ~k)  
+\end{array}\]</span></p>
+<p><span class="math display">\[\begin{array}{ll}  
+  1 &amp; \mathit{select} ~T ~i =  
+\\  
+2 &amp; ~~~~\texttt{case} ~\mathit{expose}~T ~\texttt{of}  
+\\  
+3 &amp; ~~~~~~~~\mathit{Leaf} \Rightarrow \mbox{raise exception OutOfRange}  
+\\  
+4 &amp; ~~~~~~|~\mathit{Node} ~(L, k, R) \Rightarrow  
+\\  
+5 &amp; ~~~~~~~~~~~~~~\texttt{case} ~\mathit{compare} ~(i, |L|+1)~\texttt{of}  
+\\  
+6 &amp; ~~~~~~~~~~~~~~~~~~\mathit{Less} \Rightarrow \mathit{select} ~L ~i  
+\\  
+7 &amp; ~~~~~~~~~~~~~~~~|~\mathit{Equal} \Rightarrow k  
+\\  
+8 &amp; ~~~~~~~~~~~~~~~~|~\mathit{Greater} \Rightarrow  \mathit{select} ~R ~(i-|L|-1)  
+\\  
+\end{array}\]</span></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+\label{alg:bst::augment::size::rank-select}
+
+If we have a way to count the number of nodes in a subtree, then we
+can easily implement the~$\cdvar{rank}$ and~$\cdvar{select}$ functions.
+The algorithms below give implementations by using a size operation
+for computing the size of a tree, written~$|t|$ for tree~$t$.
+
+\[
+\begin{array}{ll}
+1 & \cdvar{rank} ~T ~k =
+\\
+2 & ~~~~\cd{case} ~\cdvar{expose}~T ~\cd{of}
+\\
+3 & ~~~~~~~~\cdvar{Leaf} \Rightarrow 0
+\\
+4 & ~~~~~~|~\cdvar{Node} ~(L, k', R) \Rightarrow
+\\
+5 & ~~~~~~~~~~~~~~~\cd{case}~\cdvar{compare} ~(k,k') ~\cd{of}
+\\
+6 & ~~~~~~~~~~~~~~~~~~~\cdvar{Less} \Rightarrow \cdvar{rank} ~L ~k
+\\
+7 & ~~~~~~~~~~~~~~~~~|~\cdvar{Equal} \Rightarrow |L| + 1
+\\
+8 & ~~~~~~~~~~~~~~~~~|~\cdvar{Greater} \Rightarrow |L| + 1 + (\cdvar{rank} ~R ~k)
+\end{array}
+\]
+
+\[
+  \begin{array}{ll}
+  1 & \cdvar{select} ~T ~i =
+\\
+2 & ~~~~\cd{case} ~\cdvar{expose}~T ~\cd{of}
+\\
+3 & ~~~~~~~~\cdvar{Leaf} \Rightarrow \mbox{raise exception OutOfRange}
+\\
+4 & ~~~~~~|~\cdvar{Node} ~(L, k, R) \Rightarrow
+\\
+5 & ~~~~~~~~~~~~~~\cd{case} ~\cdvar{compare} ~(i, |L|+1)~\cd{of}
+\\
+6 & ~~~~~~~~~~~~~~~~~~\cdvar{Less} \Rightarrow \cdvar{select} ~L ~i
+\\
+7 & ~~~~~~~~~~~~~~~~|~\cdvar{Equal} \Rightarrow k
+\\
+8 & ~~~~~~~~~~~~~~~~|~\cdvar{Greater} \Rightarrow  \cdvar{select} ~R ~(i-|L|-1)
+\\
+\end{array}
+\]
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- algorithm -->
+
+</segment> <!-- cluster -->
+
+<segment name='flex'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::cost-of-rank-select
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+Cost of <span class="math inline">\(\mathit{rank}\)</span> and <span class="math inline">\(\mathit{select}\)</span>
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Cost of~$\cdvar{rank}$ and~$\cdvar{select}$
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::cost-of-rank-select
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>With balanced trees such as Treaps, the <span class="math inline">\(\mathit{rank}\)</span> and <span class="math inline">\(\mathit{select}\)</span> functions require logarithmic span but linear work, because computing the size of a subtree takes linear time in the size of the subtree. If, however, we augment the tree so that at each node, we store the size of the subtree rooted at that node, then work becomes logarithmic, because we can find the size of a subtree in constant work.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+With balanced trees such as Treaps, the~$\cdvar{rank}$ and~$\cdvar{select}$
+functions require logarithmic span but linear work, because computing
+the size of a subtree takes linear time in the size of the subtree.
+If, however, we augment the tree so that at each node, we store the
+size of the subtree rooted at that node, then work becomes
+logarithmic, because we can find the size of a subtree in constant
+work.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+<atom name='example'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+xmpl:bst::augment::ordered
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>An example BST, where keys are ordered lexicographically and the nodes are augmented with the sizes of subtrees. The path explored by <span class="math inline">\(\mathit{rank} ~(T,n)\)</span> and <span class="math inline">\(\mathit{select} ~(T,4)\)</span> is highlighted.</p>
+<p><img src="./bsts/media-augment/rankSelect.jpg" alt="image" style="width:3in" /></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+An example BST, where keys are ordered lexicographically and the nodes
+are augmented with the sizes of subtrees.
+The path explored by~$\cdvar{rank} ~(T,n)$ and~$\cdvar{select} ~(T,4)$ is
+highlighted.
+
+\begin{center}
+  \includegraphics[width=3.0in]{./bsts/media-augment/rankSelect.jpg}
+\end{center}
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- example -->
+
+</segment> <!-- flex -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:tch:bst::augment::implement
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='teachask'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+tch:bst::augment::implement
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Can you implement these functions by using a BST?</p>
+<p>What is the work and span of these functions?</p>
+<p>Can we compute size of subtrees more efficiently?</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Can you implement these functions by using a BST? 
+
+What is the work and span of these functions?
+
+Can we compute size of subtrees more efficiently?
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- teachask -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:tch:bst::augment::maintain
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='teachask'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+tch:bst::augment::maintain
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>But how can we maintain the sizes of the subtrees as we perform various operations on the BST such as possibly aggregate insertions, deletions, splits, and joins?</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+But how can we maintain the sizes of the subtrees as we perform
+  various operations on the BST such as possibly aggregate insertions,
+  deletions, splits, and joins?
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- teachask -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:xrcs:bst::augment::consider
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='exercise'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+xrcs:bst::augment::consider
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Consider the function <span class="math inline">\(\mathit{splitRank}(t,i)\)</span>, which splits the tree <span class="math inline">\(t\)</span> into two and returns the trees <span class="math inline">\(t_1\)</span> and <span class="math inline">\(t_2\)</span> such that <span class="math inline">\(t_1\)</span> contains all keys with rank less than <span class="math inline">\(i\)</span> and <span class="math inline">\(t_2\)</span> contains all keys with rank is greater or equal to <span class="math inline">\(i\)</span>. Such a function can be used for example to write divide-and-conquer algorithms on imperfectly balanced trees. Describe how to implement the algorithm <span class="math inline">\(\mathit{splitRank}\)</span> by writing its pseudo-code and analyze its work and span.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Consider the function~$\cdvar{splitRank}(t,i)$, which splits the
+tree~$t$ into two and returns the trees~$t_1$ and~$t_2$ such that~$t_1$ contains all keys with rank less than~$i$ and~$t_2$ contains all
+keys with rank is greater or equal to~$i$.
+Such a function can be used for example to write divide-and-conquer
+algorithms on imperfectly balanced trees.
+Describe how to implement the algorithm~$\cdvar{splitRank}$ by writing
+its pseudo-code and analyze its work and span.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- exercise -->
+
+</segment> <!-- cluster -->
+
+
+</segment> <!-- subsection -->
+
+</segment> <!-- section -->
+
+<segment name='section'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Augmenting with Reduced Values
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Augmenting with Reduced Values
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::augment::rv
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::compute
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::compute
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>To compute rank-based properties of keys in a BST, we augmented the BST so that each node stores the size of its subtree. More generally, we might want to associate with each node a  <strong><em>reduced value</em></strong> that is computed by reducing over the subtree rooted at the node by a user specified associative function <span class="math inline">\(f\)</span>. In general, there is no restriction on how the reduced values may be computed, they can be based on keys or additional values that the tree is augmented with. To compute reduced values, we simply store with every node <span class="math inline">\(u\)</span> of a binary search tree, the reduced value of its subtree (i.e. the sum of all the reduced values that are descendants of <span class="math inline">\(u\)</span>, possibly also the value at <span class="math inline">\(u\)</span> itself).</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+To compute rank-based properties of keys in a BST, we augmented the
+BST so that each node stores the size of its subtree.  More generally,
+we might want to associate with each node a~\defn{reduced value} that
+is computed by reducing over the subtree rooted at the node by a user
+specified associative function $f$.  In general, there is no restriction on how the
+reduced values may be computed, they can be based on keys or
+additional values that the tree is augmented with.
+To compute reduced values, we simply store with every node~$u$ of a
+binary search tree, the reduced value of its subtree (i.e. the sum of
+all the reduced values that are descendants of~$u$, possibly also the
+value at~$u$ itself).
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:xmpl:bst::augment::drawing
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='example'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+xmpl:bst::augment::drawing
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The following drawing shows a tree with key-value pairs on the left, and the augmented tree on the right, where each node additionally maintains the sum of its subtree.</p>
+<p><img src="./bsts/media/augtree.jpg" alt="image" style="width:5in" /></p>
+<p>The sum at the root (<span class="math inline">\(13\)</span>) is the sum of all values in the tree (<span class="math inline">\(3 +  
+1 + 2 + 2 + 5\)</span>). It is also the sum of the reduced values of its two children (<span class="math inline">\(6\)</span> and <span class="math inline">\(5\)</span>) and its own value <span class="math inline">\(2\)</span>.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The following drawing shows a tree with key-value pairs on the left,
+  and the augmented tree on the right, where each node additionally
+  maintains the sum of its subtree.
+\begin{center}
+  \includegraphics[width=5in]{./bsts/media/augtree.jpg}
+\end{center}
+The sum at the root ($13$) is the sum of all values in the tree ($3 +
+1 + 2 + 2 + 5$).    It is also the sum of the reduced values of its
+two children ($6$ and~$5$) and its own value~$2$.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- example -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::value
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::value
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The value of each reduced value in a tree can be calculated as the sum of its two children plus the value stored at the node. This means that we can maintain these reduced values by simply taking the “sum” of these three values whenever a node is created. We can thus change a data structure to support reduced values by changing the way a node is created. In such a data structure, if the function that we use for reduction performs constant work, then the work and the span bound for the data structure remains unaffected.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The value of each reduced value in a tree can be calculated as the sum
+of its two children plus the value stored at the node.  This means
+that we can maintain these reduced values by simply taking the
+``sum'' of these three values whenever a node is created.  We can thus change
+a data structure to support reduced values by changing the way a node
+is created.  In such a data structure, if the function that we use
+for reduction performs constant work, then the work and the span bound
+for the data structure remains unaffected.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:grm:bst::augment::changes
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::augment::changes
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The changes to the Treap structure (or any other balanced tree structure) would be very similar to what we did to augment with sizes. In particular we would change the type of a <span class="math inline">\(\mathit{TNode}\)</span> to include the reduced value. We would then add a function for extracting it. This would return the identity <span class="math inline">\(I\)</span> for <span class="math inline">\(f\)</span> if the tree is empty. Finally we would modify our <span class="math inline">\(\mathit{makeNode}\)</span> function to apply <span class="math inline">\(f\)</span>. Note that for reduced values to make sense we need to store both a value at each node, and the reduced value of all such values in the subtree. Assuming values have type <span class="math inline">\(\mathit{val}\)</span>, we could change the tree nodes to:</p>
+<p><span class="math display">\[\begin{array}{lcl}  
+      \texttt{type} ~{\mathbb{T}}&amp;= &amp;\mathit{TLeaf}\\  
+                               &amp; | &amp; \mathit{TNode} ~\texttt{of} ~({\mathbb{T}}
+                                     \times {\mathbb{K}}\times \mathbb{Z}\times  
+                                     \mathbb{Z}\times \mathit{val} \times  
+                                     \mathit{val} \times{\mathbb{T}})   
+    \end{array}\]</span> where the <span class="math inline">\(\mathit{TNode}\)</span> type now consists of a 7 tuple <span class="math inline">\((L,k,p,n,v,r,R)\)</span>, with <span class="math inline">\(L\)</span> as the left child, <span class="math inline">\(k\)</span> as the key, <span class="math inline">\(p\)</span> as the priority, <span class="math inline">\(n\)</span> as the size, <span class="math inline">\(v\)</span> as the value, <span class="math inline">\(r\)</span> as the reduced value, and <span class="math inline">\(R\)</span> as the right child. The changes to the code are then simply:</p>
+<p><span class="math display">\[\begin{array}{lcl}  
+      \mathit{reducedVal}~T =\\  
+      ~~~~\texttt{case}~T~\texttt{of}\\  
+      ~~~~~~~~\mathit{TLeaf}~\Rightarrow~\mathit{I}\\  
+      ~~~~~~|~\mathit{TNode}(\_,\_,\_,\_,\_,r,\_)~\Rightarrow r\\  
+        \\  
+      \mathit{makeNode}~(L,k,v,p,R) =\\  
+        ~~~~\texttt{let}~r = f(\mathit{reducedVal}(L), f(v,\mathit{reducedVal}(R))\\  
+        ~~~~~~~~~~~s = size(L) + 1 + size(R)\\  
+      ~~~~\texttt{in}~\mathit{TNode}(L,k,p,s,v,r,R)~\texttt{end}  
+      \end{array}\]</span></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The changes to the Treap structure (or any other balanced tree
+  structure) would be very similar to what we did to augment with
+  sizes.  In particular we would change the type of a $\cdvar{TNode}$
+  to include the reduced value.     We would then add a function for
+  extracting it.   This would return the identity $I$ for $f$ if the tree
+  is empty.    Finally we would modify our $\cdvar{makeNode}$ function
+  to apply $f$.  Note that for reduced values to make sense we need to
+  store both a value at each node, and the reduced value of all such
+  values in the subtree.
+  Assuming values have type $\cdvar{val}$, we could
+  change the tree nodes to:
+
+    \[
+    \begin{array}{lcl}
+      \cd{type} ~\tttt &= &\cdvar{TLeaf}\\
+                               & | & \cdvar{TNode} ~\cd{of} ~(\tttt 
+                                     \times \kkk \times \tyint \times
+                                     \tyint \times \cdvar{val} \times
+                                     \cdvar{val} \times\tttt) 
+    \end{array}
+  \]
+  where the $\cdvar{TNode}$ type now consists of a 7 tuple $(L,k,p,n,v,r,R)$, 
+    with $L$ as the left child, $k$ as the key, $p$ as the priority,
+    $n$ as the size, $v$ as the value, $r$ as the reduced value, and
+    $R$ as the right child.    The changes to the code are then simply:
+
+    \[
+      \begin{array}{lcl}
+      \cdvar{reducedVal}~T =\\
+      ~~~~\cd{case}~T~\cd{of}\\
+      ~~~~~~~~\cdvar{TLeaf}~\Rightarrow~\cdvar{I}\\
+      ~~~~~~|~\cdvar{TNode}(\_,\_,\_,\_,\_,r,\_)~\Rightarrow r\\
+        \\
+      \cdvar{makeNode}~(L,k,v,p,R) =\\
+        ~~~~\cd{let}~r = f(\cdvar{reducedVal}(L), f(v,\cdvar{reducedVal}(R))\\
+        ~~~~~~~~~~~s = size(L) + 1 + size(R)\\
+      ~~~~\cd{in}~\cdvar{TNode}(L,k,p,s,v,r,R)~\cd{end}
+      \end{array}
+    \]
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:nt:bst::augment::idea
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='note'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+nt:bst::augment::idea
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>This idea can be used with any binary search tree, not just Treaps. We only need to replace the function for creating a node so that as it creates the node, it also computes a reduced value for the node by summing the reduced values of the children and the value of the node itself.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+This idea can be used with any binary search tree, not just Treaps.
+We only need to replace the function for creating a node so that as it
+creates the node, it also computes a reduced value for the node by
+summing the reduced values of the children and the value of the node
+itself.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- note -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:rmrk:bst::augment::imperative
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='remark'>
+<field name='pl'>
+...NOT.PROVIDED.PL...
+</field> <!-- pl -->
+<field name='pl_version'>
+...NOT.PROVIDED.PL_VERSION...
+</field> <!-- pl_version -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+rmrk:bst::augment::imperative
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>In an imperative implementation of binary search trees, when a child node is (destructively) updated, the reduced values for the nodes on the path from the modified node to the root must be recomputed.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+In an imperative implementation of binary search trees, when a child
+  node is (destructively) updated, the reduced values for the nodes on
+  the path from the modified node to the root must be recomputed.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- remark -->
+
+</segment> <!-- cluster -->
+
+
+</segment> <!-- section -->
+
+</segment> <!-- chapter -->

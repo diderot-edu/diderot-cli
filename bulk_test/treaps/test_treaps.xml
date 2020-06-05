@@ -1,0 +1,1647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment name='chapter'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Treaps
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Treaps
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+ch:bst::treaps
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::parametric
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='preamble'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+prmbl:bst::treaps::parametric
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The parametric data structure presented in Chapter [<a href="#ch:bst::parametric" data-reference-type="ref" data-reference="ch:bst::parametric">[ch:bst::parametric]</a>] established an interesting observation: to implement the BST ADT, we only need to provide an implementation of <span class="math inline">\(\mathit{joinMid}\)</span>.</p>
+<p>In this chapter, we implement the <a href="#adt:bst::parametric" data-reference-type="ref" data-reference="adt:bst::parametric">[adt:bst::parametric]</a> interface based on a data structure called  <strong><em>Treaps</em></strong> (tree heaps). We show that <span class="math inline">\(\mathit{joinMid}\)</span>, and <span class="math inline">\(\mathit{split}\)</span> based on it, take <span class="math inline">\(O(\log n)\)</span> work (and span).</p>
+<p>Treaps achieve their efficiency by maintaining BSTs that are probabilistically balanced. Of the many balanced BST data structures, Treaps are likely the simplest, but, since they are randomized, they only guarantee approximate balance, though with high probability.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The parametric data structure presented in \chref{bst::parametric}
+  established an interesting observation: to implement the BST ADT, we only
+  need to provide an implementation of $\cdvar{joinMid}$.
+
+  In this chapter, we implement the \ref{adt:bst::parametric} interface
+  based on a data structure called~\defn{Treaps} (tree heaps).  We
+  show that $\cdvar{joinMid}$, and $\cdvar{split}$ based on it,
+  take $O(\log n)$ work (and span).
+    
+  Treaps achieve their efficiency by maintaining BSTs that are
+  probabilistically balanced.  Of the many balanced BST data
+  structures, Treaps are likely the simplest, but, since they are
+  randomized, they only guarantee approximate balance, though with
+  high probability.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- preamble -->
+
+</segment> <!-- cluster -->
+
+
+<segment name='section'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Treap Properties
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Treap Properties
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::treaps::treap-properties
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::idea
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='teachnote'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+tch:bst::treaps::idea
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>To see the idea behind Treaps, let’s first discuss how we can map a sequence of keys to a BST without worrying about balance. Given <span class="math inline">\(S\)</span>, a sequence of unique keys, let’s start with an empty BST and insert the keys in <span class="math inline">\(S\)</span> into the BST one by one. To insert a key <span class="math inline">\(k\)</span>, we perform a search for <span class="math inline">\(k\)</span> in the current BST and let <span class="math inline">\(u\)</span> be the leaf where the (unsuccessful) search terminates. To insert <span class="math inline">\(k\)</span> into the tree, we replace <span class="math inline">\(u\)</span> with a new node with key <span class="math inline">\(k\)</span>.</p>
+<p>We can map the sequence <span class="math inline">\(\left\langle\, 8,9,5,6,1,7 \,\right\rangle\)</span> to a BST by inserting the keys from left to right.</p>
+<p><img src="./bsts/media-treaps/bst5-build.jpg" alt="image" style="width:14cm" /></p>
+<p>What can we say about the height of such a tree?</p>
+<p>Note now that the height of the BST will be directly determined by the input sequence. Specifically, the specific order—or permutation—in which the keys are inserted will determine the height. For most permutations, the tree will be reasonably well balanced because we get an unbalanced tree only in cases where an element partitions the following keys unevenly. Intuitively, since we have many more even partitions for a given set of keys (many “middle” keys), many permutations create balanced trees.</p>
+<p>Can we take advantage of this observation somehow?</p>
+<p>Recall that the BST ADT does not care about the specific structure of the BST but only the set of keys in the tree. We can take advantage of this observation by selecting a (uniformly) random permutation of the keys and constructing the BST based on this permutation. Since most permutations give us reasonably balanced trees, this approach should give us a balanced tree.</p>
+<p>Suppose that we were given the keys in the sequence one by one instead of all at once. Can you think of a way to select a uniformly random permutation?</p>
+<p>Observe now that we can select a uniformly random permutation even if we don’t have all the keys by assigning a random priority to each key as it arrives and building our BST by considering the keys in the priority order. By assigning priorities randomly, we essentially guarantee that we always build our tree on a uniformly randomly selected permutation. This is one of the main ideas behind Treaps: Treaps can be viewed as maintaining a BST on a uniformly random permutation of the keys in the tree. To achieve this “imitation of randomly ordered insertions” we associate a priority with each key and require the BST to be “heap ordered” with respect to priorities.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+To see the idea behind Treaps, let's first discuss how we can map a
+  sequence of keys to a BST without worrying about balance.  Given
+  $S$, a sequence of unique keys, let's start with an empty BST and
+  insert the keys in $S$ into the BST one by one.  To insert a key
+  $k$, we perform a search for $k$ in the current BST and let $u$ be
+  the leaf where the (unsuccessful) search terminates.  To insert $k$
+  into the tree, we replace $u$ with a new node with key $k$.
+
+  We can map the sequence $\cseq{8,9,5,6,1,7}$ to a BST by inserting
+  the keys from left to right.
+
+  \begin{center}
+    \includegraphics[width=14cm,keepaspectratio]{./bsts/media-treaps/bst5-build.jpg}
+  \end{center}
+
+  What can we say about the height of such a tree? 
+
+  Note now that the height of the BST will be directly determined by
+  the input sequence.  Specifically, the specific order---or
+  permutation---in which the keys are inserted will determine the
+  height.  For most permutations, the tree will be reasonably well
+  balanced because we get an unbalanced tree only in cases where an
+  element partitions the following keys unevenly.  Intuitively, since
+  we have many more even partitions for a given set of keys (many
+  ``middle'' keys), many permutations create balanced trees.
+
+Can we take advantage of this observation somehow? 
+
+Recall that the BST ADT does not care about the specific structure of
+the BST but only the set of keys in the tree. We can take advantage of
+this observation by selecting a (uniformly) random permutation of the keys and
+constructing the BST based on this permutation.  Since most
+permutations give us reasonably balanced trees, this approach should
+give us a balanced tree.
+
+Suppose that we were given the keys in the sequence one by one instead
+of all at once.  Can you think of a way to select a uniformly random
+permutation?
+
+Observe now that we can select a uniformly random permutation even if
+we don't have all the keys by assigning a random priority to each key
+as it arrives and building our BST by considering the keys in the
+priority order.  By assigning priorities randomly, we essentially
+guarantee that we always build our tree on a uniformly randomly
+selected permutation.
+This is one of the main ideas behind Treaps: Treaps can be viewed as
+maintaining a BST on a uniformly random permutation of the keys in the
+tree. To achieve this ``imitation of randomly ordered insertions''
+we associate a priority with each key and require the BST to be ``heap
+ordered'' with respect to priorities.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- teachnote -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::treaps
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::idea
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The idea behind Treaps is to associate each key with a randomly selected priority. Then and in addition to maintaining the BST property on the keys, treaps maintain a “heap ordering” on these priorities. The heap ordering is the same as you might have seen when studying binary heaps, leading to the name“Tree Heap” or shortened to “Treap.”</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The idea behind Treaps is to associate each key with a randomly selected
+priority.   Then and in addition to maintaining the BST property
+on the keys, treaps maintain a ``heap ordering'' on these priorities.
+The heap ordering is the same as you might have seen when studying
+binary heaps, leading to the name``Tree Heap'' or shortened to ``Treap.''
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='flex'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::treap
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='definition'>
+<field name='title'>
+<![CDATA[
+Treap
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Treap
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+def:bst::treaps::treap
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>A Treap is a binary search tree over a set <span class="math inline">\(K\)</span> along with a  <strong><em>priority</em></strong> for each key given by <span class="math display">\[p : {\mathbb{K}}\rightarrow  \mathbb{Z}\]</span> that in addition to satisfying the BST property on the keys <span class="math inline">\(K\)</span>, satisfies the <em>heap property</em> on the priorities <span class="math inline">\(p(k), k \in  
+  K\)</span>. In particular for every internal node <span class="math inline">\(u\)</span> of the tree that has a parent node <span class="math inline">\(v\)</span>: <span class="math display">\[p(k(v)) \geq p(k(u))\]</span> where <span class="math inline">\(k(v)\)</span> denotes the key of a node. This simply states that the priority of the parent is greater than the priorities of its children.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+A Treap is a binary search tree over a set $K$ along with
+  a~\defn{priority} for each key given by
+  \[
+  p : \kkk \rightarrow  \tyint
+  \]
+  that in addition to satisfying the BST property on the
+  keys $K$, satisfies the \emph{heap property} on the priorities $p(k), k \in
+  K$.   In particular for every internal node $u$ of the tree that has a parent
+  node $v$:
+\[
+p(k(v)) \geq p(k(u))
+\]
+where $k(v)$ denotes the key of a node.    This simply states that the
+priority of the parent is greater than the priorities of its children.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- definition -->
+
+<atom name='example'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+xmpl:bst::treaps::key-priority
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The following key-priority pairs <span class="math inline">\((k,p(k))\)</span>, <span class="math display">\[(a,3), (b,9), (c, 2), (e,6), (f, 5)~,\]</span> where the keys are ordered alphabetically, form the following Treap:</p>
+<p><img src="./bsts/media-treaps/treap-examp.jpg" alt="image" style="width:2in" /></p>
+<p>since <span class="math inline">\(9\)</span> is larger than <span class="math inline">\(3\)</span> and <span class="math inline">\(6\)</span>, and <span class="math inline">\(6\)</span> is larger than <span class="math inline">\(2\)</span> and <span class="math inline">\(5\)</span>.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The following key-priority pairs $(k,p(k))$,
+\[ (a,3), (b,9), (c, 2), (e,6), (f, 5)~,\] where the keys are ordered
+alphabetically, form the following Treap:
+\begin{center}
+  \includegraphics[width=2.0in]{./bsts/media-treaps/treap-examp.jpg}
+\end{center}
+since $9$ is larger than $3$ and $6$, and $6$ is larger than $2$ and~$5$.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- example -->
+
+</segment> <!-- flex -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::assigning-priorities
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+Assigning Priorities
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Assigning Priorities
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::assigning-priorities
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>So how do we assign priorities? As we briefly suggested in the informal discussion above, it turns out that if the priorities are selected randomly then the tree is guaranteed to be near balanced, i.e. <span class="math inline">\(O(\lg |S|)\)</span> height, with high probability. We will show this shortly. Since we are using a function <span class="math inline">\(p(\cdot)\)</span> to generate the priorities, we assume it is a random function (i.e., it always returns the same integer for a given key, but which value it returns is random).</p>
+<p>We will <em>assume the priorities are unique</em>—i.e., every distinct key maps to a unique priority. This is not necessary for the algorithms and bounds given in this chapter, but it simplifies the description and analysis.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+So how do we assign priorities?  As we briefly suggested in the
+  informal discussion above, it turns out that if the priorities are
+  selected randomly then the tree is guaranteed to be near
+  balanced, i.e. $O(\lg |S|)$ height, with high probability.  We will
+  show this shortly.  Since we are using a function $p(\cdot)$ to
+  generate the priorities, we assume it is a random function (i.e., it
+  always returns the same integer for a given key, but which value it
+  returns is random).
+
+  We will \emph{assume the priorities are unique}---i.e., every distinct key maps to a unique
+  priority.  This is not necessary for the algorithms and bounds given
+  in this chapter, but it simplifies the description and analysis.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::the-treap-type
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+The Treap Type
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+The Treap Type
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::the-treap-type
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>In our discussion we will use the following recursive type for the definition of a BST type based on treaps. <span class="math display">\[\begin{array}{lcl}  
+      \texttt{type} ~{\mathbb{T}}&amp;= &amp;\mathit{TLeaf}\\  
+                               &amp; | &amp; \mathit{TNode} ~\texttt{of} ~({\mathbb{T}}
+                                     \times {\mathbb{K}}\times \mathbb{Z}\times  
+                                     {\mathbb{T}})  
+    \end{array}\]</span> where the <span class="math inline">\(\mathit{TNode}\)</span> type consists of a 4 tuple <span class="math inline">\((L,k,p,R)\)</span>, with <span class="math inline">\(L\)</span> as the left child, <span class="math inline">\(k\)</span> as the key, <span class="math inline">\(p\)</span> as the priority, and <span class="math inline">\(R\)</span> as the right child. We use <span class="math inline">\(\mathit{TLeaf}\)</span> and <span class="math inline">\(\mathit{TNode}\)</span> to distinguish them from <span class="math inline">\(\mathit{Leaf}\)</span> and <span class="math inline">\(\mathit{Node}\)</span> in the parametric tree interface.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+In our discussion we will use the following recursive type for the definition of a
+  BST type based on treaps.
+  \[
+    \begin{array}{lcl}
+      \cd{type} ~\tttt &= &\cdvar{TLeaf}\\
+                               & | & \cdvar{TNode} ~\cd{of} ~(\tttt
+                                     \times \kkk \times \tyint \times
+                                     \tttt)
+    \end{array}
+\]
+where the $\cdvar{TNode}$ type consists of a 4 tuple $(L,k,p,R)$, 
+    with $L$ as the left child, $k$ as the key, $p$ as the priority, 
+  and $R$ as the right child.   We use $\cdvar{TLeaf}$ and $\cdvar{TNode}$
+  to distinguish them from $\cdvar{Leaf}$ and $\cdvar{Node}$ in the parametric
+  tree interface.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::prove
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='exercise'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+xrcs:bst::treaps::prove
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Prove that if the priorities are unique, then there is exactly one tree structure that satisfies the Treap properties.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Prove that if the priorities are unique, then there is exactly one tree 
+structure that satisfies the Treap properties.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- exercise -->
+
+</segment> <!-- cluster -->
+
+
+</segment> <!-- section -->
+
+<segment name='section'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+Height Analysis of Treaps
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Height Analysis of Treaps
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::treaps::height-analysis-of-treaps
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::analyze
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::analyze
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>We can analyze the height of Treaps by relating their structure to the recursion tree of quicksort, which <a href="sec:randomization::qsort::analysis">we have already studied.</a></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+We can analyze the height of Treaps by relating their structure to
+ the recursion tree of quicksort,  which 
+\href{sec:randomization::qsort::analysis}{we have already studied.}
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::treap-generating-quicksort
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='algorithm'>
+<field name='title'>
+<![CDATA[
+Treap Generating Quicksort
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Treap Generating Quicksort
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+alg:bst::treaps::treap-generating-quicksort
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The following variant of quicksort generates a treap. This algorithm is almost identical to our previous quicksort except that it uses <span class="math inline">\(\mathit{Node}\)</span> instead of <span class="math inline">\(\mathit{append},\)</span> and Because it is generating a treap consisting of unique keys, the algorithm retains only one key equaling the pivot.</p>
+<p><span class="math display">\[\begin{array}{ll}  
+1 &amp; \mathit{qsTree} ~a =  
+\\  
+2 &amp; ~~~~\texttt{if} ~|a| = 0~  \texttt{then}  ~\mathit{TLeaf}  
+\\  
+3 &amp; ~~~~\texttt{else}~\texttt{let}  
+\\  
+4 &amp; ~~~~~~~~~~~~k = \mbox{the key $k \in a$ for which $p(k)$ is the largest}  
+\\  
+5 &amp; ~~~~~~~~~~~~L = \left\langle\, x \in a \;|\; x &lt; k \,\right\rangle  
+\\  
+6 &amp; ~~~~~~~~~~~~R = \left\langle\, x \in a \;|\; x &gt; k \,\right\rangle  
+\\  
+7 &amp; ~~~~~~~~~~~~(L&#39;, R&#39;) = (\mathit{qsTree}~L) ~~||~~(\mathit{qsTree}~R)  
+\\  
+8 &amp; ~~~~~~~~\texttt{in}  
+\\  
+9 &amp; ~~~~~~~~~~~~\mathit{TNode} ~(L&#39;, k, p(k), R&#39;)   
+\\  
+10 &amp; ~~~~~~~~\texttt{end}  
+\\  
+\end{array}\]</span></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The following variant of quicksort generates a treap.
+This algorithm is almost identical to our previous quicksort except that it
+uses $\cdvar{Node}$ instead of $\cdvar{append},$ and
+Because it is generating a treap consisting of unique keys, the
+algorithm retains only one key equaling the pivot.
+
+\[
+\begin{array}{ll}
+1 & \cdvar{qsTree} ~a =
+\\
+2 & ~~~~\cd{if} ~|a| = 0~  \cd{then}  ~\cdvar{TLeaf}
+\\
+3 & ~~~~\cd{else}~\cd{let}
+\\
+4 & ~~~~~~~~~~~~k = \mbox{the key $k \in a$ for which $p(k)$ is the largest}
+\\
+5 & ~~~~~~~~~~~~L = \cseqf{x \in a}{x < k}
+\\
+6 & ~~~~~~~~~~~~R = \cseqf{x \in a}{x > k}
+\\
+7 & ~~~~~~~~~~~~(L', R') = (\cdvar{qsTree}~L) ~~||~~(\cdvar{qsTree}~R)
+\\
+8 & ~~~~~~~~\cd{in}
+\\
+9 & ~~~~~~~~~~~~\cdvar{TNode} ~(L', k, p(k), R') 
+\\
+10 & ~~~~~~~~\cd{end}
+\\
+\end{array}
+\]
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- algorithm -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::tree
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::tree
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>The tree generated by <span class="math inline">\(\mathit{qsTree}(a)\)</span> is the Treap for the sequence <span class="math inline">\(a\)</span>. This can be seen by induction. It is true for the base case. Now assume by induction it is true for the trees returned by the two recursive calls. The tree returned by the main call is then also a Treap since the pivot <span class="math inline">\(x\)</span> has the highest priority, and therefore is correctly placed at the root, the subtrees and in heap order by induction, and because the keys in <span class="math inline">\(l\)</span> are less than the pivot, and the keys in <span class="math inline">\(r\)</span> are greater than the pivot, the tree has the BST property.</p>
+<p>Based on this isomorphism, we can bound the height of a Treap by the recursion depth of quicksort. Recall that when studying the <a href="ch:randomization::select">order statistics problem</a> we proved that if we pick the priorities at random, the recursion depth is <span class="math inline">\(O(\lg{n})\)</span> with high probability. Based on this fact, and by using <a href="sec:probability::theory::union-bound">union bound</a>, we then proved that the depth of the quicksort recursion (pivot) tree is <a href="sec:randomization::qsort::analysis::mathematical::span">logarithmic—<span class="math inline">\(O(\lg{n})\)</span>—with high probability.</a> We therefore conclude that that the height of a Treap is <span class="math inline">\(O(\lg{n})\)</span> with high probability.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+The tree generated by $\cdvar{qsTree}(a)$ is the Treap for the sequence~$a$.  
+This can be seen by induction.  
+It is true for the base case.
+Now assume by induction it is true for the trees returned by the two
+recursive calls.  
+The tree returned by the main call is then also a Treap since the
+pivot $x$ has the highest priority, and therefore is correctly placed
+at the root, the subtrees and in heap order by induction, and because
+the keys in $l$ are less than the pivot, and the keys in $r$ are
+greater than the pivot, the tree has the BST property.
+
+Based on this isomorphism, we can bound the height of a Treap by the
+recursion depth of quicksort.
+Recall that
+when studying the \href{ch:randomization::select}{order statistics problem}
+we proved that if we pick the priorities at random, the
+recursion depth is $O(\lg{n})$ with high probability. 
+Based on this fact, and by using
+\href
+{sec:probability::theory::union-bound}
+{union bound},
+we then proved that the depth of the quicksort recursion (pivot) tree
+is \href{sec:randomization::qsort::analysis::mathematical::span}{logarithmic---$O(\lg{n})$---with high probability.}
+We therefore conclude that that the height of a Treap is $O(\lg{n})$ with high probability.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+
+</segment> <!-- section -->
+
+<segment name='section'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+The Treap Data Structure
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+The Treap Data Structure
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+sec:bst::treaps::the-treap-data-structure
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::ready
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::ready
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>We are now ready to implement the <a href="#adt:bst::parametric" data-reference-type="ref" data-reference="adt:bst::parametric">[adt:bst::parametric]</a> ADT with Treaps. In particular we need an algorithm for the <span class="math inline">\(\mathit{joinMid}\)</span> function. It must maintain the Treap invariants. We hold off on implementing a <span class="math inline">\(\mathit{size}\)</span> function until the next chapter when we discuss augmenting trees. Our Treap implementation of the parametric BST ADT is defined as follows.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+We are now ready to implement the \ref{adt:bst::parametric} ADT with
+  Treaps.  In particular we need an algorithm for the
+  $\cdvar{joinMid}$ function.  It must maintain the Treap invariants.
+  We hold off on implementing a $\cdvar{size}$ function until the next
+  chapter when we discuss augmenting trees.  Our Treap implementation
+  of the parametric BST ADT is defined as follows.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::implementation
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='datastr'>
+<field name='title'>
+<![CDATA[
+Treaps
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Treaps
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+ds:bst::treaps
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p> An implementation of the <a href="#adt:bst::parametric" data-reference-type="ref" data-reference="adt:bst::parametric">[adt:bst::parametric]</a> ADT. <span class="math display">\[\begin{array}{l}  
+    \texttt{type}~{\mathbb{K}}\\  
+    \texttt{type}~{\mathbb{T}}= \mathit{TLeaf}~|~\mathit{TNode}~\texttt{of}~({\mathbb{T}}
+    \times {\mathbb{K}}\times \mathbb{Z}\times {\mathbb{T}})\\  
+    \texttt{type}~\mathbb{E} = \mathit{Leaf}~|~\mathit{Node}~\texttt{of}~({\mathbb{T}}
+    \times {\mathbb{K}}\times {\mathbb{T}})\\  
+    \\  
+    \mathit{priority}~T =\\  
+    ~~~~\texttt{case}~T~of\\  
+    ~~~~~~~~\mathit{TLeaf} \Rightarrow -\infty\\  
+    ~~~~~~|~\mathit{TNode}(L,k,p,R) \Rightarrow p\\  
+    \\  
+    \mathit{join}(T_1, (k,p), T_2) : {\mathbb{T}}\times ({\mathbb{K}}\times \mathbb{Z})  
+    \times {\mathbb{T}}\rightarrow {\mathbb{T}}=\\  
+    ~~~~\texttt{if}~(p &gt;~\mathit{priority}(T_1)) \wedge (p &gt;~\mathit{priority}(T_2))~\texttt{then}\\  
+    ~~~~~~~~\mathit{TNode}(T_1,k,p,T_2)\\  
+    ~~~~\texttt{else if}~(\mathit{priority}(T_1)~&gt;~\mathit{priority}(T_2))~\texttt{then}\\  
+    ~~~~~~~~\texttt{case}~T_1~\texttt{of}~\mathit{TNode}(L_1,k_1,p_1,R_1)\\  
+    ~~~~~~~~~~~~\Rightarrow~\mathit{TNode}(L_1,k_1,p_1,\mathit{join}(R_1,(k,p),T_2))\\  
+    ~~~~\texttt{else}\\  
+    ~~~~~~~~\texttt{case}~T_2~\texttt{of}~\mathit{TNode}(L_2,k_2,p_2,R_2)\\  
+    ~~~~~~~~~~~~\Rightarrow~\mathit{TNode}(\mathit{join}(T_1,(k,p),L_2), k_2, p_2, R_2)\\  
+    \\  
+    \mathit{expose}~T : {\mathbb{T}}\rightarrow \mathbb{E} =\\  
+    ~~~~\texttt{case}~T~\texttt{of}\\  
+    ~~~~~~~~\mathit{TLeaf} \Rightarrow \mathit{Leaf}\\  
+    ~~~~~~|~\mathit{TNode}(L,k,\_,R) \Rightarrow \mathit{Node}(L,k,R)\\  
+    \\  
+    \mathit{joinMid}~T : \mathbb{E} \rightarrow {\mathbb{T}}=\\  
+    ~~~~\texttt{case}~T~\texttt{of}\\  
+    ~~~~~~~~\mathit{Leaf} \Rightarrow \mathit{TLeaf}\\  
+    ~~~~~~|~\mathit{TNode}(L,k,R) \Rightarrow \mathit{join}(L,(k,p(k)),R)  
+  \end{array}\]</span></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+\label{ds:bst::treaps}
+  An implementation of the~\ref{adt:bst::parametric} ADT.
+\[
+  \begin{array}{l}
+    \cd{type}~\kkk\\
+    \cd{type}~\tttt = \cdvar{TLeaf}~|~\cdvar{TNode}~\cd{of}~(\tttt
+    \times \kkk \times \tyint \times \tttt)\\
+    \cd{type}~\mathbb{E} = \cdvar{Leaf}~|~\cdvar{Node}~\cd{of}~(\tttt
+    \times \kkk \times \tttt)\\
+    \\
+    \cdvar{priority}~T =\\
+    ~~~~\cd{case}~T~of\\
+    ~~~~~~~~\cdvar{TLeaf} \Rightarrow -\infty\\
+    ~~~~~~|~\cdvar{TNode}(L,k,p,R) \Rightarrow p\\
+    \\
+    \cdvar{join}(T_1, (k,p), T_2) : \tttt \times (\kkk \times \tyint)
+    \times \tttt \rightarrow \tttt =\\
+    ~~~~\cd{if}~(p >~\cdvar{priority}(T_1)) \wedge (p >~\cdvar{priority}(T_2))~\cd{then}\\
+    ~~~~~~~~\cdvar{TNode}(T_1,k,p,T_2)\\
+    ~~~~\cd{else if}~(\cdvar{priority}(T_1)~>~\cdvar{priority}(T_2))~\cd{then}\\
+    ~~~~~~~~\cd{case}~T_1~\cd{of}~\cdvar{TNode}(L_1,k_1,p_1,R_1)\\
+    ~~~~~~~~~~~~\Rightarrow~\cdvar{TNode}(L_1,k_1,p_1,\cdvar{join}(R_1,(k,p),T_2))\\
+    ~~~~\cd{else}\\
+    ~~~~~~~~\cd{case}~T_2~\cd{of}~\cdvar{TNode}(L_2,k_2,p_2,R_2)\\
+    ~~~~~~~~~~~~\Rightarrow~\cdvar{TNode}(\cdvar{join}(T_1,(k,p),L_2), k_2, p_2, R_2)\\
+    \\
+    \cdvar{expose}~T : \tttt \rightarrow \mathbb{E} =\\
+    ~~~~\cd{case}~T~\cd{of}\\
+    ~~~~~~~~\cdvar{TLeaf} \Rightarrow \cdvar{Leaf}\\
+    ~~~~~~|~\cdvar{TNode}(L,k,\_,R) \Rightarrow \cdvar{Node}(L,k,R)\\
+    \\
+    \cdvar{joinMid}~T : \mathbb{E} \rightarrow \tttt =\\
+    ~~~~\cd{case}~T~\cd{of}\\
+    ~~~~~~~~\cdvar{Leaf} \Rightarrow \cdvar{TLeaf}\\
+    ~~~~~~|~\cdvar{TNode}(L,k,R) \Rightarrow \cdvar{join}(L,(k,p(k)),R)
+  \end{array}
+  \]
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- datastr -->
+
+</segment> <!-- cluster -->
+
+<segment name='flex'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::join
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+Join
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Join
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::join
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>We now consider the algorithm for <span class="math inline">\(\mathit{join}(T_1,(k,p),T_2)\)</span>. Here <span class="math inline">\(p\)</span> is the priority of the key <span class="math inline">\(k\)</span>. Due to the requirements of <span class="math inline">\(\mathit{joinMid}\)</span> we are ensured that <span class="math inline">\(T_1 &lt; k &lt; T_2\)</span>, and we assume that <span class="math inline">\(T_1\)</span> and <span class="math inline">\(T_2\)</span> each satisfy the treap invariants (i.e., BSTs and heap ordered priorities). To maintain the treap invariants on the results, we not only need to maintain the ordering for a BST, but also need to maintain the heap property. The heap property ensures the tree is near balanced. In the following discussion, we refer to the priority of a tree as the priority of its root if its a node or <span class="math inline">\(-\infty\)</span> if it is a leaf. The helper function <span class="math inline">\(\texttt{priority}(T)\)</span> returns this priority using <span class="math inline">\(O(1)\)</span> work.</p>
+<p>To maintain the heap property, the algorithm first checks if it is “lucky” and priority <span class="math inline">\(p\)</span> is already greater than the priority of <span class="math inline">\(T_1\)</span> and <span class="math inline">\(T_2\)</span>. In this case it can just make a node directly and is done. If not, it then needs to check which of <span class="math inline">\(T_1\)</span> and <span class="math inline">\(T_2\)</span> has a higher priority since the root of that one needs to become the overall root. In the first case <span class="math inline">\(\mathit{priority}(T_1)~&gt;~\mathit{priority}(T_2)\)</span>. In this case since the priority is not negative infinity, we know <span class="math inline">\(T_1\)</span> is a node (not a leaf) and let <span class="math inline">\((L_1,k_1,p_1,R_1)\)</span> be its contents. The key <span class="math inline">\(k_1\)</span> needs to be at the root since it has the highest priority, and <span class="math inline">\(L_1\)</span> needs to be its left child since all other keys are greater than <span class="math inline">\(k_1\)</span>. This leaves us with <span class="math inline">\(R_1\)</span>, <span class="math inline">\(k\)</span>, and <span class="math inline">\(T_2\)</span>. These can just be joined recursively with <span class="math inline">\(\mathit{join}(R_1, k, p,  
+    T_2)\)</span>. We know that <span class="math inline">\(R_1 &lt; k &lt; T_2\)</span>, so the arguments are valid. There is a symmetric case when <span class="math inline">\(\mathit{priority}(T_1)~&lt;~\mathit{priority}(T_2)\)</span>.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+We now consider the algorithm for $\cdvar{join}(T_1,(k,p),T_2)$.
+    Here $p$ is the priority of the key $k$.  Due to the requirements
+    of $\cdvar{joinMid}$ we are ensured that $T_1 < k < T_2$, and we
+    assume that $T_1$ and $T_2$ each satisfy the treap invariants
+    (i.e., BSTs and heap ordered priorities).  To maintain the treap
+    invariants on the results, we not only need to maintain the
+    ordering for a BST, but also need to maintain the heap property.
+    The heap property ensures the tree is near balanced.  
+    In the following discussion, we refer to the priority of a
+    tree as the priority of its root if its a node or
+    $-\infty$ if it is a leaf.  The helper function
+    $\cd{priority}(T)$ returns this priority using $O(1)$ work.
+
+    To maintain the heap property, the algorithm first checks if it is
+    ``lucky'' and priority $p$ is already greater than the priority of
+    $T_1$ and $T_2$.   In this case it can just make a node directly
+    and is done.     If not, it then needs to check which of $T_1$ and
+    $T_2$ has a higher priority since the root of that one needs to become the overall root.   In
+    the first case $\cdvar{priority}(T_1)~>~\cdvar{priority}(T_2)$.
+    In this case since the priority is not negative infinity, we know
+    $T_1$ is a node (not a leaf) and let $(L_1,k_1,p_1,R_1)$ be its
+    contents.    The key $k_1$ needs to be at the root since it has
+    the highest priority, and
+    $L_1$ needs to be its left child since all other keys are greater
+    than $k_1$.    This leaves us with $R_1$, $k$, and $T_2$.    These
+    can just be joined recursively with $\cdvar{join}(R_1, k, p,
+    T_2)$.    We know that $R_1 < k < T_2$, so the arguments are
+    valid.    There is a symmetric case when
+$\cdvar{priority}(T_1)~<~\cdvar{priority}(T_2)$.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- flex -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::cost-of-join
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+Cost of Join
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Cost of Join
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::cost-of-join
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>Calculating the cost of join is straightforward. In particular on each step it either finishes, goes down one level in <span class="math inline">\(T_1\)</span>, or goes down one level in <span class="math inline">\(T_2\)</span>. In each case the work before the recursive call is constant. Therefore the overall work for <span class="math inline">\(\mathit{join}\)</span> is bounded by <span class="math inline">\(h(T_1) +  
+h(T_2)\)</span>. As stated the height of a treap <span class="math inline">\(T\)</span> is bounded by <span class="math inline">\(O(\log |T|)\)</span> with high probability. This means the cost of join is <span class="math inline">\(O(\log |T_1| + \log|T_2|) = O(\log(|T_1|+|T_2|)\)</span> with high probability.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+Calculating the cost of join is straightforward.   In particular on
+each step it either finishes, goes down one level in $T_1$, or goes
+down one level in $T_2$.    In each case the work before the recursive
+call is constant.
+Therefore the overall work for $\cdvar{join}$ is bounded by $h(T_1) +
+h(T_2)$.      As stated the height of a treap $T$ is bounded by
+$O(\log |T|)$ with high probability.    This means the cost of join is
+$O(\log |T_1| + \log|T_2|) = O(\log(|T_1|+|T_2|)$ with high 
+probability.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::keys
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='teachnote'>
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+lem:bst::treaps::uniqueness
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p> begin<span>lemma</span></p>
+<p>For a set of keys <span class="math inline">\(S\)</span>, if their priorities <span class="math inline">\(p(s) : s \in S\)</span> are unique, then there is exactly one Treap (i.e. shape) for <span class="math inline">\(S\)</span>.</p>
+<p>begin<span>proof</span> (By induction on size) An empty tree is a leaf (base case). Otherwise, the unique key <span class="math inline">\(k\)</span> with the highest priority in <span class="math inline">\(S\)</span> must be at the root. This fixes the keys to the left (<span class="math inline">\(\left\{ k&#39; \in S \;|\; k&#39; &lt; k \right\}\)</span>) and to the right (<span class="math inline">\(\left\{ k&#39; \in S \;|\; k&#39; &gt; k \right\}\)</span>). By induction these are unique, so the whole tree is unique. end<span>proof</span> end<span>lemma</span></p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+\label{lem:bst::treaps::uniqueness}
+begin{lemma}
+
+  For a set of keys $S$, if their priorities $p(s) : s \in S$ are unique,
+  then there is exactly one Treap (i.e. shape) for $S$.
+
+begin{proof} (By induction on size)
+An empty tree is a leaf (base case).  Otherwise, the unique key $k$
+with the highest priority in $S$ must be at the root.  This fixes the
+keys to the left ($\csetf{k' \in S}{k' < k}$) and to the right
+($\csetf{k' \in S}{k' > k}$).  By induction these are unique, so the
+whole tree is unique.
+end{proof}
+end{lemma}
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- teachnote -->
+
+</segment> <!-- cluster -->
+
+<segment name='cluster'>
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='title'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+...NOT.PROVIDED.TITLE...
+]]>
+</field> <!-- title_src -->
+<field name='label'>
+grp:bst::treaps::cost-of-split
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+
+<atom name='gram'>
+<field name='title'>
+<![CDATA[
+Cost of Split
+]]>
+</field> <!-- title -->
+<field name='title_src'>
+<![CDATA[
+Cost of Split
+]]>
+</field> <!-- title_src -->
+<field name='cover'>
+...NOT.PROVIDED.COVER...
+</field> <!-- cover -->
+<field name='sound'>
+...NOT.PROVIDED.SOUND...
+</field> <!-- sound -->
+<field name='label'>
+grm:bst::treaps::cost-of-split
+</field> <!-- label -->
+<field name='depend'>
+...NOT.PROVIDED.DEPEND...
+</field> <!-- depend -->
+<field name='point_value'>
+0.0
+</field> <!-- point_value -->
+<field name='body'>
+<![CDATA[
+<p>We now analyze the cost of <a href="alg:bst::parametric::split">the <span class="math inline">\(\mathit{split}\)</span> algorithm</a> based on our implementation of <span class="math inline">\(\mathit{joinMid}\)</span>.</p>
+<p>We note that the <span class="math inline">\(\mathit{split}\)</span> algorithm traverses the tree visiting each level once. Now at each level it does constant work plus the work of the <span class="math inline">\(\mathit{joinM}\)</span>. Notice, however, that the key <span class="math inline">\(k&#39;\)</span> used in the <span class="math inline">\(\mathit{joinM}(L_r, k,&#39; R)\)</span> (or <span class="math inline">\(\mathit{joinM}(L,k&#39;,R_l)\)</span>) has a higher priority than either of the two trees <span class="math inline">\(L_r\)</span> and <span class="math inline">\(R\)</span>. This is because in the input tree, it was above both subtrees, and by the treap invariant must have had a higher priority. Therefore the <span class="math inline">\(\mathit{join}\)</span> as described above will take constant work—it just needs to check that the priority of the key is greater than the priority of both trees, and can then on success will make the treap node immediately. Therefore the overall cost of each recursive call in <span class="math inline">\(\mathit{split}\)</span> is constant, and the overall cost of <span class="math inline">\(\mathit{split}(T)\)</span> is <span class="math inline">\(O(h(|T|))\)</span>, which is <span class="math inline">\(O(\log |T|)\)</span> with high probability.</p>
+]]>
+</field> <!-- body -->
+<field name='body_src'>
+<![CDATA[
+We now analyze the cost of~\href{alg:bst::parametric::split}{the $\cdvar{split}$ algorithm} based
+on our implementation of $\cdvar{joinMid}$.
+
+We note that the $\cdvar{split}$ algorithm traverses the tree visiting
+each level once.  Now at each level it does constant work plus the
+work of the $\cdvar{joinM}$.  Notice, however, that the key $k'$ used
+in the $\cdvar{joinM}(L_r, k,' R)$ (or $\cdvar{joinM}(L,k',R_l)$) has a
+higher priority than either of the two trees $L_r$ and $R$.  This is because in
+the input tree, it was above both subtrees, and by the treap invariant
+must have had a higher priority.  Therefore the
+$\cdvar{join}$ as described above will take constant work---it
+just needs to check that the priority of the key is greater than the
+priority of both trees, and can then on success will make the treap node immediately.
+Therefore the overall cost of each recursive call in $\cdvar{split}$
+is constant, and the overall cost of $\cdvar{split}(T)$ is
+$O(h(|T|))$, which is $O(\log |T|)$ with high probability.
+]]>
+</field> <!-- body_src -->
+
+<field name='caption'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption -->
+<field name='caption_src'>
+<![CDATA[
+...NOT.PROVIDED.CAPTION...
+]]>
+</field> <!-- caption_src -->
+</atom> <!-- gram -->
+
+</segment> <!-- cluster -->
+
+
+</segment> <!-- section -->
+
+</segment> <!-- chapter -->
