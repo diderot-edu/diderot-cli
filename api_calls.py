@@ -98,6 +98,19 @@ class DiderotAPIInterface:
             return None
         return bool(res['is_booklet'])
 
+    # TODO (rohany): Refactor existing code to use these checks.
+    def book_exists(self, course, book):
+        get_books_url = urllib.parse.urljoin(self.base_url, 'api/books/')
+        headers = {'X-CSRFToken' : self.csrftoken}
+        params = {'course__label' : course, 'label' : book}
+        response = self.client.get(get_books_url, headers=headers, params=params)
+        res = self.verify_singleton_response(response)
+        if res is None:
+            print("Input book not found.")
+            return False
+
+        return True
+
     def chapter_exists(self, course, book, chapter_num):
         # TODO (rohany): When we can filter by course label and book label for chapters,
         #  these additional accesses can be removed.

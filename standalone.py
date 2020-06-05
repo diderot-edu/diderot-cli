@@ -412,6 +412,27 @@ class DiderotAdmin(DiderotUser):
         book_label = get_or_none(book_data, "book")
         if book_label is None:
             exit_with_error("invalid JSON: could not find field 'book'")
+
+        if not self.api_client.book_exists(course_label, book_label):
+            exit_with_error(f"Fatal Error: could not find the book: {book_label}")
+
+        # Parts
+        parts = get_or_none(book_data, "parts")
+        if parts is not None:
+
+            args = {}
+            args.course = course_label
+            args.book = book_label
+
+            for part in parts:
+                args.number = get_or_none(part, "number")
+                args.title = get_or_none(part, "title")
+                args.label = get_or_none(part, "label")
+
+                if not self.api_client.create_part(args):
+                    exit_with_error("Part creation failed.")
+
+        # Chapters
         chapters = get_or_none(book_data, "chapters")
         if chapters is None:
             exit_with_error("invalid JSON: could not find field 'chapters'")
