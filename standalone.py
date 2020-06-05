@@ -414,23 +414,20 @@ class DiderotAdmin(DiderotUser):
             exit_with_error("invalid JSON: could not find field 'book'")
 
         if not self.api_client.book_exists(course_label, book_label):
-            exit_with_error(f"Fatal Error: could not find the book: {book_label}")
+            exit_with_error(f"Fatal Error: could not find the book: {book_label}")      
+        self.args.book = book_label
 
         # Parts
         parts = get_or_none(book_data, "parts")
         if parts is not None:
 
-            args = {}
-            args.course = course_label
-            args.book = book_label
-
             for part in parts:
-                args.number = get_or_none(part, "number")
-                args.title = get_or_none(part, "title")
-                args.label = get_or_none(part, "label")
+                self.args.number = get_or_none(part, "number")
+                self.args.title = get_or_none(part, "title")
+                self.args.label = get_or_none(part, "label")
 
-                if not self.api_client.create_part(args):
-                    exit_with_error("Part creation failed.")
+                if not self.api_client.create_part(self.args):
+                    print(f"Warning: Part {self.args.number} already exists")
 
         # Chapters
         chapters = get_or_none(book_data, "chapters")
@@ -467,6 +464,7 @@ class DiderotAdmin(DiderotUser):
             self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
             self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
             attachments = get_or_none(chapter, "attachments")
+            self.args.attach = None
             if attachments is not None:
                 self.args.attach = [adjust_search_path(path) for path in attachments]
             # Set default arguments that we wont use, but upload_chapter expects.
