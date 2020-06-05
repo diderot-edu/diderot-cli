@@ -1,0 +1,164 @@
+{
+  "book" : "TB.VOL.4",
+  "parts": [
+    {
+      "number": 1,
+      "title": "Introduction",
+      "label": "part:introduction"
+    },
+    {
+      "number": 2,
+      "title": "Background",
+      "label": "part:background"
+    },
+    {
+      "number": 3,
+      "title": "Language",
+      "label": "part:language"
+    },
+    {
+      "number": 4,
+      "title": "Concurrency",
+      "label": "part:concurrency"
+    },
+    {
+      "number": 5,
+      "title": "Algorithm Analysis",
+      "label": "part:analysis"
+    },
+    {
+      "number": 6,
+      "title": "Probability Theory",
+      "label": "part:probability"
+    }      
+  ],
+
+  "chapters": [
+    {
+       "number": 1,
+       "part": 1,
+       "xml": "introduction/introduction.xml",
+       "xml_pdf": "introduction/introduction.pdf"
+    },
+    {
+       "number": 2,
+       "part": 1,
+       "xml": "introduction/parallelism.xml",
+       "xml_pdf": "introduction/parallelism.pdf"
+    },
+    {
+       "number": 3,
+       "part": 1,
+       "xml": "introduction/spec.xml",
+       "xml_pdf": "introduction/spec.pdf",
+       "attachments": ["skylinelab/media/*.png"]
+    },
+    {
+       "number": 4,
+       "part": 1,
+       "xml": "genome/genome.xml",
+       "xml_pdf": "genome/genome.pdf",
+       "attachments": ["genome/media/*.jpg"]
+    },
+    {
+       "number": 5,
+       "part": 1,
+       "xml": "background/sets.xml",
+       "xml_pdf": "background/sets.pdf"
+    },
+    {
+       "number": 6,
+       "part": 1,
+       "xml": "background/graphs.xml",
+       "xml_pdf": "background/graphs.pdf",
+       "attachments": ["background/media-graphs/*.jpg"]
+    },
+    {
+       "number": 7,
+       "part": 1,
+       "xml": "language/introduction.xml",
+       "xml_pdf": "language/introduction.pdf"
+    },
+    {
+       "number": 8,
+       "part": 1,
+       "xml": "language/functional.xml",
+       "xml_pdf": "language/functional.pdf"
+    },
+    {
+       "number": 9,
+       "part": 1,
+       "xml": "language/lambda.xml",
+       "xml_pdf": "language/lambda.pdf"
+    },
+    {
+       "number": 10,
+       "part": 1,
+       "xml": "language/sparc.xml",
+       "xml_pdf": "language/sparc.pdf"
+    },
+    {
+       "number": 11,
+       "part": 1,
+       "xml": "concurrency/threads.xml",
+       "xml_pdf": "concurrency/threads.pdf"
+    },
+    {
+       "number": 12,
+       "part": 1,
+       "xml": "concurrency/mutex.xml",
+       "xml_pdf": "concurrency/mutex.pdf"
+    },
+    {
+       "number": 13,
+       "part": 1,
+       "xml": "analysis/introduction.xml",
+       "xml_pdf": "analysis/introduction.pdf"
+    },
+    {
+       "number": 14,
+       "part": 1,
+       "xml": "analysis/asymptotics.xml",
+       "xml_pdf": "analysis/asymptotics.pdf",
+       "attachments": ["analysis/media-asymptotics/*.jpg"]
+    },
+    {
+       "number": 15,
+       "part": 1,
+       "xml": "analysis/models.xml",
+       "xml_pdf": "analysis/models.pdf",
+       "attachments": ["analysis/media-models/*.jpg"]
+    },
+    {
+       "number": 16,
+       "part": 1,
+       "xml": "analysis/recurrences.xml",
+       "xml_pdf": "analysis/recurrences.pdf",
+       "attachments": ["analysis/media-recurrences/*.jpg"]
+    },
+    {
+       "number": 17,
+       "part": 1,
+       "xml": "probability/introduction.xml",
+       "xml_pdf": "probability/introduction.pdf"
+    },
+    {
+       "number": 18,
+       "part": 1,
+       "xml": "probability/spaces.xml",
+       "xml_pdf": "probability/spaces.pdf"
+    },
+    {
+       "number": 19,
+       "part": 1,
+       "xml": "probability/randomvars.xml",
+       "xml_pdf": "probability/randomvars.pdf"
+    },
+    {
+       "number": 20,
+       "part": 1,
+       "xml": "probability/expectation.xml",
+       "xml_pdf": "probability/expectation.pdf"
+    }
+   ]
+}
