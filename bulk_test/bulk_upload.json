@@ -1,0 +1,17 @@
+{
+  "book" : "BAL",
+  "chapters": [
+     {
+       "number": 3,
+       "xml": "treaps/test_treaps.xml",
+       "xml_pdf": "treaps/test_treaps.pdf",
+       "attachments": ["treaps/bst5-build.jpg", "treaps/treap-examp.jpg"]
+     },
+    {
+      "number": 4,
+      "xml": "augment/test_augment.xml",
+      "xml_pdf": "augment/test_treaps.pdf",
+      "attachments": ["augment/*.jpg"]
+    }
+   ]
+}

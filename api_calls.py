@@ -196,10 +196,10 @@ class DiderotAPIInterface:
             release_params["kind"] = "unrelease"
         self.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), data=release_params)
 
-    def upload_chapter(self, course_label, book_label, args, sleep_time=5):
+    def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        chapter = Chapter(course, book, args.chapter_number, args.chapter_label)
+        chapter = Chapter(course, book, number, label)
         update_params = {"kind": "upload content", "chapter_pk": chapter.pk}
 
         # Populate the input set of files.
@@ -222,7 +222,12 @@ class DiderotAPIInterface:
             files.append(("input_file_xml", Path(args.xml)))
             if args.attach is not None:
                 for fg in args.attach:
-                    for g in glob.glob(expand_file_path(fg)):
+                    base_path = Path(fg)
+                    file_glob = glob.glob(expand_file_path(fg))
+                    if not base_path.exists() and len(file_glob) == 0:
+                        print(f"Warning: cannot find file {fg}. Skipping.")
+                        continue
+                    for g in file_glob:
                         f = Path(g).expanduser()
                         if f.is_dir():
                             # If it is a directory, include all children.
