@@ -431,28 +431,35 @@ class DiderotAdmin(DiderotUser):
         if chapters is None:
             exit_with_error("invalid JSON: could not find field 'chapters'")
         for chapter in chapters:
+            # Extract data from chapter json
             number = get_or_none(chapter, "number")
+            label = get_or_none(chapter, "label")
+            title = get_or_none(chapter, "title")
+            attachments = get_or_none(chapter, "attachments")
+
+            self.args.pdf = adjust_search_path(get_or_none(chapter, "pdf"))
+            self.args.slides = adjust_search_path(get_or_none(chapter, "slides"))
+            self.args.video_url = adjust_search_path(get_or_none(chapter, "video"))
+            self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
+            self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
+
             if number is None:
                 exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")
+
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
                 part_num = get_or_none(chapter, "part")
                 # Non-booklets need parts for their chapters.
                 if not book.is_booklet and part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
-                self.api_client.create_chapter(course.label, book.label, part_num, number, None, None)
-                print(f"Successfully created chapter number: {number}.")
+                self.api_client.create_chapter(course.label, book.label, part_num, number, title, label)
+                print(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
 
             # Upload the target files to the chapter now.
-            self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
-            self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
-            attachments = get_or_none(chapter, "attachments")
             self.args.attach = None
             if attachments is not None:
                 self.args.attach = [adjust_search_path(path) for path in attachments]
             # Set default arguments that we wont use, but upload_chapter expects.
-            self.args.pdf = None
-            self.args.slides = None
             print(f"Uploading chapter number: {number}...")
             try:
                 self.api_client.upload_chapter(
