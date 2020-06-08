@@ -24,12 +24,16 @@ def singleton_or_none(response):
 
 # err_for_code returns an appropriate error message for HTTP errors.
 def err_for_code(code):
-    if code == 404:
-        return APIError("Unable to connect to Diderot (error 404)")
-    if code >= 500:
-        return APIError("Server failed to fulfill request for main page")
     if code == 200:
         return APIError("Authentication failed. Your credentials might be incorrect")
+    elif code == 301:
+        return APIError("Could not connect to the specified url.")
+    elif code == 404:
+        return APIError("Unable to connect to Diderot (error 404)")
+    elif code >= 500:
+        return APIError("Server failed to fulfill request for main page")
+
+
 
 
 # download_file_helper abstracts logic for downloading a file and potentially
