@@ -431,7 +431,7 @@ class DiderotAdmin(DiderotUser):
         if chapters is None:
             exit_with_error("invalid JSON: could not find field 'chapters'")
         for chapter in chapters:
-            # Extract data
+            # Extract data from chapter json
             number = get_or_none(chapter, "number")
             label = get_or_none(chapter, "label")
             title = get_or_none(chapter, "title")
