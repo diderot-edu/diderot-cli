@@ -409,8 +409,12 @@ class DiderotAdmin(DiderotUser):
         # Collect the necessary Diderot objects.
         course = Course(self.api_client.client, self.args.course)
         book_label = get_or_none(book_data, "book")
+        # Try out "label", more consistent with Diderot terminology
         if book_label is None:
-            exit_with_error("Please specify a valid course for the book upload")
+            book_label = get_or_none(book_data, "label")
+        # If book label is still None, then error out.
+        if book_label is None:
+            exit_with_error("Please specify a valid book to upload into")
         book = Book(course, book_label)
 
         # If the upload contains parts, create them.
