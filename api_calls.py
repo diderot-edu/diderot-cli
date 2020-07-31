@@ -61,16 +61,24 @@ class DiderotClient:
     def get(self, api, params=None):
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.get(url, headers={"X-CSRFToken": self.csrftoken}, params=params)
-        if response.status_code != 200:
+        if response.status_code < 200 or response.status_code >= 300:
             raise err_for_code(response.status_code)
         return response
 
-    # get is a wrapper around requests.Session.post that raises an exception
+    # post is a wrapper around requests.Session.post that raises an exception
     # when a request does not succeed.
     def post(self, api, data=None, files=None, params=None):
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.post(url, headers={"X-CSRFToken": self.csrftoken}, data=data, files=files, params=params)
-        if response.status_code != 200:
+        if response.status_code < 200 or response.status_code >= 300:
+            raise err_for_code(response.status_code)
+
+    # patch is a wrapper around requests.Session.patch that raises an exception
+    # when a request does not succeed.
+    def patch(self, api, data=None, files=None, params=None):
+        url = urllib.parse.urljoin(self.url, api)
+        response = self.client.patch(url, headers={"X-CSRFToken": self.csrftoken}, data=data, files=files, params=params)
+        if response.status_code < 200 or response.status_code >= 300:
             raise err_for_code(response.status_code)
 
     # close closes the connection to Diderot.
@@ -99,24 +107,18 @@ class DiderotAPIInterface:
             raise APIError("Input file does not exist.")
 
         f = open(full_path, "rb")
-        files = {}
-        if lab.handin_type == "TR":
-            files["submission_tar"] = f
-        elif lab.handin_type == "FU":
-            files["submission_files"] = f
-        else:
-            raise APIError("For copy-paste or per problem copy-paste handins, use the web interface.")
-        self.client.post(SUBMIT_ASSIGNMENT_API.format(course.pk), files=files, params={"hw_pk": lab.pk})
+        files = {"submission_tar": f}
+        self.client.post(SUBMIT_ASSIGNMENT_API.format(course.pk, lab.pk), files=files)
         f.close()
-        url = urllib.parse.urljoin(self.client.url, SUBMIT_ASSIGNMENT_API.format(course.pk))
-        return url + "?hw_pk={}".format(lab.pk)
+        # TODO (rohany): Add back in the URL to view the submission at once
+        #  I understand how the react server is deployed.
 
     def download_assignment(self, course_label, homework_name):
         course = Course(self.client, course_label)
         lab = Lab(course, homework_name)
-        base_path = "http://s3.amazonaws.com/" + course.autograder_bucket + "/" + lab.name + "/"
+        base_path = f"http://s3.amazonaws.com/diderot-codelabs-production/{course.label}/{lab.uuid}/"
         writeup_path = base_path + "writeup.pdf"
-        handout_path = base_path + "{}-handout-{}.tgz".format(course.number, lab.name)
+        handout_path = base_path + f"{lab.name}-handout.tgz"
         for p in [writeup_path, handout_path]:
             download_file_helper(p)
 
@@ -127,19 +129,17 @@ class DiderotAPIInterface:
         # files in the request.
         files = {}
         if args.autograde_tar is not None:
-            files["autograde-tar"] = open(expand_file_path(args.autograde_tar), "rb")
+            files["autograder-tar"] = open(expand_file_path(args.autograde_tar), "rb")
         if args.autograde_makefile is not None:
-            files["autograde-makefile"] = open(expand_file_path(args.autograde_makefile), "rb")
+            files["autograder-makefile"] = open(expand_file_path(args.autograde_makefile), "rb")
         if args.handout is not None:
             files["handout"] = open(expand_file_path(args.handout), "rb")
-        if args.writeup is not None:
-            files["writeup"] = open(expand_file_path(args.writeup), "rb")
 
         # If there are no input files, return.
         if len(files) == 0:
             return
 
-        self.client.post(UPLOAD_FILES_API.format(course.pk), files=files, params={"hw_pk": lab.pk})
+        self.client.patch(UPLOAD_FILES_API.format(course.pk, lab.pk), files=files)
         for _, v in files.items():
             v.close()
 

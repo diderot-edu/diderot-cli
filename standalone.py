@@ -283,19 +283,19 @@ class DiderotUser(object):
 
     def list_assignments(self):
         course = Course(self.api_client.client, self.args.course)
-        print_list([hw["name"] for hw in Lab.list(course)])
+        labs = [hw["name"] for hw in Lab.list(course)]
+        if len(labs) == 0:
+            print("Course has no labs.")
+        else:
+            print_list(labs)
 
     def list_courses(self):
         print_list([c["label"] for c in Course.list(self.api_client.client)])
 
     def submit_assignment(self):
         try:
-            res_url = self.api_client.submit_assignment(self.args.course, self.args.homework, self.args.handin_path)
-            print(
-                "Assignment submitted successfully. Track your submission's status at the following url: {}".format(
-                    res_url
-                )
-            )
+            self.api_client.submit_assignment(self.args.course, self.args.homework, self.args.handin_path)
+            print("Assignment submitted successfully. Track your submission's status on Diderot.")
         except APIError as e:
             print(str(e))
             exit_with_error("Something went wrong. Please try submitting on the Diderot website.")

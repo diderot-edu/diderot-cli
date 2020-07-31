@@ -26,22 +26,20 @@ SERVURL = "http://{}:{}".format(ADDR, PORT)
 # Define some sample data.
 # TODO (rohany): maybe move this into its own file
 courses = [
-    {"id": "0", "label": "TestCourse0", "number": "0", "s3_autograder_bucket": "test_bucket",},
-    {"id": "1", "label": "TestCourse1", "number": "1", "s3_autograder_bucket": "test_bucket",},
+    {"id": "0", "label": "TestCourse0", "number": "0", "s3_autograder_bucket": "test_bucket"},
+    {"id": "1", "label": "TestCourse1", "number": "1", "s3_autograder_bucket": "test_bucket"},
 ]
-codehomeworks = [
+codelabs = [
     {
         "id": "0",
         "name": "TestHW1",
-        "number": "0",
         "course": "0",
         "course__label": "TestCourse0",
-        "handin_style": "TR"
-        # TODO (rohany): not including other fields here.
+        "uuid": "",
     },
-    {"id": "1", "name": "TestHW2", "number": "1", "course": "0", "course__label": "TestCourse0", "handin_style": "FU"},
-    {"id": "2", "name": "TestHW3", "number": "0", "course": "1", "course__label": "TestCourse1"},
-    {"id": "3", "name": "TestHW4", "number": "1", "course": "1", "course__label": "TestCourse1"},
+    {"id": "1", "name": "TestHW2", "course": "0", "course__label": "TestCourse0", "uuid": ""},
+    {"id": "2", "name": "TestHW3", "course": "1", "course__label": "TestCourse1", "uuid": ""},
+    {"id": "3", "name": "TestHW4", "course": "1", "course__label": "TestCourse1", "uuid": ""},
 ]
 
 books = [
@@ -181,7 +179,7 @@ class TestDiderotUserCLI(unittest.TestCase):
         # Test that assignment data is correct when switching on course.
         for c in ["TestCourse0", "TestCourse1"]:
             output = runUserCmd("list_assignments {}".format(c))
-            correct_hws = [chw for chw in codehomeworks if chw["course__label"] == c]
+            correct_hws = [chw for chw in codelabs if chw["course__label"] == c]
             self.assertTrue(len(correct_hws) == len(output.split()))
             for hw in correct_hws:
                 self.assertTrue(hw["name"] in output)
@@ -217,10 +215,6 @@ class TestDiderotUserCLI(unittest.TestCase):
 
         # Expect successful execution here!
         output = runUserCmd("submit_assignment TestCourse0 TestHW1 testdata/test_handin.tar")
-        self.assertTrue("Assignment submitted successfully." in output)
-
-        # Expect successful execution for a file upload homework as well.
-        output = runUserCmd("submit_assignment TestCourse0 TestHW2 testdata/test_handin.tar")
         self.assertTrue("Assignment submitted successfully." in output)
 
 
@@ -395,7 +389,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
         # Expect success.
         output = runAdminCmd(
             "update_assignment TestCourse0 TestHW1 --autograde-tar testdata/autograde.tar\
-             --autograde-makefile testdata/autograde-Makefile --writeup testdata/writeup.pdf\
+             --autograde-makefile testdata/autograde-Makefile \
              --handout testdata/handout.tar"
         )
         self.assertTrue("Success uploading files." in output)

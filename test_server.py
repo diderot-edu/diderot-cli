@@ -2,8 +2,7 @@ import cgi
 import http
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from io import StringIO
-from test import ADDR, PORT, SERVURL, books, chapters, codehomeworks, courses, log, parts
+from test import ADDR, PORT, books, chapters, codelabs, courses, parts
 from urllib.parse import parse_qs, urlparse
 
 
@@ -39,9 +38,6 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
     def list_courses(self):
         return self.filter(courses)
 
-    def list_codehomeworks(self):
-        return self.filter(codehomeworks)
-
     def list_books(self):
         return self.filter(books)
 
@@ -71,8 +67,11 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/api/courses/"):
             data = self.dump(self.list_courses())
             self.api_headers(data)
-        elif self.path.startswith("/api/codehomeworks/"):
-            data = self.dump(self.list_codehomeworks())
+        elif self.path.startswith("/frontend-api/courses/0/codelabs/"):
+            data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "0"]))
+            self.api_headers(data)
+        elif self.path.startswith("/frontend-api/courses/1/codelabs/"):
+            data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "1"]))
             self.api_headers(data)
         elif self.path.startswith("/api/books/"):
             data = self.dump(self.list_books())
@@ -84,8 +83,39 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
             data = self.dump(self.list_chapters())
             self.api_headers(data)
         else:
+            print("GOT THIS URL AND IM ANGRY", self.path)
             self.send_response(200)
             self.end_headers()
+
+    def do_PATCH(self):
+        if self.path.startswith("/frontend-api/courses/0/codelabs/0"):
+            success = True
+            # HEADERS are now in dict/json style container
+            _, pdict = cgi.parse_header(self.headers["content-type"])
+
+            # boundary data needs to be encoded in a binary format
+            pdict["boundary"] = bytes(pdict["boundary"], "utf-8")
+            pdict["CONTENT-LENGTH"] = self.headers["Content-Length"]
+            fields = cgi.parse_multipart(self.rfile, pdict)
+            # assert that autograde-tar, autograde-makefile,
+            # writeup and handout are in the files list.
+            success = all(
+                [
+                    success,
+                    "autograder-makefile" in fields,
+                    "autograder-tar" in fields,
+                    "handout" in fields,
+                    ]
+            )
+            if success:
+                self.send_response(200)
+            else:
+                self.send_response(400)
+            self.send_header("Content-length", "0")
+        else:
+            self.send_response(200)
+            self.send_header("Content-length", "0")
+        self.end_headers()
 
     def do_POST(self):
         # Handle the login behavior
@@ -93,23 +123,17 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
             self.send_response(302)
             self.send_header("Content-length", "0")
         # handle submitting an assignment to course 0
-        elif self.path.startswith("/course/0/code-homeworks/view-code-homework/"):
+        elif self.path.startswith("/frontend-api/courses/0/codelabs/0/submissions/create_and_submit/"):
             success = True
-            # assert that hw_pk is in the get
-            get_params = self.get_params()
-            success = "hw_pk" in get_params and success
             # assert that submission tar is indeed in the request files
             self.rfile.readline()
             line = str(self.rfile.readline())
 
             # depending on the upload type of the homework, check that
             # the appropriate tag is in the header
-            hws = [chw for chw in codehomeworks if chw["id"] == get_params["hw_pk"]]
+            hws = [chw for chw in codelabs if chw["id"] == "0"]
             success = len(hws) == 1 and success
-            if hws[0]["handin_style"] == "TR":
-                success = 'name="submission_tar"' in line and success
-            elif hws[0]["handin_style"] == "FU":
-                success = 'name="submission_files"' in line and success
+            success = 'name="submission_tar"' in line and success
 
             if success:
                 self.send_response(200)
@@ -154,36 +178,6 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
                 success = "chapter_pk" in params and success
             else:
                 success = False
-            if success:
-                self.send_response(200)
-            else:
-                self.send_response(400)
-            self.send_header("Content-length", "0")
-        # support homework management only on course 0
-        elif self.path.startswith("/course/0/code-homeworks/admin/upload-files/"):
-            success = True
-            # assert that hw_pk is in the get
-            get_params = self.get_params()
-            success = "hw_pk" in get_params and success
-
-            # HEADERS are now in dict/json style container
-            _, pdict = cgi.parse_header(self.headers["content-type"])
-
-            # boundary data needs to be encoded in a binary format
-            pdict["boundary"] = bytes(pdict["boundary"], "utf-8")
-            pdict["CONTENT-LENGTH"] = self.headers["Content-Length"]
-            fields = cgi.parse_multipart(self.rfile, pdict)
-            # assert that autograde-tar, autograde-makefile,
-            # writeup and handout are in the files list.
-            success = all(
-                [
-                    success,
-                    "autograde-makefile" in fields,
-                    "autograde-tar" in fields,
-                    "writeup" in fields,
-                    "handout" in fields,
-                ]
-            )
             if success:
                 self.send_response(200)
             else:
