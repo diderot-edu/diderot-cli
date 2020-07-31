@@ -32,8 +32,8 @@ def err_for_code(code):
         return APIError("Unable to connect to Diderot (error 404)")
     elif code >= 500:
         return APIError("Server failed to fulfill request for main page")
-
-
+    else:
+        return APIError(f"Unhandled status code {code}")
 
 
 # download_file_helper abstracts logic for downloading a file and potentially

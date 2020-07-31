@@ -2,13 +2,13 @@ from utils import APIError, singleton_or_none
 
 # URL constants for API access.
 COURSE_API = "/api/courses/"
-LAB_API = "/api/codehomeworks/"
+LAB_API = "/frontend-api/courses/{}/codelabs/"
 BOOK_API = "/api/books/"
 PARTS_API = "/api/parts/"
 CHAPTERS_API = "/api/chapters/"
 MANAGE_BOOK_API = "/course/{}/books/manage_book/{}/"
-SUBMIT_ASSIGNMENT_API = "/course/{}/code-homeworks/view-code-homework/"
-UPLOAD_FILES_API = "/course/{}/code-homeworks/admin/upload-files/"
+SUBMIT_ASSIGNMENT_API = "/frontend-api/courses/{}/codelabs/{}/submissions/create_and_submit/"
+UPLOAD_FILES_API = "/frontend-api/courses/{}/codelabs/{}/"
 
 
 class Course:
@@ -44,24 +44,23 @@ class Lab:
         self.name = name
         self.client = course.client
         self.pk = None
-        self.handin_type = None
+        self.uuid = ""
         self._verify()
 
     def _verify(self):
         params = {
-            "course__label": self.course.label,
             "name": self.name,
         }
-        response = self.client.get(LAB_API, params=params)
+        response = self.client.get(LAB_API.format(self.course.pk), params=params)
         result = singleton_or_none(response)
         if result is None:
             raise APIError("Invalid homework name.")
         self.pk = result["id"]
-        self.handin_type = result["handin_style"]
+        self.uuid = result["uuid"]
 
     @staticmethod
     def list(course):
-        return course.client.get(LAB_API, params={"course__label": course.label}).json()
+        return course.client.get(LAB_API.format(course.pk)).json()
 
 
 class Book:
