@@ -17,7 +17,7 @@ from models import (
     Lab,
     Part,
 )
-from utils import APIError, download_file_helper, err_for_code, expand_file_path
+from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
 # DiderotClient is a wrapper around a requests.Session that maintains login

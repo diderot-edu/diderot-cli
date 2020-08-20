@@ -7,7 +7,7 @@ from pathlib import Path
 
 from api_calls import APIError, DiderotAPIInterface
 from models import Book, Chapter, Course, Lab, Part
-from utils import expand_file_path, print_list
+from cli_utils import expand_file_path, print_list
 
 assert sys.version_info >= (3, 6), "Python3.6 is required"
 

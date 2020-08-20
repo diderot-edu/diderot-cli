@@ -1,4 +1,4 @@
-from utils import APIError, singleton_or_none
+from cli_utils import APIError, singleton_or_none
 
 # URL constants for API access.
 COURSE_API = "/api/courses/"
