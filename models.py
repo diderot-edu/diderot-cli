@@ -7,6 +7,7 @@ BOOK_API = "/api/books/"
 PARTS_API = "/api/parts/"
 CHAPTERS_API = "/api/chapters/"
 MANAGE_BOOK_API = "/course/{}/books/manage_book/{}/"
+MANAGE_BOOK_API_NEW = "/frontend-api/courses/{course_id}/books/{book_id}/"
 SUBMIT_ASSIGNMENT_API = "/frontend-api/courses/{}/codelabs/{}/submissions/create_and_submit/"
 UPLOAD_FILES_API = "/frontend-api/courses/{}/codelabs/{}/"
 

@@ -115,16 +115,16 @@ def test_unrelease_chapter(client_pi, chapter):
 @pytest.mark.django_db(transaction=True)
 def test_upload_chapter(client_pi, chapter, join_threads):
     # Given a created chapter with no content
-    assert chapter.html == ""
+    assert not chapter.html
+    assert not chapter.source_xml
 
-    # In a book that is not locked
-    assert not chapter.book.is_locked()
-
-    # When an instructor tries to upload a new chapter
+    # When an instructor tries to upload new contents for the chapter
     url = MANAGE_BOOK_API.format(chapter.course_id, chapter.book_id)
-    with open("test-data/books/part-graph-contraction/introduction.xml", "rb") as xml_file:
-        data = {"kind": "upload content", "chapter_pk": chapter.pk, "input_file_xml": xml_file}
-        response = client_pi.post(url, data)
+    data = {"kind": "upload content",
+            "chapter_pk": chapter.pk,
+            "input_file_xml": open("test-data/books/part-graph-contraction/introduction.xml", "r")
+            }
+    response = client_pi.post(url, data)
 
     # Then the will get a success response (which is a redirect to the book page in this case)
     assert response.status_code == status.HTTP_302_FOUND
