@@ -120,14 +120,12 @@ class Part:
 
     @staticmethod
     def create(course, book, title, number, label):
-        params = {
-            "kind": "create part",
-            "title": title,
-            "rank": number,
-        }
+        data = {"title": title, "rank": number}
         if label is not None:
-            params["label"] = label
-        course.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), data=params)
+            data["label"] = label
+
+        route_params = {"course_id": course.pk, "book_id": book.pk}
+        course.client.post((MANAGE_BOOK_API_NEW + "parts/").format(**route_params), data=data)
 
     @staticmethod
     def exists(course, book, number):
@@ -151,6 +149,7 @@ class Chapter:
         self.pk = None
         self.number = None
         self.label = None
+        self.part_id = None
         self._verify(number, label)
 
     def _verify(self, number, label):
@@ -171,6 +170,7 @@ class Chapter:
         self.pk = result["id"]
         self.number = result["rank"]
         self.label = result["label"]
+        self.part_id = result["part"]
 
     @staticmethod
     def exists(course, book, number):
@@ -184,16 +184,14 @@ class Chapter:
 
     @staticmethod
     def create(course, book, part, number, title, label):
-        params = {
-            "kind": "create chapter",
-            "part_pk": part.pk,
-            "rank": number,
-        }
+        data = {"rank": number}
         if title is not None:
-            params["title"] = title
+            data["title"] = title
         if label is not None:
-            params["label"] = label
-        course.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), data=params)
+            data["label"] = label
+
+        route_params = {"course_id": course.pk, "book_id": book.pk, "part_id": part.pk}
+        course.client.post((MANAGE_BOOK_API_NEW + "parts/{part_id}/manage-chapters/").format(**route_params), data=data)
 
     @staticmethod
     def list(course, book):
