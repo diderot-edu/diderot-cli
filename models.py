@@ -6,8 +6,7 @@ LAB_API = "/frontend-api/courses/{}/codelabs/"
 BOOK_API = "/api/books/"
 PARTS_API = "/api/parts/"
 CHAPTERS_API = "/api/chapters/"
-MANAGE_BOOK_API = "/course/{}/books/manage_book/{}/"
-MANAGE_BOOK_API_NEW = "/frontend-api/courses/{course_id}/books/{book_id}/"
+MANAGE_BOOK_API = "/frontend-api/courses/{course_id}/books/{book_id}/"
 SUBMIT_ASSIGNMENT_API = "/frontend-api/courses/{}/codelabs/{}/submissions/create_and_submit/"
 UPLOAD_FILES_API = "/frontend-api/courses/{}/codelabs/{}/"
 
@@ -125,7 +124,7 @@ class Part:
             data["label"] = label
 
         route_params = {"course_id": course.pk, "book_id": book.pk}
-        course.client.post((MANAGE_BOOK_API_NEW + "parts/").format(**route_params), data=data)
+        course.client.post((MANAGE_BOOK_API + "parts/").format(**route_params), data=data)
 
     @staticmethod
     def exists(course, book, number):
@@ -191,7 +190,7 @@ class Chapter:
             data["label"] = label
 
         route_params = {"course_id": course.pk, "book_id": book.pk, "part_id": part.pk}
-        course.client.post((MANAGE_BOOK_API_NEW + "parts/{part_id}/manage-chapters/").format(**route_params), data=data)
+        course.client.post((MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/").format(**route_params), data=data)
 
     @staticmethod
     def list(course, book):

@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 
 from models import (
-    MANAGE_BOOK_API_NEW,
+    MANAGE_BOOK_API,
     SUBMIT_ASSIGNMENT_API,
     UPLOAD_FILES_API,
     Book,
@@ -193,7 +193,7 @@ class DiderotAPIInterface:
             "action": "publish" if release else "retract",
         }
         self.client.post(
-            (MANAGE_BOOK_API_NEW + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params)
+            (MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params)
         )
 
     def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):
@@ -253,7 +253,7 @@ class DiderotAPIInterface:
                 "action": "content_upload"
             }
             self.client.post(
-                (MANAGE_BOOK_API_NEW + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params),
+                (MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params),
                 files=opened_files
             )
 
