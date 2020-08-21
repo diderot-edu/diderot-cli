@@ -201,6 +201,7 @@ class DiderotAPIInterface:
         book = Book(course, book_label)
         chapter = Chapter(course, book, number, label)
 
+        data = {}
         # Populate the input set of files.
         files = []
         if args.pdf is not None:
@@ -208,13 +209,13 @@ class DiderotAPIInterface:
                 raise APIError("PDF argument must be a PDF file.")
             files.append(("input_file_pdf", Path(args.pdf)))
             if args.video_url is not None:
-                update_params["video_url_pdf"] = args.video_url
+                data["video_url_pdf"] = args.video_url
         elif args.slides is not None:
             if not args.slides.lower().endswith(".pdf"):
                 raise APIError("Slides argument must be a PDF file.")
             files.append(("input_file_slide", Path(args.slides)))
             if args.video_url is not None:
-                update_params["video_url_slide"] = args.video_url
+                data["video_url_slide"] = args.video_url
         elif args.xml is not None:
             if not (args.xml.lower().endswith(".xml") or args.xml.lower().endswith(".mlx")):
                 raise APIError("XML argument must be an XML or MLX file.")
@@ -254,6 +255,7 @@ class DiderotAPIInterface:
             }
             self.client.post(
                 (MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params),
+                data=data,
                 files=opened_files
             )
 
