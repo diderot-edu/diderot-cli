@@ -53,7 +53,7 @@ class DiderotCLIArgs(object):
     def generate_parser(prog, desc):
         parser = argparse.ArgumentParser(prog=prog, description=desc, formatter_class=Formatter)
         # Basic arguments not tied to a particular CLI version.
-        parser.add_argument("--url", default="https://www.diderot.one")
+        parser.add_argument("--url", default="https://api.diderot.one")
         parser.add_argument("--username", default=None)
         parser.add_argument("--password", default=None)
         parser.add_argument(
