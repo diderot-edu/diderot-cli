@@ -256,7 +256,7 @@ class DiderotUser(object):
         if self.username is None:
             exit_with_error("Supply your credentials via the CLI or a credentials file!")
         self.api_client = DiderotAPIInterface(self.args.url)
-        self.api_client.connect(self.username, self.password)
+        self.api_client.login(self.username, self.password)
 
     def dispatch(self):
         commands = {

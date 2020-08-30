@@ -81,7 +81,7 @@ class DiderotAPIInterface:
     def __init__(self, base_url):
         self.client = DiderotClient(base_url)
 
-    def connect(self, username, password):
+    def login(self, username, password):
         self.client.login(username, password)
 
     def submit_assignment(self, course_label, homework_name, filepath):
