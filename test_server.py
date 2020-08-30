@@ -119,9 +119,9 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Handle the login behavior
-        if self.path.startswith("/login/login/?next=/courses/"):
-            self.send_response(302)
-            self.send_header("Content-length", "0")
+        if self.path.startswith("/frontend-api/users/login/"):
+            data = self.dump({"key": "test"})
+            self.api_headers(data)
         # handle submitting an assignment to course 0
         elif self.path.startswith("/frontend-api/courses/0/codelabs/0/submissions/create_and_submit/"):
             success = True
