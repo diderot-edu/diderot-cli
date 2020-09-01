@@ -116,11 +116,18 @@ class DiderotAPIInterface:
     def download_assignment(self, course_label, homework_name):
         course = Course(self.client, course_label)
         lab = Lab(course, homework_name)
-        base_path = f"http://s3.amazonaws.com/diderot-codelabs-production/{course.label}/{lab.uuid}/"
-        writeup_path = base_path + "writeup.pdf"
-        handout_path = base_path + f"{lab.name}-handout.tgz"
-        for p in [writeup_path, handout_path]:
-            download_file_helper(p)
+        base_path = f"http://s3.amazonaws.com/codelabs-production/{course.label}/{lab.uuid}/"
+
+        files = {
+            'writeup': f"{base_path}writeup.pdf",
+            'handout': f"{base_path}{lab.name}-handout.tgz"
+        }
+
+        for kind, path in files.items():
+            try:
+                download_file_helper(path)
+            except APIError:
+                print(f"Could not find a {kind} for assignment {lab.name}")
 
     def update_assignment(self, course_label, homework_name, args):
         course = Course(self.client, course_label)
