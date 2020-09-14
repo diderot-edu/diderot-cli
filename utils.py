@@ -41,10 +41,10 @@ def err_for_code(code):
 def download_file_helper(url):
     r = requests.get(url, stream=True)
     if r.status_code != 200:
-        return
+        raise APIError("Non 200 status code when downloading {}".format(url))
     local_filename = url.split("/")[-1]
     if os.path.isfile(local_filename):
-        raise APIError(
+        raise FileExistsError(
             "There is already a file called {}, so I won't download a new one."
             " Rename the old one and please try again".format(local_filename)
         )
