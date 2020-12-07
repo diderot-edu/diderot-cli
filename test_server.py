@@ -36,7 +36,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         return build
 
     def list_courses(self):
-        return self.filter(courses)
+        return {"courses_active": self.filter(courses)}
 
     def list_books(self):
         return self.filter(books)
@@ -64,7 +64,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
             cookie["csrftoken"] = "dummytoken"
             self.send_header("Set-Cookie", cookie.output(header="", sep=""))
             self.end_headers()
-        elif self.path.startswith("/api/courses/"):
+        elif self.path.startswith("/frontend-api/courses/courses/available/"):
             data = self.dump(self.list_courses())
             self.api_headers(data)
         elif self.path.startswith("/frontend-api/courses/0/codelabs/"):

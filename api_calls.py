@@ -151,7 +151,7 @@ class DiderotAPIInterface:
         else:
             # Filter the books by what courses can be seen. Turn the result
             # into a map for easy lookup.
-            course_dict = dict([(course["id"], course) for course in Course.list(self.client)])
+            course_dict = dict([(course["id"], course) for course in Course.list(self.client)["courses_active"]])
             return [book for book in books if book["course"] in course_dict]
 
     def create_part(self, course_label, book_label, number, title, label):
