@@ -1,7 +1,7 @@
 from cli_utils import APIError, singleton_or_none
 
 # URL constants for API access.
-COURSE_API = "/api/courses/"
+COURSE_API = "/frontend-api/courses/courses/available/"
 LAB_API = "/frontend-api/courses/{}/codelabs/"
 BOOK_API = "/api/books/"
 PARTS_API = "/api/parts/"
@@ -22,7 +22,7 @@ class Course:
 
     def _verify(self):
         response = self.client.get(COURSE_API, params={"label": self.label})
-        result = singleton_or_none(response)
+        result = response.json()["courses_active"][0] if response.json()["courses_active"] else None
         if result is None:
             raise APIError(
                 "The requested course label does not exist. "
