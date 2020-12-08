@@ -7,16 +7,8 @@ from pathlib import Path
 
 import requests
 
-from models import (
-    MANAGE_BOOK_API,
-    SUBMIT_ASSIGNMENT_API,
-    UPLOAD_FILES_API,
-    Book,
-    Chapter,
-    Course,
-    Lab,
-    Part,
-)
+from models import Book, Chapter, Course, Lab, Part
+from constants import MANAGE_BOOK_API, SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL
 from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
@@ -34,7 +26,7 @@ class DiderotClient:
             "username": username,
             "password": password,
         }
-        login_url = urllib.parse.urljoin(self.url, "/frontend-api/users/login/")
+        login_url = urllib.parse.urljoin(self.url, LOGIN_URL)
         r = self.client.post(login_url, data=login_data)
         if len(r.history) > 0:
             code = r.history[0].status_code

@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from models import MANAGE_BOOK_API
+from constants import MANAGE_BOOK_API
 
 pytestmark = pytest.mark.django_db
 

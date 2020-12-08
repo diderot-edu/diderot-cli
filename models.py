@@ -1,14 +1,12 @@
 from cli_utils import APIError, singleton_or_none
-
-# URL constants for API access.
-COURSE_API = "/frontend-api/courses/courses/available/"
-LAB_API = "/frontend-api/courses/{}/codelabs/"
-BOOK_API = "/frontend-api/books/cli/"
-PARTS_API = "/frontend-api/parts/cli/"
-CHAPTERS_API = "/frontend-api/chapters/cli/"
-MANAGE_BOOK_API = "/frontend-api/courses/{course_id}/books/{book_id}/"
-SUBMIT_ASSIGNMENT_API = "/frontend-api/courses/{}/codelabs/{}/submissions/create_and_submit/"
-UPLOAD_FILES_API = "/frontend-api/courses/{}/codelabs/{}/"
+from constants import (
+    COURSE_API,
+    LAB_API,
+    BOOK_API,
+    PARTS_API,
+    CHAPTERS_API,
+    MANAGE_BOOK_API,
+)
 
 
 class Course:

@@ -54,16 +54,16 @@ def download_file_helper(url):
 
 
 # Utility function for pretty printing of list data within the terminal size.
-def print_list(l):
+def print_list(items):
     try:
         cols, _ = os.get_terminal_size(0)
-    except:
+    except Exception:
         cols = 40
-    if len(l) == 0:
+    if len(items) == 0:
         maxLen = 20
     else:
-        maxLen = max([len(x) for x in l]) + 2
+        maxLen = max([len(x) for x in items]) + 2
     n = max(((cols // maxLen) - 1), 1)
-    final = [l[i * n : (i + 1) * n] for i in range((len(l) + n - 1) // n)]
+    final = [items[i * n : (i + 1) * n] for i in range((len(items) + n - 1) // n)]
     for row in final:
         print(" ".join(["{: <" + str(maxLen) + "}"] * len(row)).format(*row))
