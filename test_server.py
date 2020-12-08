@@ -73,13 +73,13 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/frontend-api/courses/1/codelabs/"):
             data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "1"]))
             self.api_headers(data)
-        elif self.path.startswith("/api/books/"):
+        elif self.path.startswith("/frontend-api/books/cli/"):
             data = self.dump(self.list_books())
             self.api_headers(data)
-        elif self.path.startswith("/api/parts/"):
+        elif self.path.startswith("/frontend-api/parts/cli/"):
             data = self.dump(self.list_parts())
             self.api_headers(data)
-        elif self.path.startswith("/api/chapters/"):
+        elif self.path.startswith("/frontend-api/chapters/cli/"):
             data = self.dump(self.list_chapters())
             self.api_headers(data)
         else:
