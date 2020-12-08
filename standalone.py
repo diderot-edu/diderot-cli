@@ -6,8 +6,9 @@ import sys
 from pathlib import Path
 
 from api_calls import APIError, DiderotAPIInterface
-from models import Book, Chapter, Course, Lab, Part
 from cli_utils import expand_file_path, print_list
+from constants import DEFAULT_CRED_LOCATIONS
+from models import Book, Chapter, Course, Lab, Part
 
 assert sys.version_info >= (3, 6), "Python3.6 is required"
 
@@ -40,9 +41,6 @@ class Formatter(argparse.HelpFormatter):
 def exit_with_error(error_msg):
     print(error_msg)
     sys.exit(1)
-
-
-DEFAULT_CRED_LOCATIONS = ["~/private/.diderot/credentials", "~/.diderot/credentials"]
 
 
 # Command line argument generator for the CLI.
@@ -79,7 +77,7 @@ class DiderotCLIArgs(object):
         list_assignments.add_argument("course", help="Course to list assignments of.")
 
         # Subparser for list_courses.
-        list_courses = subparsers.add_parser("list_courses", help="List all courses.", formatter_class=Formatter)
+        subparsers.add_parser("list_courses", help="List all courses.", formatter_class=Formatter)
 
         # Subparser for submit_assignment.
         submit_assignment = subparsers.add_parser(
@@ -111,8 +109,7 @@ class DiderotCLIArgs(object):
         create_chapter.add_argument("book", help="Book to create a chapter within.")
         create_chapter.add_argument(
             "--part",
-            help="Part number that the chapter belong within. \
-                            This is not needed if the book is a booklet.",
+            help="Part number that the chapter belong within. This is not needed if the book is a booklet.",
         )
         create_chapter.add_argument("--number", help="Number of the new chapter.", required=True)
         create_chapter.add_argument("--title", help="Optional title of new chapter (default = Chapter)", default=None)
@@ -212,11 +209,10 @@ class DiderotCLIArgs(object):
     # Verify argument information about both the admin and user CLI's.
     @staticmethod
     def validate_args(args):
-        if (args.password is None and args.username is not None) or (
-            args.password is not None and args.username is None
-        ):
+        password = args.password
+        if (password is None and args.username is not None) or (password is not None and args.username is None):
             exit_with_error("Please supply both username and password")
-        if args.credentials is not None and (args.username is not None or args.password is not None):
+        if args.credentials is not None and (args.username is not None or password is not None):
             exit_with_error("Cannot use a credentials file and input a username/password")
 
 
@@ -477,7 +473,7 @@ class DiderotAdmin(DiderotUser):
                 self.api_client.upload_chapter(
                     course.label, book.label, number, None, self.args, sleep_time=self.sleep_time,
                 )
-            except APIError as e:
+            except APIError:
                 exit_with_error("Failure uploading chapter. Aborting")
             print("Successfully uploaded chapter.")
 

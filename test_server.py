@@ -1,9 +1,11 @@
 import cgi
-import http
 import json
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from test import ADDR, PORT, books, chapters, codelabs, courses, parts
 from urllib.parse import parse_qs, urlparse
+
+from test import books, chapters, codelabs, courses, parts
+from constants import ADDR, PORT, COURSE_API, BOOK_API, PARTS_API, CHAPTERS_API, LOGIN_URL
 
 
 # TODO (rohany): This seems unlikely, but maybe theres a way to run an actual
@@ -57,14 +59,8 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         # base path
         if self.path == "/":
-            self.send_response(200)
-            self.send_header("Content-length", "0")
-            self.send_header("Content-type", "text/html")
-            cookie = http.cookies.SimpleCookie()
-            cookie["csrftoken"] = "dummytoken"
-            self.send_header("Set-Cookie", cookie.output(header="", sep=""))
-            self.end_headers()
-        elif self.path.startswith("/frontend-api/courses/courses/available/"):
+            self.api_headers("")
+        elif self.path.startswith(COURSE_API):
             data = self.dump(self.list_courses())
             self.api_headers(data)
         elif self.path.startswith("/frontend-api/courses/0/codelabs/"):
@@ -73,13 +69,13 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/frontend-api/courses/1/codelabs/"):
             data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "1"]))
             self.api_headers(data)
-        elif self.path.startswith("/frontend-api/books/cli/"):
+        elif self.path.startswith(BOOK_API):
             data = self.dump(self.list_books())
             self.api_headers(data)
-        elif self.path.startswith("/frontend-api/parts/cli/"):
+        elif self.path.startswith(PARTS_API):
             data = self.dump(self.list_parts())
             self.api_headers(data)
-        elif self.path.startswith("/frontend-api/chapters/cli/"):
+        elif self.path.startswith(CHAPTERS_API):
             data = self.dump(self.list_chapters())
             self.api_headers(data)
         else:
@@ -105,7 +101,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
                     "autograder-makefile" in fields,
                     "autograder-tar" in fields,
                     "handout" in fields,
-                    ]
+                ]
             )
             if success:
                 self.send_response(200)
@@ -119,7 +115,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Handle the login behavior
-        if self.path.startswith("/frontend-api/users/login/"):
+        if self.path.startswith(LOGIN_URL):
             data = self.dump({"key": "test"})
             self.api_headers(data)
         # handle submitting an assignment to course 0

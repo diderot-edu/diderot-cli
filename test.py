@@ -1,27 +1,18 @@
 #!/usr/bin/env python3
 
 import atexit
-import http
-import json
 import logging
 import subprocess
 import sys
-import threading
 import time
 import unittest
-import urllib
-from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import StringIO
-from urllib.parse import urlparse
-
-import requests
 
 from standalone import DiderotAdmin, DiderotUser
+from constants import SERVURL
 
 log = logging.getLogger("TESTLOG")
-ADDR = "127.0.0.1"
-PORT = 8080
-SERVURL = "http://{}:{}".format(ADDR, PORT)
+
 
 # Define some sample data.
 # TODO (rohany): maybe move this into its own file
@@ -88,9 +79,9 @@ books = [
 
 # make parts for only one course.
 parts = [
-    {"id": "0", "label": "TestPart1", "book": "0", "book__id": "0", "title": "TestPart1", "rank": "1",},
-    {"id": "1", "label": "TestPart2", "book": "0", "book__id": "0", "title": "TestPart2", "rank": "2",},
-    {"id": "2", "label": "TestPart3", "book": "1", "book__id": "1", "title": "TestPart3", "rank": "1",},
+    {"id": "0", "label": "TestPart1", "book": "0", "book__id": "0", "title": "TestPart1", "rank": "1"},
+    {"id": "1", "label": "TestPart2", "book": "0", "book__id": "0", "title": "TestPart2", "rank": "2"},
+    {"id": "2", "label": "TestPart3", "book": "1", "book__id": "1", "title": "TestPart3", "rank": "1"},
 ]
 
 chapters = [
