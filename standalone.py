@@ -293,15 +293,7 @@ class DiderotUser(object):
             print_list(labs)
 
     def list_courses(self):
-        courses = Course.list(self.api_client.client)
-        print("Active courses:")
-        print_list([item["label"] for item in courses.get("courses_active", [])])
-        print()
-        print("Inactive courses:")
-        print_list([item["label"] for item in courses.get("courses_inactive", [])])
-        print()
-        print("Public courses:")
-        print_list([item["label"] for item in courses.get("courses_public", [])])
+        print_list([c["label"] for c in Course.list(self.api_client.client)])
 
     def submit_assignment(self):
         try:
