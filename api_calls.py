@@ -173,12 +173,11 @@ class DiderotAPIInterface:
         route_params = {
             "course_id": course.pk,
             "book_id": book.pk,
-            "part_id": chapter.part_id,
             "chapter_id": chapter.pk,
             "action": "publish" if release else "retract",
         }
         self.client.post(
-            (MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params)
+            (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
         )
 
     def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):
@@ -234,12 +233,11 @@ class DiderotAPIInterface:
             route_params = {
                 "course_id": course.pk,
                 "book_id": book.pk,
-                "part_id": chapter.part_id,
                 "chapter_id": chapter.pk,
                 "action": "content_upload"
             }
             self.client.post(
-                (MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/{chapter_id}/{action}/").format(**route_params),
+                (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params),
                 data=data,
                 files=opened_files
             )
