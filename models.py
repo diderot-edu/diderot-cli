@@ -20,7 +20,8 @@ class Course:
 
     def _verify(self):
         response = self.client.get(COURSE_API, params={"label": self.label})
-        result = response.json()["courses_active"][0] if response.json()["courses_active"] else None
+        # result = response.json()["courses_active"][0] if response.json()["courses_active"] else None
+        result = singleton_or_none(response)
         if result is None:
             raise APIError(
                 "The requested course label does not exist. "

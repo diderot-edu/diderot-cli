@@ -1,5 +1,5 @@
 # URL constants for API access.
-COURSE_API = "/frontend-api/courses/courses/available/"
+COURSE_API = "/frontend-api/courses/courses/"
 LAB_API = "/frontend-api/courses/{}/codelabs/"
 BOOK_API = "/frontend-api/books/cli/"
 PARTS_API = "/frontend-api/parts/cli/"

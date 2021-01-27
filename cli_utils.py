@@ -23,7 +23,7 @@ def singleton_or_none(response):
 
 
 # err_for_code returns an appropriate error message for HTTP errors.
-def err_for_code(code):
+def err_for_code(code, response=None):
     if code == 200:
         return APIError("Authentication failed. Your credentials might be incorrect")
     elif code == 301:
@@ -33,6 +33,9 @@ def err_for_code(code):
     elif code >= 500:
         return APIError("Server failed to fulfill request for main page")
     else:
+        if response is not None and getattr(response, "json") and response.json():
+            return APIError(f"Unhandled status code {code}, {response.json()}")
+
         return APIError(f"Unhandled status code {code}")
 
 

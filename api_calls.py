@@ -44,7 +44,7 @@ class DiderotClient:
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.get(url, headers=self.token_header, params=params)
         if response.status_code < 200 or response.status_code >= 300:
-            raise err_for_code(response.status_code)
+            raise err_for_code(response.status_code, response=response)
         return response
 
     # post is a wrapper around requests.Session.post that raises an exception
@@ -53,7 +53,7 @@ class DiderotClient:
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.post(url, headers=self.token_header, data=data, files=files, params=params)
         if response.status_code < 200 or response.status_code >= 300:
-            raise err_for_code(response.status_code)
+            raise err_for_code(response.status_code, response=response)
 
     # patch is a wrapper around requests.Session.patch that raises an exception
     # when a request does not succeed.
@@ -61,7 +61,7 @@ class DiderotClient:
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.patch(url, headers=self.token_header, data=data, files=files, params=params)
         if response.status_code < 200 or response.status_code >= 300:
-            raise err_for_code(response.status_code)
+            raise err_for_code(response.status_code, response=response)
 
     # close closes the connection to Diderot.
     def close(self):
