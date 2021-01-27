@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import json
 import os
 import shlex
@@ -115,6 +116,12 @@ class DiderotCLIArgs(object):
         create_chapter.add_argument("--title", help="Optional title of new chapter (default = Chapter)", default=None)
         create_chapter.add_argument(
             "--label", help="Optional label of new chapter (default= randomly generated)", default=None
+        )
+        create_chapter.add_argument(
+            "--publish_date", help="Optional publish date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
+        )
+        create_chapter.add_argument(
+            "--due_date", help="Optional due date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
         )
 
         # Subparser for create_part.

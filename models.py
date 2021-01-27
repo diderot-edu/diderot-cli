@@ -139,7 +139,7 @@ class Part:
 
 
 class Chapter:
-    def __init__(self, course, book, number, label):
+    def __init__(self, course, book, number, label, publish_date=None, due_date=None):
         self.course = course
         self.book = book
         self.client = course.client
@@ -147,6 +147,8 @@ class Chapter:
         self.number = None
         self.label = None
         self.part_id = None
+        self.publish_date = publish_date
+        self.due_date = due_date
         self._verify(number, label)
 
     def _verify(self, number, label):
@@ -187,8 +189,10 @@ class Chapter:
         if label is not None:
             data["label"] = label
 
-        route_params = {"course_id": course.pk, "book_id": book.pk, "part_id": part.pk}
-        course.client.post((MANAGE_BOOK_API + "parts/{part_id}/manage-chapters/").format(**route_params), data=data)
+        data["part"] = part.pk
+
+        route_params = {"course_id": course.pk, "book_id": book.pk}
+        course.client.post((MANAGE_BOOK_API + "manage-chapters/").format(**route_params), data=data)
 
     @staticmethod
     def list(course, book):
