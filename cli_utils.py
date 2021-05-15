@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 
@@ -33,8 +34,11 @@ def err_for_code(code, response=None):
     elif code >= 500:
         return APIError("Server failed to fulfill request for main page")
     else:
-        if response is not None and getattr(response, "json") and response.json():
-            return APIError(f"Unhandled status code {code}, {response.json()}")
+        try:
+            if response is not None and getattr(response, "json") and response.json():
+                return APIError(f"Unhandled status code {code}, {response.json()}")
+        except json.decoder.JSONDecodeError:
+            return APIError(f"Unhandled status code {code}, error {response.content}")
 
         return APIError(f"Unhandled status code {code}")
 

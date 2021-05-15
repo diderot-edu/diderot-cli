@@ -420,6 +420,13 @@ class DiderotAdmin(DiderotUser):
             exit_with_error("Please specify a valid book to upload into")
         book = Book(course, book_label)
 
+        book_data_chapters = book_data.get("chapters", [])
+        book_data_chapter_numbers = set([c.get("number") for c in book_data_chapters])
+        actual_chapter_numbers = set([int(float(c["rank"])) for c in Chapter.list(course, book)])
+        union_chapter_numbers = actual_chapter_numbers.union(book_data_chapter_numbers)
+        if union_chapter_numbers != set(range(1, len(union_chapter_numbers)+1)):
+            exit_with_error(f"invalid JSON: resulting chapters numbers are inconsistent, should be a sequence of integers starting with 1 including existing chapters. Current numbers set is: {actual_chapter_numbers} and resulting using json is {union_chapter_numbers}")
+
         # If the upload contains parts, create them.
         parts = get_or_none(book_data, "parts")
         if parts is not None:
@@ -437,6 +444,7 @@ class DiderotAdmin(DiderotUser):
         chapters = get_or_none(book_data, "chapters")
         if chapters is None:
             exit_with_error("invalid JSON: could not find field 'chapters'")
+
         for chapter in chapters:
             # Extract data from chapter json
             number = get_or_none(chapter, "number")

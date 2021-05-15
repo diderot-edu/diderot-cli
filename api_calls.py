@@ -222,12 +222,12 @@ class DiderotAPIInterface:
                         f = Path(g).expanduser()
                         if f.is_dir():
                             # If it is a directory, include all children.
-                            files.extend([("image", m) for m in f.glob("**/*")])
+                            files.extend([("attachments", m) for m in f.glob("**/*")])
                         else:
                             # If it is a file, add it directly.
-                            files.append(("image", f))
+                            files.append(("attachments", f))
             if args.xml_pdf is not None:
-                files.append(("input_file_xml_pdf", Path(args.xml_pdf)))
+                files.append(("input_file_pdf", Path(args.xml_pdf)))
 
         for _, p in files:
             print("Uploading file:", p.name)
