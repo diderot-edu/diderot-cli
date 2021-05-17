@@ -38,7 +38,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         return build
 
     def list_courses(self):
-        return {"courses_active": self.filter(courses)}
+        return self.filter(courses)
 
     def list_books(self):
         return self.filter(books)

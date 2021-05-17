@@ -161,7 +161,7 @@ class TestDiderotUserCLI(unittest.TestCase):
     def test_list_courses(self):
         output = runUserCmd("list_courses").split()
         # 6 extra elements in output for labels (splitted): "Active courses", "Inactive courses", "public courses"
-        self.assertEqual(len(courses) + 6, len(output))
+        self.assertEqual(len(courses), len(output))
         for c in courses:
             self.assertTrue(c["label"] in output)
 

@@ -421,11 +421,30 @@ class DiderotAdmin(DiderotUser):
         book = Book(course, book_label)
 
         book_data_chapters = book_data.get("chapters", [])
+
+        book_data_parts = book_data.get("parts", [])
+        book_data_part_numbers = set([c.get("number") for c in book_data_parts])
+        chapters_data_part_numbers = set([c.get("part") for c in book_data_chapters])
+        actual_part_numbers = set([int(float(c["rank"])) for c in Part.list(course, book)])
+        union_part_numbers = actual_part_numbers.union(book_data_part_numbers)
+        if union_part_numbers != set(range(1, len(union_part_numbers) + 1)):
+            exit_with_error(f"invalid JSON: resulting parts numbers are inconsistent, "
+                            f"should be a sequence of integers starting with 1 including existing parts. "
+                            f"Current numbers set is: {actual_part_numbers} and resulting using json "
+                            f"is {union_part_numbers}")
+        elif not chapters_data_part_numbers.issubset(union_part_numbers):
+            exit_with_error(f"invalid JSON: some parts numbers for chapters are invalid. "
+                            f"Resulting part number set (existing and new) is {union_part_numbers} and specified in"
+                            f" chapter number set is {chapters_data_part_numbers}")
+
         book_data_chapter_numbers = set([c.get("number") for c in book_data_chapters])
         actual_chapter_numbers = set([int(float(c["rank"])) for c in Chapter.list(course, book)])
         union_chapter_numbers = actual_chapter_numbers.union(book_data_chapter_numbers)
         if union_chapter_numbers != set(range(1, len(union_chapter_numbers)+1)):
-            exit_with_error(f"invalid JSON: resulting chapters numbers are inconsistent, should be a sequence of integers starting with 1 including existing chapters. Current numbers set is: {actual_chapter_numbers} and resulting using json is {union_chapter_numbers}")
+            exit_with_error(f"invalid JSON: resulting chapters numbers are inconsistent, "
+                            f"should be a sequence of integers starting with 1 including existing chapters. "
+                            f"Current numbers set is: {actual_chapter_numbers} and resulting using json "
+                            f"is {union_chapter_numbers}")
 
         # If the upload contains parts, create them.
         parts = get_or_none(book_data, "parts")
