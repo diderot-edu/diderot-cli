@@ -30,8 +30,8 @@ def test_students_forbidden(api_client, mk_chapter, student):
 
     # When they try to access the book management endpoint
     route_params = {"course_id": chapter.course.pk, "book_id": chapter.book.pk,
-                   "chapter_id": chapter.id, "action": "publish"}
-    url = (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
+                    "chapter_id": chapter.id, "action": "publish"}
+    url = MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
     response = api_client.post(url, {})
 
     # Then they will get a 403 forbidden response
@@ -94,7 +94,7 @@ def test_release_chapter(api_client, mk_chapter, pi):
     # When an instructor tries to release the chapter
     route_params = {"course_id": chapter.course.pk, "book_id": chapter.book.pk,
                     "chapter_id": chapter.id, "action": "publish"}
-    url = (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
+    url = MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
     response = api_client.post(url, {})
 
     # Then the will get a success response
@@ -117,7 +117,7 @@ def test_unrelease_chapter(api_client, mk_chapter, pi):
     # When they try to unrelease the chapter
     route_params = {"course_id": chapter.course.pk, "book_id": chapter.book.pk,
                     "chapter_id": chapter.id, "action": "retract"}
-    url = (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
+    url = MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
     response = api_client.post(url, {})
 
     # Then the will get a success response
@@ -141,7 +141,7 @@ def test_upload_chapter(api_client, join_threads, mk_chapter, pi):
     # When they try to upload new contents for the chapter
     route_params = {"course_id": chapter.course.pk, "book_id": chapter.book.pk,
                     "chapter_id": chapter.id, "action": "content_upload"}
-    url = (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
+    url = MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
     data = {"input_file_xml": open("test-data/books/part-graph-contraction/introduction.xml", "r")}
     response = api_client.post(url, data, format="multipart")
 
