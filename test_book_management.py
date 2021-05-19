@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from constants import MANAGE_BOOK_API
+from constants import MANAGE_BOOK_API, MANAGE_CHAPTER_WITH_ACTION_API
 
 pytestmark = pytest.mark.django_db
 
@@ -13,7 +13,7 @@ def test_unauthorized_request(api_client, mk_chapter):
     # When a user that is not logged in tries to access the endpoint
     route_params = {"course_id": chapter.course.pk, "book_id": chapter.book.pk,
                     "chapter_id": chapter.id, "action": "publish"}
-    url = (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
+    url = MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
     response = api_client.post(url, {})
 
     # Then they will get a 401 unauthorized response

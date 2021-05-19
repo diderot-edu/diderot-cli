@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 
 from models import Book, Chapter, Course, Lab, Part
-from constants import MANAGE_BOOK_API, SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL
+from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API
 from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
@@ -20,7 +20,7 @@ class DiderotClient:
         self.token_header = {}
         self.client = requests.session()
 
-    # login logs into Diderot to get the authentication token
+    # log in to the Diderot to get the authentication token
     def login(self, username, password):
         login_data = {
             "username": username,
@@ -184,7 +184,7 @@ class DiderotAPIInterface:
             "action": "publish" if release else "retract",
         }
         self.client.post(
-            (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params)
+            MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
         )
 
     def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):
@@ -244,7 +244,7 @@ class DiderotAPIInterface:
                 "action": "content_upload"
             }
             self.client.post(
-                (MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/").format(**route_params),
+                MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params),
                 data=data,
                 files=opened_files
             )
