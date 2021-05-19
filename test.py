@@ -414,13 +414,6 @@ class TestDiderotAdminCLI(unittest.TestCase):
         output = runAdminCmd("upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf dummy.pdf --attach dummy")
         self.assertTrue("Cannot use --attach if not uploading xml/mlx." in output)
 
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides dummy.pdf --attach dummy"
-        )
-        self.assertTrue("Cannot use --attach if not uploading xml/mlx." in output)
-
-        # Test that pdf, slides, xml work.
-
         # Pdf upload test.
         # Expect an error if used not on a pdf.
         output = runAdminCmd(
@@ -430,18 +423,6 @@ class TestDiderotAdminCLI(unittest.TestCase):
 
         output = runAdminCmd(
             "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf testdata/chapter.pdf --video_url fakeurl"
-        )
-        self.assertTrue("Chapter uploaded successfully." in output)
-
-        # Slides upload test.
-        # Expect an error if used not on a pdf.
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides testdata/book.xml --video_url fakeurl"
-        )
-        self.assertTrue("Slides argument must be a PDF file." in output)
-
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides testdata/slides.pdf --video_url fakeurl"
         )
         self.assertTrue("Chapter uploaded successfully." in output)
 

@@ -191,7 +191,6 @@ class DiderotCLIArgs(object):
         chapter_id_group.add_argument("--chapter_label", default=None, help="Label of chapter to upload to.")
         file_type_group = upload_chapter.add_mutually_exclusive_group(required=True)
         file_type_group.add_argument("--pdf", default=None, help="Upload PDF content.")
-        file_type_group.add_argument("--slides", default=None, help="Upload a slideshow in PDF format.")
         file_type_group.add_argument("--xml", default=None, help="Upload an XML/MLX document.")
         upload_chapter.add_argument("--video_url", default=None, help="URL to a video to embed into the chapter.")
         upload_chapter.add_argument("--xml_pdf", default=None, help="PDF version of the XML document for printing.")
@@ -472,7 +471,6 @@ class DiderotAdmin(DiderotUser):
             attachments = get_or_none(chapter, "attachments")
 
             self.args.pdf = adjust_search_path(get_or_none(chapter, "pdf"))
-            self.args.slides = adjust_search_path(get_or_none(chapter, "slides"))
             self.args.video_url = adjust_search_path(get_or_none(chapter, "video"))
             self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
             self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
@@ -504,8 +502,6 @@ class DiderotAdmin(DiderotUser):
             print("Successfully uploaded chapter.")
 
     def upload_chapter(self):
-        if self.args.video_url is not None and self.args.xml is not None:
-            exit_with_error("Cannot use --video_url with xml uploads.\nFailure uploading chapter.")
         if self.args.attach is not None and self.args.xml is None:
             exit_with_error("Cannot use --attach if not uploading xml/mlx.\nFailure uploading chapter.")
         self.api_client.upload_chapter(

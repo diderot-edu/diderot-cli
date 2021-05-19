@@ -199,14 +199,6 @@ class DiderotAPIInterface:
             if not args.pdf.lower().endswith(".pdf"):
                 raise APIError("PDF argument must be a PDF file.")
             files.append(("input_file_pdf", Path(args.pdf)))
-            if args.video_url is not None:
-                data["video_url_pdf"] = args.video_url
-        elif args.slides is not None:
-            if not args.slides.lower().endswith(".pdf"):
-                raise APIError("Slides argument must be a PDF file.")
-            files.append(("input_file_slide", Path(args.slides)))
-            if args.video_url is not None:
-                data["video_url_slide"] = args.video_url
         elif args.xml is not None:
             if not (args.xml.lower().endswith(".xml") or args.xml.lower().endswith(".mlx")):
                 raise APIError("XML argument must be an XML or MLX file.")
@@ -228,6 +220,9 @@ class DiderotAPIInterface:
                             files.append(("attachments", f))
             if args.xml_pdf is not None:
                 files.append(("input_file_pdf", Path(args.xml_pdf)))
+
+        if args.video_url is not None:
+            data["video_url"] = args.video_url
 
         for _, p in files:
             print("Uploading file:", p.name)
