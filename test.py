@@ -405,15 +405,6 @@ class TestDiderotAdminCLI(unittest.TestCase):
         output = runAdminCmd("upload_chapter TestCourse0 TestBook1 --chapter_label fakelabel --pdf fakepdf")
         self.assertTrue("Input chapter not found." in output)
 
-        # Test acceptance / not acceptance of certain argument combinations.
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml dummy.xml --video_url fakeurl"
-        )
-        self.assertTrue("Cannot use --video_url with xml uploads." in output)
-
-        output = runAdminCmd("upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf dummy.pdf --attach dummy")
-        self.assertTrue("Cannot use --attach if not uploading xml/mlx." in output)
-
         # Pdf upload test.
         # Expect an error if used not on a pdf.
         output = runAdminCmd(
