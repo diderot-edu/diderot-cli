@@ -1,14 +1,12 @@
-from utils import APIError, singleton_or_none
-
-# URL constants for API access.
-COURSE_API = "/api/courses/"
-LAB_API = "/frontend-api/courses/{}/codelabs/"
-BOOK_API = "/api/books/"
-PARTS_API = "/api/parts/"
-CHAPTERS_API = "/api/chapters/"
-MANAGE_BOOK_API = "/course/{}/books/manage_book/{}/"
-SUBMIT_ASSIGNMENT_API = "/frontend-api/courses/{}/codelabs/{}/submissions/create_and_submit/"
-UPLOAD_FILES_API = "/frontend-api/courses/{}/codelabs/{}/"
+from cli_utils import APIError, singleton_or_none
+from constants import (
+    COURSE_API,
+    LAB_API,
+    BOOK_API,
+    PARTS_API,
+    CHAPTERS_API,
+    MANAGE_BOOK_API,
+)
 
 
 class Course:
@@ -119,14 +117,12 @@ class Part:
 
     @staticmethod
     def create(course, book, title, number, label):
-        params = {
-            "kind": "create part",
-            "title": title,
-            "rank": number,
-        }
+        data = {"title": title, "rank": number}
         if label is not None:
-            params["label"] = label
-        course.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), data=params)
+            data["label"] = label
+
+        route_params = {"course_id": course.pk, "book_id": book.pk}
+        course.client.post((MANAGE_BOOK_API + "parts/").format(**route_params), data=data)
 
     @staticmethod
     def exists(course, book, number):
@@ -143,13 +139,16 @@ class Part:
 
 
 class Chapter:
-    def __init__(self, course, book, number, label):
+    def __init__(self, course, book, number, label, publish_date=None, due_date=None):
         self.course = course
         self.book = book
         self.client = course.client
         self.pk = None
         self.number = None
         self.label = None
+        self.part_id = None
+        self.publish_date = publish_date
+        self.due_date = due_date
         self._verify(number, label)
 
     def _verify(self, number, label):
@@ -170,6 +169,7 @@ class Chapter:
         self.pk = result["id"]
         self.number = result["rank"]
         self.label = result["label"]
+        self.part_id = result["part"]
 
     @staticmethod
     def exists(course, book, number):
@@ -183,16 +183,16 @@ class Chapter:
 
     @staticmethod
     def create(course, book, part, number, title, label):
-        params = {
-            "kind": "create chapter",
-            "part_pk": part.pk,
-            "rank": number,
-        }
+        data = {"rank": number}
         if title is not None:
-            params["title"] = title
+            data["title"] = title
         if label is not None:
-            params["label"] = label
-        course.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), data=params)
+            data["label"] = label
+
+        data["part"] = part.pk
+
+        route_params = {"course_id": course.pk, "book_id": book.pk}
+        course.client.post((MANAGE_BOOK_API + "manage-chapters/").format(**route_params), data=data)
 
     @staticmethod
     def list(course, book):

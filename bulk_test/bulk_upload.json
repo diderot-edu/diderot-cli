@@ -1,14 +1,23 @@
 {
   "book" : "BAL",
+  "parts": [
+    {
+      "number": 1,
+      "title": "Graphs and Graph Search",
+      "label": "part:graphs"
+    }
+  ],
   "chapters": [
      {
-       "number": 3,
+       "number": 1,
+       "part": 1,
        "xml": "treaps/test_treaps.xml",
        "xml_pdf": "treaps/test_treaps.pdf",
        "attachments": ["treaps/bst5-build.jpg", "treaps/treap-examp.jpg"]
      },
     {
-      "number": 4,
+      "number": 2,
+       "part": 1,
       "xml": "augment/test_augment.xml",
       "xml_pdf": "augment/test_treaps.pdf",
       "attachments": ["augment/*.jpg"]

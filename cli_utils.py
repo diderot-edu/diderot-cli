@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 
@@ -23,7 +24,7 @@ def singleton_or_none(response):
 
 
 # err_for_code returns an appropriate error message for HTTP errors.
-def err_for_code(code):
+def err_for_code(code, response=None):
     if code == 200:
         return APIError("Authentication failed. Your credentials might be incorrect")
     elif code == 301:
@@ -33,6 +34,12 @@ def err_for_code(code):
     elif code >= 500:
         return APIError("Server failed to fulfill request for main page")
     else:
+        try:
+            if response is not None and getattr(response, "json") and response.json():
+                return APIError(f"Unhandled status code {code}, {response.json()}")
+        except json.decoder.JSONDecodeError:
+            return APIError(f"Unhandled status code {code}, error {response.content}")
+
         return APIError(f"Unhandled status code {code}")
 
 
@@ -54,16 +61,16 @@ def download_file_helper(url):
 
 
 # Utility function for pretty printing of list data within the terminal size.
-def print_list(l):
+def print_list(items):
     try:
         cols, _ = os.get_terminal_size(0)
-    except:
+    except Exception:
         cols = 40
-    if len(l) == 0:
+    if len(items) == 0:
         maxLen = 20
     else:
-        maxLen = max([len(x) for x in l]) + 2
+        maxLen = max([len(x) for x in items]) + 2
     n = max(((cols // maxLen) - 1), 1)
-    final = [l[i * n : (i + 1) * n] for i in range((len(l) + n - 1) // n)]
+    final = [items[i * n : (i + 1) * n] for i in range((len(items) + n - 1) // n)]
     for row in final:
         print(" ".join(["{: <" + str(maxLen) + "}"] * len(row)).format(*row))

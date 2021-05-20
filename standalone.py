@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import json
 import os
 import shlex
@@ -6,8 +7,9 @@ import sys
 from pathlib import Path
 
 from api_calls import APIError, DiderotAPIInterface
+from cli_utils import expand_file_path, print_list
+from constants import DEFAULT_CRED_LOCATIONS
 from models import Book, Chapter, Course, Lab, Part
-from utils import expand_file_path, print_list
 
 assert sys.version_info >= (3, 6), "Python3.6 is required"
 
@@ -40,9 +42,6 @@ class Formatter(argparse.HelpFormatter):
 def exit_with_error(error_msg):
     print(error_msg)
     sys.exit(1)
-
-
-DEFAULT_CRED_LOCATIONS = ["~/private/.diderot/credentials", "~/.diderot/credentials"]
 
 
 # Command line argument generator for the CLI.
@@ -79,7 +78,7 @@ class DiderotCLIArgs(object):
         list_assignments.add_argument("course", help="Course to list assignments of.")
 
         # Subparser for list_courses.
-        list_courses = subparsers.add_parser("list_courses", help="List all courses.", formatter_class=Formatter)
+        subparsers.add_parser("list_courses", help="List all courses.", formatter_class=Formatter)
 
         # Subparser for submit_assignment.
         submit_assignment = subparsers.add_parser(
@@ -111,13 +110,18 @@ class DiderotCLIArgs(object):
         create_chapter.add_argument("book", help="Book to create a chapter within.")
         create_chapter.add_argument(
             "--part",
-            help="Part number that the chapter belong within. \
-                            This is not needed if the book is a booklet.",
+            help="Part number that the chapter belong within. This is not needed if the book is a booklet.",
         )
         create_chapter.add_argument("--number", help="Number of the new chapter.", required=True)
         create_chapter.add_argument("--title", help="Optional title of new chapter (default = Chapter)", default=None)
         create_chapter.add_argument(
             "--label", help="Optional label of new chapter (default= randomly generated)", default=None
+        )
+        create_chapter.add_argument(
+            "--publish_date", help="Optional publish date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
+        )
+        create_chapter.add_argument(
+            "--due_date", help="Optional due date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
         )
 
         # Subparser for create_part.
@@ -187,7 +191,6 @@ class DiderotCLIArgs(object):
         chapter_id_group.add_argument("--chapter_label", default=None, help="Label of chapter to upload to.")
         file_type_group = upload_chapter.add_mutually_exclusive_group(required=True)
         file_type_group.add_argument("--pdf", default=None, help="Upload PDF content.")
-        file_type_group.add_argument("--slides", default=None, help="Upload a slideshow in PDF format.")
         file_type_group.add_argument("--xml", default=None, help="Upload an XML/MLX document.")
         upload_chapter.add_argument("--video_url", default=None, help="URL to a video to embed into the chapter.")
         upload_chapter.add_argument("--xml_pdf", default=None, help="PDF version of the XML document for printing.")
@@ -212,11 +215,10 @@ class DiderotCLIArgs(object):
     # Verify argument information about both the admin and user CLI's.
     @staticmethod
     def validate_args(args):
-        if (args.password is None and args.username is not None) or (
-            args.password is not None and args.username is None
-        ):
+        password = args.password
+        if (password is None and args.username is not None) or (password is not None and args.username is None):
             exit_with_error("Please supply both username and password")
-        if args.credentials is not None and (args.username is not None or args.password is not None):
+        if args.credentials is not None and (args.username is not None or password is not None):
             exit_with_error("Cannot use a credentials file and input a username/password")
 
 
@@ -256,7 +258,7 @@ class DiderotUser(object):
         if self.username is None:
             exit_with_error("Supply your credentials via the CLI or a credentials file!")
         self.api_client = DiderotAPIInterface(self.args.url)
-        self.api_client.connect(self.username, self.password)
+        self.api_client.login(self.username, self.password)
 
     def dispatch(self):
         commands = {
@@ -417,6 +419,32 @@ class DiderotAdmin(DiderotUser):
             exit_with_error("Please specify a valid book to upload into")
         book = Book(course, book_label)
 
+        book_data_chapters = book_data.get("chapters", [])
+
+        book_data_parts = book_data.get("parts", [])
+        book_data_part_numbers = set([c.get("number") for c in book_data_parts])
+        chapters_data_part_numbers = set([c.get("part") for c in book_data_chapters])
+        actual_part_numbers = set([int(float(c["rank"])) for c in Part.list(course, book)])
+        union_part_numbers = actual_part_numbers.union(book_data_part_numbers)
+        if union_part_numbers != set(range(1, len(union_part_numbers) + 1)):
+            exit_with_error(f"invalid JSON: resulting parts numbers are inconsistent, "
+                            f"should be a sequence of integers starting with 1 including existing parts. "
+                            f"Current numbers set is: {actual_part_numbers} and resulting using json "
+                            f"is {union_part_numbers}")
+        elif not chapters_data_part_numbers.issubset(union_part_numbers):
+            exit_with_error(f"invalid JSON: some parts numbers for chapters are invalid. "
+                            f"Resulting part number set (existing and new) is {union_part_numbers} and specified in"
+                            f" chapter number set is {chapters_data_part_numbers}")
+
+        book_data_chapter_numbers = set([c.get("number") for c in book_data_chapters])
+        actual_chapter_numbers = set([int(float(c["rank"])) for c in Chapter.list(course, book)])
+        union_chapter_numbers = actual_chapter_numbers.union(book_data_chapter_numbers)
+        if union_chapter_numbers != set(range(1, len(union_chapter_numbers)+1)):
+            exit_with_error(f"invalid JSON: resulting chapters numbers are inconsistent, "
+                            f"should be a sequence of integers starting with 1 including existing chapters. "
+                            f"Current numbers set is: {actual_chapter_numbers} and resulting using json "
+                            f"is {union_chapter_numbers}")
+
         # If the upload contains parts, create them.
         parts = get_or_none(book_data, "parts")
         if parts is not None:
@@ -434,6 +462,7 @@ class DiderotAdmin(DiderotUser):
         chapters = get_or_none(book_data, "chapters")
         if chapters is None:
             exit_with_error("invalid JSON: could not find field 'chapters'")
+
         for chapter in chapters:
             # Extract data from chapter json
             number = get_or_none(chapter, "number")
@@ -442,7 +471,6 @@ class DiderotAdmin(DiderotUser):
             attachments = get_or_none(chapter, "attachments")
 
             self.args.pdf = adjust_search_path(get_or_none(chapter, "pdf"))
-            self.args.slides = adjust_search_path(get_or_none(chapter, "slides"))
             self.args.video_url = adjust_search_path(get_or_none(chapter, "video"))
             self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
             self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
@@ -469,13 +497,11 @@ class DiderotAdmin(DiderotUser):
                 self.api_client.upload_chapter(
                     course.label, book.label, number, None, self.args, sleep_time=self.sleep_time,
                 )
-            except APIError as e:
+            except APIError:
                 exit_with_error("Failure uploading chapter. Aborting")
             print("Successfully uploaded chapter.")
 
     def upload_chapter(self):
-        if self.args.video_url is not None and self.args.xml is not None:
-            exit_with_error("Cannot use --video_url with xml uploads.\nFailure uploading chapter.")
         if self.args.attach is not None and self.args.xml is None:
             exit_with_error("Cannot use --attach if not uploading xml/mlx.\nFailure uploading chapter.")
         self.api_client.upload_chapter(

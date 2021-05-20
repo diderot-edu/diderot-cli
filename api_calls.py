@@ -7,17 +7,9 @@ from pathlib import Path
 
 import requests
 
-from models import (
-    MANAGE_BOOK_API,
-    SUBMIT_ASSIGNMENT_API,
-    UPLOAD_FILES_API,
-    Book,
-    Chapter,
-    Course,
-    Lab,
-    Part,
-)
-from utils import APIError, download_file_helper, err_for_code, expand_file_path
+from models import Book, Chapter, Course, Lab, Part
+from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API
+from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
 # DiderotClient is a wrapper around a requests.Session that maintains login
@@ -25,61 +17,51 @@ from utils import APIError, download_file_helper, err_for_code, expand_file_path
 class DiderotClient:
     def __init__(self, base_url):
         self.url = base_url
-        self.csrftoken = None
-        self.client = None
-
-    # connect makes the initial connection to Diderot.
-    def connect(self):
+        self.token_header = {}
         self.client = requests.session()
-        main_page = self.client.get(self.url)
-        code = main_page.status_code
-        if not code == 200:
-            raise err_for_code(code)
-        self.csrftoken = self.client.cookies["csrftoken"]
 
-    # login attempts to log into Diderot using the provided credentials.
+    # log in to the Diderot to get the authentication token
     def login(self, username, password):
         login_data = {
             "username": username,
             "password": password,
-            "csrfmiddlewaretoken": self.csrftoken,
-            "next": "/courses/",
         }
-        login_url = urllib.parse.urljoin(self.url, "login/login/?next=/courses/")
+        login_url = urllib.parse.urljoin(self.url, LOGIN_URL)
         r = self.client.post(login_url, data=login_data)
         if len(r.history) > 0:
             code = r.history[0].status_code
         else:
             code = r.status_code
 
-        if not code == 302:
+        if not code == 200:
             raise err_for_code(code)
-        self.csrftoken = self.client.cookies["csrftoken"]
+        token = r.json()['key']
+        self.token_header = {"Authorization": f"Token {token}"}
 
     # get is a wrapper around requests.Session.get that raises an exception
     # when a request does not succeed.
     def get(self, api, params=None):
         url = urllib.parse.urljoin(self.url, api)
-        response = self.client.get(url, headers={"X-CSRFToken": self.csrftoken}, params=params)
+        response = self.client.get(url, headers=self.token_header, params=params)
         if response.status_code < 200 or response.status_code >= 300:
-            raise err_for_code(response.status_code)
+            raise err_for_code(response.status_code, response=response)
         return response
 
     # post is a wrapper around requests.Session.post that raises an exception
     # when a request does not succeed.
     def post(self, api, data=None, files=None, params=None):
         url = urllib.parse.urljoin(self.url, api)
-        response = self.client.post(url, headers={"X-CSRFToken": self.csrftoken}, data=data, files=files, params=params)
+        response = self.client.post(url, headers=self.token_header, data=data, files=files, params=params)
         if response.status_code < 200 or response.status_code >= 300:
-            raise err_for_code(response.status_code)
+            raise err_for_code(response.status_code, response=response)
 
     # patch is a wrapper around requests.Session.patch that raises an exception
     # when a request does not succeed.
     def patch(self, api, data=None, files=None, params=None):
         url = urllib.parse.urljoin(self.url, api)
-        response = self.client.patch(url, headers={"X-CSRFToken": self.csrftoken}, data=data, files=files, params=params)
+        response = self.client.patch(url, headers=self.token_header, data=data, files=files, params=params)
         if response.status_code < 200 or response.status_code >= 300:
-            raise err_for_code(response.status_code)
+            raise err_for_code(response.status_code, response=response)
 
     # close closes the connection to Diderot.
     def close(self):
@@ -91,8 +73,7 @@ class DiderotAPIInterface:
     def __init__(self, base_url):
         self.client = DiderotClient(base_url)
 
-    def connect(self, username, password):
-        self.client.connect()
+    def login(self, username, password):
         self.client.login(username, password)
 
     def submit_assignment(self, course_label, homework_name, filepath):
@@ -196,33 +177,28 @@ class DiderotAPIInterface:
         course = Course(self.client, course_label)
         book = Book(course, book_label)
         chapter = Chapter(course, book, args.chapter_number, args.chapter_label)
-        release_params = {"chapter_pk": chapter.pk}
-        if release:
-            release_params["kind"] = "release"
-        else:
-            release_params["kind"] = "unrelease"
-        self.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), data=release_params)
+        route_params = {
+            "course_id": course.pk,
+            "book_id": book.pk,
+            "chapter_id": chapter.pk,
+            "action": "publish" if release else "retract",
+        }
+        self.client.post(
+            MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
+        )
 
     def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
         chapter = Chapter(course, book, number, label)
-        update_params = {"kind": "upload content", "chapter_pk": chapter.pk}
 
+        data = {}
         # Populate the input set of files.
         files = []
         if args.pdf is not None:
             if not args.pdf.lower().endswith(".pdf"):
                 raise APIError("PDF argument must be a PDF file.")
             files.append(("input_file_pdf", Path(args.pdf)))
-            if args.video_url is not None:
-                update_params["video_url_pdf"] = args.video_url
-        elif args.slides is not None:
-            if not args.slides.lower().endswith(".pdf"):
-                raise APIError("Slides argument must be a PDF file.")
-            files.append(("input_file_slide", Path(args.slides)))
-            if args.video_url is not None:
-                update_params["video_url_slide"] = args.video_url
         elif args.xml is not None:
             if not (args.xml.lower().endswith(".xml") or args.xml.lower().endswith(".mlx")):
                 raise APIError("XML argument must be an XML or MLX file.")
@@ -238,12 +214,15 @@ class DiderotAPIInterface:
                         f = Path(g).expanduser()
                         if f.is_dir():
                             # If it is a directory, include all children.
-                            files.extend([("image", m) for m in f.glob("**/*")])
+                            files.extend([("attachments", m) for m in f.glob("**/*")])
                         else:
                             # If it is a file, add it directly.
-                            files.append(("image", f))
+                            files.append(("attachments", f))
             if args.xml_pdf is not None:
-                files.append(("input_file_xml_pdf", Path(args.xml_pdf)))
+                files.append(("input_file_pdf", Path(args.xml_pdf)))
+
+        if args.video_url is not None:
+            data["video_url"] = args.video_url
 
         for _, p in files:
             print("Uploading file:", p.name)
@@ -252,7 +231,18 @@ class DiderotAPIInterface:
             opened_files = [
                 (typ, (path.name, stack.enter_context(path.expanduser().open("rb")))) for typ, path in files
             ]
-            self.client.post(MANAGE_BOOK_API.format(course.pk, book.pk), files=opened_files, data=update_params)
+
+            route_params = {
+                "course_id": course.pk,
+                "book_id": book.pk,
+                "chapter_id": chapter.pk,
+                "action": "content_upload"
+            }
+            self.client.post(
+                MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params),
+                data=data,
+                files=opened_files
+            )
 
         # Wait until the book becomes unlocked.
         while True:

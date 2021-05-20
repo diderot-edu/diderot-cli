@@ -1,27 +1,18 @@
 #!/usr/bin/env python3
 
 import atexit
-import http
-import json
 import logging
 import subprocess
 import sys
-import threading
 import time
 import unittest
-import urllib
-from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import StringIO
-from urllib.parse import urlparse
-
-import requests
 
 from standalone import DiderotAdmin, DiderotUser
+from constants import SERVURL
 
 log = logging.getLogger("TESTLOG")
-ADDR = "127.0.0.1"
-PORT = 8080
-SERVURL = "http://{}:{}".format(ADDR, PORT)
+
 
 # Define some sample data.
 # TODO (rohany): maybe move this into its own file
@@ -88,9 +79,9 @@ books = [
 
 # make parts for only one course.
 parts = [
-    {"id": "0", "label": "TestPart1", "book": "0", "book__id": "0", "title": "TestPart1", "rank": "1",},
-    {"id": "1", "label": "TestPart2", "book": "0", "book__id": "0", "title": "TestPart2", "rank": "2",},
-    {"id": "2", "label": "TestPart3", "book": "1", "book__id": "1", "title": "TestPart3", "rank": "1",},
+    {"id": "0", "label": "TestPart1", "book": "0", "book__id": "0", "title": "TestPart1", "rank": "1"},
+    {"id": "1", "label": "TestPart2", "book": "0", "book__id": "0", "title": "TestPart2", "rank": "2"},
+    {"id": "2", "label": "TestPart3", "book": "1", "book__id": "1", "title": "TestPart3", "rank": "1"},
 ]
 
 chapters = [
@@ -99,6 +90,7 @@ chapters = [
         "label": "TestChapter1",
         "book": "0",
         "book__id": "0",
+        "part": "0",
         "upload_errors": "",
         "upload_warnings": "",
         "title": "TestChapter1",
@@ -111,6 +103,7 @@ chapters = [
         "label": "TestChapter2",
         "book": "0",
         "book__id": "0",
+        "part": "1",
         "upload_errors": "",
         "upload_warnings": "",
         "title": "TestChapter2",
@@ -167,7 +160,8 @@ class TestDiderotUserCLI(unittest.TestCase):
 
     def test_list_courses(self):
         output = runUserCmd("list_courses").split()
-        self.assertTrue(len(courses) == len(output))
+        # 6 extra elements in output for labels (splitted): "Active courses", "Inactive courses", "public courses"
+        self.assertEqual(len(courses), len(output))
         for c in courses:
             self.assertTrue(c["label"] in output)
 
@@ -411,22 +405,6 @@ class TestDiderotAdminCLI(unittest.TestCase):
         output = runAdminCmd("upload_chapter TestCourse0 TestBook1 --chapter_label fakelabel --pdf fakepdf")
         self.assertTrue("Input chapter not found." in output)
 
-        # Test acceptance / not acceptance of certain argument combinations.
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --xml dummy.xml --video_url fakeurl"
-        )
-        self.assertTrue("Cannot use --video_url with xml uploads." in output)
-
-        output = runAdminCmd("upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf dummy.pdf --attach dummy")
-        self.assertTrue("Cannot use --attach if not uploading xml/mlx." in output)
-
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides dummy.pdf --attach dummy"
-        )
-        self.assertTrue("Cannot use --attach if not uploading xml/mlx." in output)
-
-        # Test that pdf, slides, xml work.
-
         # Pdf upload test.
         # Expect an error if used not on a pdf.
         output = runAdminCmd(
@@ -436,18 +414,6 @@ class TestDiderotAdminCLI(unittest.TestCase):
 
         output = runAdminCmd(
             "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --pdf testdata/chapter.pdf --video_url fakeurl"
-        )
-        self.assertTrue("Chapter uploaded successfully." in output)
-
-        # Slides upload test.
-        # Expect an error if used not on a pdf.
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides testdata/book.xml --video_url fakeurl"
-        )
-        self.assertTrue("Slides argument must be a PDF file." in output)
-
-        output = runAdminCmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter_number 1 --slides testdata/slides.pdf --video_url fakeurl"
         )
         self.assertTrue("Chapter uploaded successfully." in output)
 
