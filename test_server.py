@@ -63,10 +63,10 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith(COURSE_API):
             data = self.dump(self.list_courses())
             self.api_headers(data)
-        elif self.path.startswith("/frontend-api/courses/0/codelabs/"):
+        elif self.path.startswith("/api/courses/0/codelabs/"):
             data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "0"]))
             self.api_headers(data)
-        elif self.path.startswith("/frontend-api/courses/1/codelabs/"):
+        elif self.path.startswith("/api/courses/1/codelabs/"):
             data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "1"]))
             self.api_headers(data)
         elif self.path.startswith(BOOK_API):
@@ -84,7 +84,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_PATCH(self):
-        if self.path.startswith("/frontend-api/courses/0/codelabs/0"):
+        if self.path.startswith("/api/courses/0/codelabs/0"):
             success = True
             # HEADERS are now in dict/json style container
             _, pdict = cgi.parse_header(self.headers["content-type"])
@@ -119,7 +119,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
             data = self.dump({"key": "test"})
             self.api_headers(data)
         # handle submitting an assignment to course 0
-        elif self.path.startswith("/frontend-api/courses/0/codelabs/0/submissions/create_and_submit/"):
+        elif self.path.startswith("/api/courses/0/codelabs/0/submissions/create_and_submit/"):
             success = True
             # assert that submission tar is indeed in the request files
             self.rfile.readline()
