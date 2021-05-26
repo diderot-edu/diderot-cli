@@ -43,7 +43,6 @@ books = [
         "id": "0",
         # TODO (rohany): this might need to be a string
         "is_locked": False,
-        "is_booklet": False,
     },
     {
         "label": "TestBook2",
@@ -53,7 +52,6 @@ books = [
         "version": "1",
         "id": "1",
         "is_locked": False,
-        "is_booklet": True,
     },
     {
         "label": "TestBook3",
@@ -63,7 +61,6 @@ books = [
         "version": "1",
         "id": "2",
         "is_locked": False,
-        "is_booklet": False,
     },
     {
         "label": "TestBook4",
@@ -73,7 +70,6 @@ books = [
         "version": "1",
         "id": "3",
         "is_locked": False,
-        "is_booklet": False,
     },
 ]
 
@@ -242,7 +238,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
 
         # Expect successful response for non booklets.
         output = runAdminCmd(
-            "create_chapter TestCourse0 TestBook2 --number 3 --title TestChapter3 --label TestChapter3"
+            "create_chapter TestCourse0 TestBook2 --part 1 --number 3 --title TestChapter3 --label TestChapter3"
         )
         self.assertTrue("Successfully created chapter." in output)
 
@@ -258,10 +254,6 @@ class TestDiderotAdminCLI(unittest.TestCase):
         # Test error when part exists.
         output = runAdminCmd("create_part TestCourse0 TestBook1 NewTestPart 1")
         self.assertTrue("Existing part for Course" in output)
-
-        # Test error on a booklet.
-        output = runAdminCmd("create_part TestCourse0 TestBook2 NewTestPart 3")
-        self.assertTrue("Part creation is disallowed on booklets." in output)
 
         # Expect successful response.
         output = runAdminCmd("create_part TestCourse0 TestBook1 NewTestPart 3 --label NewTestPart")

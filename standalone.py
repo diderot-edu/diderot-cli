@@ -110,7 +110,7 @@ class DiderotCLIArgs(object):
         create_chapter.add_argument("book", help="Book to create a chapter within.")
         create_chapter.add_argument(
             "--part",
-            help="Part number that the chapter belong within. This is not needed if the book is a booklet.",
+            help="Part number that the chapter belong within."
         )
         create_chapter.add_argument("--number", help="Number of the new chapter.", required=True)
         create_chapter.add_argument("--title", help="Optional title of new chapter (default = Chapter)", default=None)
@@ -481,8 +481,7 @@ class DiderotAdmin(DiderotUser):
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
                 part_num = get_or_none(chapter, "part")
-                # Non-booklets need parts for their chapters.
-                if not book.is_booklet and part_num is None:
+                if part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
                 self.api_client.create_chapter(course.label, book.label, part_num, number, title, label)
                 print(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")

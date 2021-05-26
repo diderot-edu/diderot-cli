@@ -79,7 +79,6 @@ class Book:
         if result is None:
             raise APIError("Input book not found.")
         self.pk = result["id"]
-        self.is_booklet = bool(result["is_booklet"])
 
     @staticmethod
     def list(client, course=None):
@@ -105,10 +104,7 @@ class Part:
 
     def _verify(self, number):
         # If we have a booklet, then don't look at number.
-        if self.book.is_booklet:
-            params = {"book__id": self.book.pk}
-        else:
-            params = {"book__id": self.book.pk, "rank": number}
+        params = {"book__id": self.book.pk, "rank": number}
         response = self.client.get(PARTS_API, params=params)
         result = singleton_or_none(response)
         if result is None:
