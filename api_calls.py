@@ -149,8 +149,6 @@ class DiderotAPIInterface:
     def create_part(self, course_label, book_label, number, title, label):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        if book.is_booklet:
-            raise APIError("Part creation is disallowed on booklets.")
         if Part.exists(course, book, number):
             raise APIError(
                 "Existing part for Course: {}, Book: {}, and Number: {} found.".format(course.label, book.label, number)
@@ -160,8 +158,8 @@ class DiderotAPIInterface:
     def create_chapter(self, course_label, book_label, part_num, chapter_num, title, label):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        if not book.is_booklet and part_num is None:
-            raise APIError("--part must be set. {} is not a booklet.".format(book.label))
+        if part_num is None:
+            raise APIError("--part must be set.")
         part = Part(course, book, part_num)
         # See if a chapter like this exists already.
         if Chapter.exists(course, book, chapter_num):
