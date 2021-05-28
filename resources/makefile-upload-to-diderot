@@ -35,7 +35,7 @@ else
 endif
 
 upload_pdf: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --number $(NO) --title $(TITLE)
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --number $(NO) --title $(TITLE)  --label $(LABEL)
 	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO)  --pdf $(FILE).pdf
 
 upload_xml: 
