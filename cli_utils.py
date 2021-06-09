@@ -10,6 +10,10 @@ class APIError(Exception):
     pass
 
 
+class BookNotFoundAPIError(APIError):
+    pass
+
+
 # expand_file_path expands a relative path into a full path.
 def expand_file_path(path):
     return os.path.abspath(os.path.expandvars(os.path.expanduser(path)))

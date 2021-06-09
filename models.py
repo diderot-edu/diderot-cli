@@ -1,4 +1,4 @@
-from cli_utils import APIError, singleton_or_none
+from cli_utils import APIError, BookNotFoundAPIError, singleton_or_none
 from constants import (
     COURSE_API,
     LAB_API,
@@ -6,6 +6,7 @@ from constants import (
     PARTS_API,
     CHAPTERS_API,
     MANAGE_BOOK_API,
+    MANAGE_BOOK_LIST_API,
 )
 
 
@@ -77,6 +78,8 @@ class Book:
         response = self.client.get(BOOK_API, params=params)
         result = singleton_or_none(response)
         if result is None:
+            if len(response.json()) == 0:
+                raise BookNotFoundAPIError("Input book not found.")
             raise APIError("Input book not found.")
         self.pk = result["id"]
 
@@ -92,6 +95,13 @@ class Book:
         response = client.get(BOOK_API, params={"id": id})
         result = singleton_or_none(response)
         return bool(result["is_locked"])
+
+    @staticmethod
+    def create(course, title, label):
+        data = {"title": title, "label": label}
+
+        route_params = {"course_id": course.pk}
+        course.client.post(MANAGE_BOOK_LIST_API.format(**route_params), data=data)
 
 
 class Part:

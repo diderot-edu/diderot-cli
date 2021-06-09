@@ -6,8 +6,8 @@ import shlex
 import sys
 from pathlib import Path
 
-from api_calls import APIError, DiderotAPIInterface
-from cli_utils import expand_file_path, print_list
+from api_calls import DiderotAPIInterface
+from cli_utils import expand_file_path, print_list, APIError, BookNotFoundAPIError
 from constants import DEFAULT_CRED_LOCATIONS
 from models import Book, Chapter, Course, Lab, Part
 
@@ -417,7 +417,14 @@ class DiderotAdmin(DiderotUser):
         # If book label is still None, then error out.
         if book_label is None:
             exit_with_error("Please specify a valid book to upload into")
-        book = Book(course, book_label)
+
+        book_title = book_data.get("title", book_label)
+
+        try:
+            book = Book(course, book_label)
+        except BookNotFoundAPIError:
+            Book.create(course, book_title, book_label)
+            book = Book(course, book_label)
 
         book_data_chapters = book_data.get("chapters", [])
 
