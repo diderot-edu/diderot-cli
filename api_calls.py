@@ -155,6 +155,15 @@ class DiderotAPIInterface:
             )
         Part.create(course, book, title, number, label)
 
+    def create_book(self, course_label, title, label):
+        course = Course(self.client, course_label)
+
+        if Book.exists(course, label):
+            raise APIError(
+                "Existing book for Course: {}, and Label: {} found.".format(course.label, label)
+            )
+        Book.create(course, title, label)
+
     def create_chapter(
             self, course_label, book_label, part_num, chapter_num, title, label, date_release=None, publish_on_week=None):
         course = Course(self.client, course_label)

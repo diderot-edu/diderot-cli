@@ -102,6 +102,17 @@ class DiderotCLIArgs(object):
     def generate_admin_parser(prog, desc):
         parser, subparsers = DiderotCLIArgs.generate_user_parser(prog, desc)
 
+        # Subparser for create_book.
+        create_book = subparsers.add_parser(
+            "create_book", help="Create a chapter in a book.", formatter_class=Formatter
+        )
+        create_book.add_argument("course", help="Course that the book belongs to.")
+
+        create_book.add_argument("--title", help="Optional title of new book (default = label)", default=None)
+        create_book.add_argument(
+            "--label", help="Label of new book"
+        )
+
         # Subparser for create_chapter.
         create_chapter = subparsers.add_parser(
             "create_chapter", help="Create a chapter in a book.", formatter_class=Formatter
@@ -316,6 +327,7 @@ class DiderotAdmin(DiderotUser):
 
     def dispatch(self):
         commands = {
+            "create_book": self.create_book,
             "create_chapter": self.create_chapter,
             "create_part": self.create_part,
             "list_books": self.list_books,
@@ -338,6 +350,12 @@ class DiderotAdmin(DiderotUser):
             exit_with_error(str(e))
 
     # For maintainability, keep the dispatch functions in alphabetical order.
+
+    def create_book(self):
+        self.api_client.create_book(
+            self.args.course, self.args.title, self.args.label
+        )
+        print("Successfully created book.")
 
     def create_chapter(self):
         self.api_client.create_chapter(

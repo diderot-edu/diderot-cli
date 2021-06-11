@@ -103,6 +103,15 @@ class Book:
         route_params = {"course_id": course.pk}
         course.client.post(MANAGE_BOOK_LIST_API.format(**route_params), data=data)
 
+    @staticmethod
+    def exists(course, label):
+        params = {
+            "course__label": course.label,
+            "label": label,
+        }
+        response = course.client.get(BOOK_API, params=params)
+        return len(response.json()) != 0
+
 
 class Part:
     def __init__(self, course, book, number):
