@@ -155,7 +155,8 @@ class DiderotAPIInterface:
             )
         Part.create(course, book, title, number, label)
 
-    def create_chapter(self, course_label, book_label, part_num, chapter_num, title, label):
+    def create_chapter(
+            self, course_label, book_label, part_num, chapter_num, title, label, date_release=None, publish_on_week=None):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
         if part_num is None:
@@ -169,7 +170,7 @@ class DiderotAPIInterface:
                 )
             )
         # Actually create the chapter now.
-        Chapter.create(course, book, part, chapter_num, title, label)
+        Chapter.create(course, book, part, chapter_num, title, label, date_release, publish_on_week)
 
     def release_unrelease_chapter(self, course_label, book_label, args, release=True):
         course = Course(self.client, course_label)

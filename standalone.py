@@ -488,9 +488,12 @@ class DiderotAdmin(DiderotUser):
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
                 part_num = get_or_none(chapter, "part")
+                date_release = get_or_none(chapter, "date_release")
+                publish_on_week = get_or_none(chapter, "publish_on_week")
                 if part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
-                self.api_client.create_chapter(course.label, book.label, part_num, number, title, label)
+                self.api_client.create_chapter(
+                    course.label, book.label, part_num, number, title, label, date_release, publish_on_week)
                 print(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
 
             # Upload the target files to the chapter now.
