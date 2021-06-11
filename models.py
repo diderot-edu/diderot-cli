@@ -197,14 +197,14 @@ class Chapter:
         return len(response.json()) != 0
 
     @staticmethod
-    def create(course, book, part, number, title, label, date_release=None, publish_on_week=None):
+    def create(course, book, part, number, title, label, publish_date=None, publish_on_week=None):
         data = {"rank": number}
         if title is not None:
             data["title"] = title
         if label is not None:
             data["label"] = label
-        if date_release is not None:
-            data["date_release"] = date_release
+        if publish_date is not None:
+            data["publish_date"] = publish_date
         if publish_on_week is not None:
             data["publish_on_week"] = publish_on_week
 

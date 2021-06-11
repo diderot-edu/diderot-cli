@@ -8,7 +8,8 @@ from pathlib import Path
 import requests
 
 from models import Book, Chapter, Course, Lab, Part
-from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API
+from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API, \
+    MANAGE_CHAPTER_API
 from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
@@ -165,7 +166,7 @@ class DiderotAPIInterface:
         Book.create(course, title, label)
 
     def create_chapter(
-            self, course_label, book_label, part_num, chapter_num, title, label, date_release=None, publish_on_week=None):
+            self, course_label, book_label, part_num, chapter_num, title, label, publish_date=None, publish_on_week=None):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
         if part_num is None:
@@ -179,7 +180,7 @@ class DiderotAPIInterface:
                 )
             )
         # Actually create the chapter now.
-        Chapter.create(course, book, part, chapter_num, title, label, date_release, publish_on_week)
+        Chapter.create(course, book, part, chapter_num, title, label, publish_date, publish_on_week)
 
     def release_unrelease_chapter(self, course_label, book_label, args, release=True):
         course = Course(self.client, course_label)
@@ -193,6 +194,24 @@ class DiderotAPIInterface:
         }
         self.client.post(
             MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
+        )
+
+    def set_publish_date(self, course_label, book_label, args):
+        course = Course(self.client, course_label)
+        book = Book(course, book_label)
+        chapter = Chapter(course, book, args.chapter_number, args.chapter_label)
+        route_params = {
+            "course_id": course.pk,
+            "book_id": book.pk,
+            "chapter_id": chapter.pk,
+        }
+        data = {}
+        if args.publish_date:
+            data["date_release"] = args.publish_date
+        elif args.publish_on_week:
+            data["publish_on_week"] = args.publish_on_week
+        self.client.patch(
+            MANAGE_CHAPTER_API.format(**route_params), data=data
         )
 
     def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):

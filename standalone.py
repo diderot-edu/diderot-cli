@@ -129,11 +129,32 @@ class DiderotCLIArgs(object):
             "--label", help="Optional label of new chapter (default= randomly generated)", default=None
         )
         create_chapter.add_argument(
-            "--publish_date", help="Optional publish date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
+            "--publish_date",
+            help="Optional publish date for chapter in ISO format (yyyy-mm-dd hh:mm:ss+hh:mm)", default=None
         )
         create_chapter.add_argument(
-            "--due_date", help="Optional due date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
+            "--due_date", help="Optional due date for chapter in ISO format (yyyy-mm-dd hh:mm:ss+hh:mm)", default=None
         )
+
+        # Subparser for set_publish_date.
+        set_publish_date = subparsers.add_parser(
+            "set_publish_date", help="Set chapter publish date.", formatter_class=Formatter
+        )
+
+        set_publish_date.add_argument("course", help="Course to release chapter in.")
+        set_publish_date.add_argument("book", help="Book that the chapter belongs to.")
+        set_publish_date_chapter_id_group = set_publish_date.add_mutually_exclusive_group(required=True)
+        set_publish_date_chapter_id_group.add_argument(
+            "--chapter_number", default=None, help="Number of chapter to upload to.")
+        set_publish_date_chapter_id_group.add_argument(
+            "--chapter_label", default=None, help="Label of chapter to upload to.")
+        set_publish_date_group = set_publish_date.add_mutually_exclusive_group(required=True)
+        set_publish_date_group.add_argument(
+            "--publish_date", default=None, help="Publish date for chapter in ISO format (yyyy-mm-dd hh:mm:ss+hh:mm).")
+        set_publish_date_group.add_argument(
+            "--publish_on_week", default=None,
+            help="Publish on week from course start in format (week_num/week_day, hour:minute)")
+
 
         # Subparser for create_part.
         create_part = subparsers.add_parser("create_part", help="Create a part in a book", formatter_class=Formatter)
@@ -334,6 +355,7 @@ class DiderotAdmin(DiderotUser):
             "list_chapters": self.list_chapters,
             "list_parts": self.list_parts,
             "release_chapter": self.release_chapter,
+            "set_publish_date": self.set_publish_date,
             "unrelease_chapter": self.unrelease_chapter,
             "update_assignment": self.update_assignment,
             "upload_book": self.upload_book,
@@ -391,6 +413,10 @@ class DiderotAdmin(DiderotUser):
     def release_chapter(self):
         self.api_client.release_unrelease_chapter(self.args.course, self.args.book, self.args, release=True)
         print("Success releasing chapter.")
+
+    def set_publish_date(self):
+        self.api_client.set_publish_date(self.args.course, self.args.book, self.args)
+        print("Successfully set publish date for the chapter.")
 
     def unrelease_chapter(self):
         self.api_client.release_unrelease_chapter(self.args.course, self.args.book, self.args, release=False)
@@ -506,12 +532,12 @@ class DiderotAdmin(DiderotUser):
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
                 part_num = get_or_none(chapter, "part")
-                date_release = get_or_none(chapter, "date_release")
+                publish_date = get_or_none(chapter, "publish_date")
                 publish_on_week = get_or_none(chapter, "publish_on_week")
                 if part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
                 self.api_client.create_chapter(
-                    course.label, book.label, part_num, number, title, label, date_release, publish_on_week)
+                    course.label, book.label, part_num, number, title, label, publish_date, publish_on_week)
                 print(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
 
             # Upload the target files to the chapter now.
