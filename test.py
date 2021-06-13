@@ -454,6 +454,36 @@ class TestDiderotAdminCLI(unittest.TestCase):
         self.assertTrue("Uploading file: test2.png" in output)
         self.assertTrue("Chapter uploaded successfully." in output)
 
+    def test_set_release_date_for_chapter(self):
+        # Test invalid course label.
+        output = runAdminCmd(
+            "set_publish_date fakecourse fakebook --chapter_number 10 --publish_date \"2021-06-10T10:15\"")
+        self.assertTrue("The requested course label does not exist." in output)
+
+        # Test invalid book.
+        output = runAdminCmd(
+            "set_publish_date TestCourse0 fakebook --chapter_number 10 --publish_date \"2021-06-10T10:15\"")
+        self.assertTrue("Input book not found." in output)
+
+        # Test invalid chapter number.
+        output = runAdminCmd(
+            "set_publish_date TestCourse0 TestBook1 --chapter_number 10 --publish_date \"2021-06-10T10:15\"")
+        self.assertTrue("Input chapter not found." in output)
+
+        # Test invalid chapter label.
+        output = runAdminCmd(
+            "set_publish_date TestCourse0 TestBook1 --chapter_label fakelabel --publish_date \"2021-06-10T10:15\"")
+        self.assertTrue("Input chapter not found." in output)
+
+        # Test success in setting date for chapter.
+        output = runAdminCmd(
+            "set_publish_date TestCourse0 TestBook1 --chapter_label TestChapter1 --publish_date \"2021-06-10T10:15\"")
+        self.assertTrue("Successfully set publish date for the chapter." in output)
+
+        output = runAdminCmd(
+            "set_publish_date TestCourse0 TestBook1 --chapter_number 1 --publish_on_week \"3/5, 14:30\"")
+        self.assertTrue("Successfully set publish date for the chapter." in output)
+
 
 # Run the unit tests.
 if __name__ == "__main__":
