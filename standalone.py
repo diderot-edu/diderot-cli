@@ -165,21 +165,21 @@ class DiderotCLIArgs(object):
         create_part.add_argument("--label", help="Label for the new part (default = random).", default=None)
 
         # Subparsers for release/unrelease chapter.
-        release_chapter = subparsers.add_parser(
-            "release_chapter", help="Release a book chapter", formatter_class=Formatter
+        publish_chapter = subparsers.add_parser(
+            "publish_chapter", help="Release a book chapter", formatter_class=Formatter
         )
-        release_chapter.add_argument("course", help="Course to release chapter in.")
-        release_chapter.add_argument("book", help="Book that the chapter belongs to.")
-        chapter_id_group = release_chapter.add_mutually_exclusive_group(required=True)
+        publish_chapter.add_argument("course", help="Course to release chapter in.")
+        publish_chapter.add_argument("book", help="Book that the chapter belongs to.")
+        chapter_id_group = publish_chapter.add_mutually_exclusive_group(required=True)
         chapter_id_group.add_argument("--chapter_number", default=None, help="Number of chapter to release.")
         chapter_id_group.add_argument("--chapter_label", default=None, help="Label of chapter to release.")
 
-        unrelease_chapter = subparsers.add_parser(
-            "unrelease_chapter", help="Unrelease a book chapter", formatter_class=Formatter
+        retract_chapter = subparsers.add_parser(
+            "retract_chapter", help="Unrelease a book chapter", formatter_class=Formatter
         )
-        unrelease_chapter.add_argument("course", help="Course to unrelease chapter in.")
-        unrelease_chapter.add_argument("book", help="Book that the chapter belongs to.")
-        chapter_id_group = unrelease_chapter.add_mutually_exclusive_group(required=True)
+        retract_chapter.add_argument("course", help="Course to unrelease chapter in.")
+        retract_chapter.add_argument("book", help="Book that the chapter belongs to.")
+        chapter_id_group = retract_chapter.add_mutually_exclusive_group(required=True)
         chapter_id_group.add_argument("--chapter_number", default=None, help="Number of chapter to unrelease.")
         chapter_id_group.add_argument("--chapter_label", default=None, help="Label of chapter to unrelease.")
 
@@ -354,9 +354,9 @@ class DiderotAdmin(DiderotUser):
             "list_books": self.list_books,
             "list_chapters": self.list_chapters,
             "list_parts": self.list_parts,
-            "release_chapter": self.release_chapter,
+            "publish_chapter": self.publish_chapter,
             "set_publish_date": self.set_publish_date,
-            "unrelease_chapter": self.unrelease_chapter,
+            "retract_chapter": self.retract_chapter,
             "update_assignment": self.update_assignment,
             "upload_book": self.upload_book,
             "upload_chapter": self.upload_chapter,
@@ -410,17 +410,17 @@ class DiderotAdmin(DiderotUser):
         book = Book(course, self.args.book)
         print_list(["{}. {}".format(c["rank"], c["title"]) for c in Part.list(course, book)])
 
-    def release_chapter(self):
+    def publish_chapter(self):
         self.api_client.release_unrelease_chapter(self.args.course, self.args.book, self.args, release=True)
-        print("Success releasing chapter.")
+        print("Success publishing chapter.")
 
     def set_publish_date(self):
         self.api_client.set_publish_date(self.args.course, self.args.book, self.args)
         print("Successfully set publish date for the chapter.")
 
-    def unrelease_chapter(self):
+    def retract_chapter(self):
         self.api_client.release_unrelease_chapter(self.args.course, self.args.book, self.args, release=False)
-        print("Success unreleasing chapter.")
+        print("Success retracting chapter.")
 
     def update_assignment(self):
         try:

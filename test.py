@@ -327,39 +327,39 @@ class TestDiderotAdminCLI(unittest.TestCase):
 
     def test_release_unrelease_chapter(self):
         # Test invalid course label.
-        output = runAdminCmd("release_chapter fakecourse fakebook --chapter_number 10")
+        output = runAdminCmd("publish_chapter fakecourse fakebook --chapter_number 10")
         self.assertTrue("The requested course label does not exist." in output)
-        output = runAdminCmd("unrelease_chapter fakecourse fakebook --chapter_number 10")
+        output = runAdminCmd("retract_chapter fakecourse fakebook --chapter_number 10")
         self.assertTrue("The requested course label does not exist." in output)
 
         # Test invalid book.
-        output = runAdminCmd("release_chapter TestCourse0 fakebook --chapter_number 10")
+        output = runAdminCmd("publish_chapter TestCourse0 fakebook --chapter_number 10")
         self.assertTrue("Input book not found." in output)
-        output = runAdminCmd("unrelease_chapter TestCourse0 fakebook --chapter_number 10")
+        output = runAdminCmd("retract_chapter TestCourse0 fakebook --chapter_number 10")
         self.assertTrue("Input book not found." in output)
 
         # Test invalid chapter number.
-        output = runAdminCmd("release_chapter TestCourse0 TestBook1 --chapter_number 10")
+        output = runAdminCmd("publish_chapter TestCourse0 TestBook1 --chapter_number 10")
         self.assertTrue("Input chapter not found." in output)
-        output = runAdminCmd("unrelease_chapter TestCourse0 TestBook1 --chapter_number 10")
+        output = runAdminCmd("retract_chapter TestCourse0 TestBook1 --chapter_number 10")
         self.assertTrue("Input chapter not found." in output)
 
         # Test invalid chapter label.
-        output = runAdminCmd("release_chapter TestCourse0 TestBook1 --chapter_label fakelabel")
+        output = runAdminCmd("publish_chapter TestCourse0 TestBook1 --chapter_label fakelabel")
         self.assertTrue("Input chapter not found." in output)
-        output = runAdminCmd("unrelease_chapter TestCourse0 TestBook1 --chapter_label fakelabel")
+        output = runAdminCmd("retract_chapter TestCourse0 TestBook1 --chapter_label fakelabel")
         self.assertTrue("Input chapter not found." in output)
 
         # Test success in releasing chapter.
-        output = runAdminCmd("release_chapter TestCourse0 TestBook1 --chapter_label TestChapter1")
-        self.assertTrue("Success releasing chapter." in output)
-        output = runAdminCmd("unrelease_chapter TestCourse0 TestBook1 --chapter_label TestChapter1")
-        self.assertTrue("Success unreleasing chapter." in output)
+        output = runAdminCmd("publish_chapter TestCourse0 TestBook1 --chapter_label TestChapter1")
+        self.assertTrue("Success publishing chapter." in output)
+        output = runAdminCmd("retract_chapter TestCourse0 TestBook1 --chapter_label TestChapter1")
+        self.assertTrue("Success retracting chapter." in output)
 
-        output = runAdminCmd("release_chapter TestCourse0 TestBook1 --chapter_number 1")
-        self.assertTrue("Success releasing chapter." in output)
-        output = runAdminCmd("unrelease_chapter TestCourse0 TestBook1 --chapter_number 1")
-        self.assertTrue("Success unreleasing chapter." in output)
+        output = runAdminCmd("publish_chapter TestCourse0 TestBook1 --chapter_number 1")
+        self.assertTrue("Success publishing chapter." in output)
+        output = runAdminCmd("retract_chapter TestCourse0 TestBook1 --chapter_number 1")
+        self.assertTrue("Success retracting chapter." in output)
 
     def test_update_assignment(self):
         # Test invalid course label.
