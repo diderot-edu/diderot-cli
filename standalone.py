@@ -103,6 +103,7 @@ class DiderotCLIArgs(object):
         parser, subparsers = DiderotCLIArgs.generate_user_parser(prog, desc)
 
         # Subparser for create_book.
+        # Example create_book <course label> --title <book title> --label <book label> 
         create_book = subparsers.add_parser(
             "create_book", help="Create a chapter in a book.", formatter_class=Formatter
         )
