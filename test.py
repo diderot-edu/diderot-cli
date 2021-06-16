@@ -325,7 +325,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
         output = runAdminCmd("list_parts TestCourse1 TestBook3")
         self.assertTrue(len(output) == 0)
 
-    def test_release_unrelease_chapter(self):
+    def test_publish_retract_chapter(self):
         # Test invalid course label.
         output = runAdminCmd("publish_chapter fakecourse fakebook --chapter_number 10")
         self.assertTrue("The requested course label does not exist." in output)
@@ -454,7 +454,7 @@ class TestDiderotAdminCLI(unittest.TestCase):
         self.assertTrue("Uploading file: test2.png" in output)
         self.assertTrue("Chapter uploaded successfully." in output)
 
-    def test_set_release_date_for_chapter(self):
+    def test_set_publish_date_for_chapter(self):
         # Test invalid course label.
         output = runAdminCmd(
             "set_publish_date fakecourse fakebook --chapter_number 10 --publish_date \"2021-06-10T10:15\"")
