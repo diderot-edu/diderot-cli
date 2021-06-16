@@ -1,5 +1,6 @@
 {
   "book" : "BAL",
+  "title": "Custom title for creation",
   "parts": [
     {
       "number": 1,
@@ -13,14 +14,26 @@
        "part": 1,
        "xml": "treaps/test_treaps.xml",
        "xml_pdf": "treaps/test_treaps.pdf",
+       "publish_date": "2021-06-10T10:15-04:00",
        "attachments": ["treaps/bst5-build.jpg", "treaps/treap-examp.jpg"]
      },
     {
       "number": 2,
-       "part": 1,
+      "part": 1,
       "xml": "augment/test_augment.xml",
       "xml_pdf": "augment/test_treaps.pdf",
+      "publish_on_week": "3/5, 14:30",
       "attachments": ["augment/*.jpg"]
-    }
+    },
+    {
+      "number": 3,
+      "part": 1,
+      "pdf": "augment/test_treaps.pdf",
+      "publish_on_week": "3/3, 14:30"
+    },
+    {
+      "number": 4,
+      "part": 1
+    } 
    ]
 }

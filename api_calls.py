@@ -8,7 +8,8 @@ from pathlib import Path
 import requests
 
 from models import Book, Chapter, Course, Lab, Part
-from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API
+from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API, \
+    MANAGE_CHAPTER_API
 from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
@@ -155,7 +156,17 @@ class DiderotAPIInterface:
             )
         Part.create(course, book, title, number, label)
 
-    def create_chapter(self, course_label, book_label, part_num, chapter_num, title, label):
+    def create_book(self, course_label, title, label):
+        course = Course(self.client, course_label)
+
+        if Book.exists(course, label):
+            raise APIError(
+                "Existing book for Course: {}, and Label: {} found.".format(course.label, label)
+            )
+        Book.create(course, title, label)
+
+    def create_chapter(
+            self, course_label, book_label, part_num, chapter_num, title, label, publish_date=None, publish_on_week=None):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
         if part_num is None:
@@ -169,7 +180,7 @@ class DiderotAPIInterface:
                 )
             )
         # Actually create the chapter now.
-        Chapter.create(course, book, part, chapter_num, title, label)
+        Chapter.create(course, book, part, chapter_num, title, label, publish_date, publish_on_week)
 
     def release_unrelease_chapter(self, course_label, book_label, args, release=True):
         course = Course(self.client, course_label)
@@ -183,6 +194,24 @@ class DiderotAPIInterface:
         }
         self.client.post(
             MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params)
+        )
+
+    def set_publish_date(self, course_label, book_label, args):
+        course = Course(self.client, course_label)
+        book = Book(course, book_label)
+        chapter = Chapter(course, book, args.chapter_number, args.chapter_label)
+        route_params = {
+            "course_id": course.pk,
+            "book_id": book.pk,
+            "chapter_id": chapter.pk,
+        }
+        data = {}
+        if args.publish_date:
+            data["date_release"] = args.publish_date
+        elif args.publish_on_week:
+            data["publish_on_week"] = args.publish_on_week
+        self.client.patch(
+            MANAGE_CHAPTER_API.format(**route_params), data=data
         )
 
     def upload_chapter(self, course_label, book_label, number, label, args, sleep_time=5):
@@ -225,33 +254,34 @@ class DiderotAPIInterface:
         for _, p in files:
             print("Uploading file:", p.name)
 
-        with ExitStack() as stack:
-            opened_files = [
-                (typ, (path.name, stack.enter_context(path.expanduser().open("rb")))) for typ, path in files
-            ]
+        if data:
+            with ExitStack() as stack:
+                opened_files = [
+                    (typ, (path.name, stack.enter_context(path.expanduser().open("rb")))) for typ, path in files
+                ]
 
-            route_params = {
-                "course_id": course.pk,
-                "book_id": book.pk,
-                "chapter_id": chapter.pk,
-                "action": "content_upload"
-            }
-            self.client.post(
-                MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params),
-                data=data,
-                files=opened_files
-            )
+                route_params = {
+                    "course_id": course.pk,
+                    "book_id": book.pk,
+                    "chapter_id": chapter.pk,
+                    "action": "content_upload"
+                }
+                self.client.post(
+                    MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params),
+                    data=data,
+                    files=opened_files
+                )
 
-        # Wait until the book becomes unlocked.
-        while True:
-            print("Waiting for book upload to complete...")
-            time.sleep(sleep_time)
-            if not Book.check_is_locked(self.client, book.pk):
-                break
+            # Wait until the book becomes unlocked.
+            while True:
+                print("Waiting for book upload to complete...")
+                time.sleep(sleep_time)
+                if not Book.check_is_locked(self.client, book.pk):
+                    break
 
-        # Get back error and warning information from uploading.
-        warnings, errors = Chapter.get_warnings_and_errors(self.client, chapter.pk)
-        if len(warnings) != 0:
-            print(warnings)
-        if len(errors) != 0:
-            raise APIError(str(errors))
+            # Get back error and warning information from uploading.
+            warnings, errors = Chapter.get_warnings_and_errors(self.client, chapter.pk)
+            if len(warnings) != 0:
+                print(warnings)
+            if len(errors) != 0:
+                raise APIError(str(errors))

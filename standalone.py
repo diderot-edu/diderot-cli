@@ -6,8 +6,8 @@ import shlex
 import sys
 from pathlib import Path
 
-from api_calls import APIError, DiderotAPIInterface
-from cli_utils import expand_file_path, print_list
+from api_calls import DiderotAPIInterface
+from cli_utils import expand_file_path, print_list, APIError, BookNotFoundAPIError
 from constants import DEFAULT_CRED_LOCATIONS
 from models import Book, Chapter, Course, Lab, Part
 
@@ -102,6 +102,18 @@ class DiderotCLIArgs(object):
     def generate_admin_parser(prog, desc):
         parser, subparsers = DiderotCLIArgs.generate_user_parser(prog, desc)
 
+        # Subparser for create_book.
+        # Example create_book <course label> --title <book title> --label <book label> 
+        create_book = subparsers.add_parser(
+            "create_book", help="Create a chapter in a book.", formatter_class=Formatter
+        )
+        create_book.add_argument("course", help="Course that the book belongs to.")
+
+        create_book.add_argument("--title", help="Optional title of new book (default = label)", default=None)
+        create_book.add_argument(
+            "--label", help="Label of new book"
+        )
+
         # Subparser for create_chapter.
         create_chapter = subparsers.add_parser(
             "create_chapter", help="Create a chapter in a book.", formatter_class=Formatter
@@ -118,11 +130,32 @@ class DiderotCLIArgs(object):
             "--label", help="Optional label of new chapter (default= randomly generated)", default=None
         )
         create_chapter.add_argument(
-            "--publish_date", help="Optional publish date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
+            "--publish_date",
+            help="Optional publish date for chapter in ISO format (yyyy-mm-dd hh:mm:ss+hh:mm)", default=None
         )
         create_chapter.add_argument(
-            "--due_date", help="Optional due date for chapter in ISO format (yyy-mm-dd hh:mm:ss+hh:ss)", default=None
+            "--due_date", help="Optional due date for chapter in ISO format (yyyy-mm-dd hh:mm:ss+hh:mm)", default=None
         )
+
+        # Subparser for set_publish_date.
+        set_publish_date = subparsers.add_parser(
+            "set_publish_date", help="Set chapter publish date.", formatter_class=Formatter
+        )
+
+        set_publish_date.add_argument("course", help="Course to release chapter in.")
+        set_publish_date.add_argument("book", help="Book that the chapter belongs to.")
+        set_publish_date_chapter_id_group = set_publish_date.add_mutually_exclusive_group(required=True)
+        set_publish_date_chapter_id_group.add_argument(
+            "--chapter_number", default=None, help="Number of chapter to upload to.")
+        set_publish_date_chapter_id_group.add_argument(
+            "--chapter_label", default=None, help="Label of chapter to upload to.")
+        set_publish_date_group = set_publish_date.add_mutually_exclusive_group(required=True)
+        set_publish_date_group.add_argument(
+            "--publish_date", default=None, help="Publish date for chapter in ISO format (yyyy-mm-dd hh:mm:ss+hh:mm).")
+        set_publish_date_group.add_argument(
+            "--publish_on_week", default=None,
+            help="Publish on week from course start in format (week_num/week_day, hour:minute)")
+
 
         # Subparser for create_part.
         create_part = subparsers.add_parser("create_part", help="Create a part in a book", formatter_class=Formatter)
@@ -133,21 +166,21 @@ class DiderotCLIArgs(object):
         create_part.add_argument("--label", help="Label for the new part (default = random).", default=None)
 
         # Subparsers for release/unrelease chapter.
-        release_chapter = subparsers.add_parser(
-            "release_chapter", help="Release a book chapter", formatter_class=Formatter
+        publish_chapter = subparsers.add_parser(
+            "publish_chapter", help="Release a book chapter", formatter_class=Formatter
         )
-        release_chapter.add_argument("course", help="Course to release chapter in.")
-        release_chapter.add_argument("book", help="Book that the chapter belongs to.")
-        chapter_id_group = release_chapter.add_mutually_exclusive_group(required=True)
+        publish_chapter.add_argument("course", help="Course to release chapter in.")
+        publish_chapter.add_argument("book", help="Book that the chapter belongs to.")
+        chapter_id_group = publish_chapter.add_mutually_exclusive_group(required=True)
         chapter_id_group.add_argument("--chapter_number", default=None, help="Number of chapter to release.")
         chapter_id_group.add_argument("--chapter_label", default=None, help="Label of chapter to release.")
 
-        unrelease_chapter = subparsers.add_parser(
-            "unrelease_chapter", help="Unrelease a book chapter", formatter_class=Formatter
+        retract_chapter = subparsers.add_parser(
+            "retract_chapter", help="Unrelease a book chapter", formatter_class=Formatter
         )
-        unrelease_chapter.add_argument("course", help="Course to unrelease chapter in.")
-        unrelease_chapter.add_argument("book", help="Book that the chapter belongs to.")
-        chapter_id_group = unrelease_chapter.add_mutually_exclusive_group(required=True)
+        retract_chapter.add_argument("course", help="Course to unrelease chapter in.")
+        retract_chapter.add_argument("book", help="Book that the chapter belongs to.")
+        chapter_id_group = retract_chapter.add_mutually_exclusive_group(required=True)
         chapter_id_group.add_argument("--chapter_number", default=None, help="Number of chapter to unrelease.")
         chapter_id_group.add_argument("--chapter_label", default=None, help="Label of chapter to unrelease.")
 
@@ -316,13 +349,15 @@ class DiderotAdmin(DiderotUser):
 
     def dispatch(self):
         commands = {
+            "create_book": self.create_book,
             "create_chapter": self.create_chapter,
             "create_part": self.create_part,
             "list_books": self.list_books,
             "list_chapters": self.list_chapters,
             "list_parts": self.list_parts,
-            "release_chapter": self.release_chapter,
-            "unrelease_chapter": self.unrelease_chapter,
+            "publish_chapter": self.publish_chapter,
+            "set_publish_date": self.set_publish_date,
+            "retract_chapter": self.retract_chapter,
             "update_assignment": self.update_assignment,
             "upload_book": self.upload_book,
             "upload_chapter": self.upload_chapter,
@@ -338,6 +373,12 @@ class DiderotAdmin(DiderotUser):
             exit_with_error(str(e))
 
     # For maintainability, keep the dispatch functions in alphabetical order.
+
+    def create_book(self):
+        self.api_client.create_book(
+            self.args.course, self.args.title, self.args.label
+        )
+        print("Successfully created book.")
 
     def create_chapter(self):
         self.api_client.create_chapter(
@@ -370,13 +411,17 @@ class DiderotAdmin(DiderotUser):
         book = Book(course, self.args.book)
         print_list(["{}. {}".format(c["rank"], c["title"]) for c in Part.list(course, book)])
 
-    def release_chapter(self):
+    def publish_chapter(self):
         self.api_client.release_unrelease_chapter(self.args.course, self.args.book, self.args, release=True)
-        print("Success releasing chapter.")
+        print("Success publishing chapter.")
 
-    def unrelease_chapter(self):
+    def set_publish_date(self):
+        self.api_client.set_publish_date(self.args.course, self.args.book, self.args)
+        print("Successfully set publish date for the chapter.")
+
+    def retract_chapter(self):
         self.api_client.release_unrelease_chapter(self.args.course, self.args.book, self.args, release=False)
-        print("Success unreleasing chapter.")
+        print("Success retracting chapter.")
 
     def update_assignment(self):
         try:
@@ -417,7 +462,14 @@ class DiderotAdmin(DiderotUser):
         # If book label is still None, then error out.
         if book_label is None:
             exit_with_error("Please specify a valid book to upload into")
-        book = Book(course, book_label)
+
+        book_title = book_data.get("title", book_label)
+
+        try:
+            book = Book(course, book_label)
+        except BookNotFoundAPIError:
+            Book.create(course, book_title, book_label)
+            book = Book(course, book_label)
 
         book_data_chapters = book_data.get("chapters", [])
 
@@ -481,9 +533,12 @@ class DiderotAdmin(DiderotUser):
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
                 part_num = get_or_none(chapter, "part")
+                publish_date = get_or_none(chapter, "publish_date")
+                publish_on_week = get_or_none(chapter, "publish_on_week")
                 if part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
-                self.api_client.create_chapter(course.label, book.label, part_num, number, title, label)
+                self.api_client.create_chapter(
+                    course.label, book.label, part_num, number, title, label, publish_date, publish_on_week)
                 print(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
 
             # Upload the target files to the chapter now.
@@ -496,7 +551,8 @@ class DiderotAdmin(DiderotUser):
                 self.api_client.upload_chapter(
                     course.label, book.label, number, None, self.args, sleep_time=self.sleep_time,
                 )
-            except APIError:
+            except APIError as e:
+                print(e)
                 exit_with_error("Failure uploading chapter. Aborting")
             print("Successfully uploaded chapter.")
 

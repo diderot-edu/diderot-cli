@@ -83,7 +83,7 @@ def test_create_chapter(api_client, part, pi):
     assert part.chapter_set.first().title == "title"
 
 
-def test_release_chapter(api_client, mk_chapter, pi):
+def test_publish_chapter(api_client, mk_chapter, pi):
     # Given an unreleased chapter
     chapter = mk_chapter("chapter", 1)
     assert not chapter.is_released
@@ -105,7 +105,7 @@ def test_release_chapter(api_client, mk_chapter, pi):
     assert chapter.is_released
 
 
-def test_unrelease_chapter(api_client, mk_chapter, pi):
+def test_retract_chapter(api_client, mk_chapter, pi):
     # Given a released chapter
     chapter = mk_chapter("chapter", 1)
     chapter.is_released = True
