@@ -19,11 +19,15 @@
      },
     {
       "number": 2,
-       "part": 1,
+      "part": 1,
       "xml": "augment/test_augment.xml",
       "xml_pdf": "augment/test_treaps.pdf",
       "publish_on_week": "3/5, 14:30",
       "attachments": ["augment/*.jpg"]
-    }
+    },
+    {
+      "number": 3,
+      "part": 1
+    } 
    ]
 }
