@@ -254,7 +254,7 @@ class DiderotAPIInterface:
         for _, p in files:
             print("Uploading file:", p.name)
 
-        if data:
+        if args.pdf is not None or args.xml is not None:
             with ExitStack() as stack:
                 opened_files = [
                     (typ, (path.name, stack.enter_context(path.expanduser().open("rb")))) for typ, path in files
