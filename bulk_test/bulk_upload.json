@@ -27,6 +27,12 @@
     },
     {
       "number": 3,
+      "part": 1,
+      "pdf": "augment/test_treaps.pdf",
+      "publish_on_week": "3/3, 14:30"
+    },
+    {
+      "number": 4,
       "part": 1
     } 
    ]
