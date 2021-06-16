@@ -254,33 +254,34 @@ class DiderotAPIInterface:
         for _, p in files:
             print("Uploading file:", p.name)
 
-        with ExitStack() as stack:
-            opened_files = [
-                (typ, (path.name, stack.enter_context(path.expanduser().open("rb")))) for typ, path in files
-            ]
+        if data:
+            with ExitStack() as stack:
+                opened_files = [
+                    (typ, (path.name, stack.enter_context(path.expanduser().open("rb")))) for typ, path in files
+                ]
 
-            route_params = {
-                "course_id": course.pk,
-                "book_id": book.pk,
-                "chapter_id": chapter.pk,
-                "action": "content_upload"
-            }
-            self.client.post(
-                MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params),
-                data=data,
-                files=opened_files
-            )
+                route_params = {
+                    "course_id": course.pk,
+                    "book_id": book.pk,
+                    "chapter_id": chapter.pk,
+                    "action": "content_upload"
+                }
+                self.client.post(
+                    MANAGE_CHAPTER_WITH_ACTION_API.format(**route_params),
+                    data=data,
+                    files=opened_files
+                )
 
-        # Wait until the book becomes unlocked.
-        while True:
-            print("Waiting for book upload to complete...")
-            time.sleep(sleep_time)
-            if not Book.check_is_locked(self.client, book.pk):
-                break
+            # Wait until the book becomes unlocked.
+            while True:
+                print("Waiting for book upload to complete...")
+                time.sleep(sleep_time)
+                if not Book.check_is_locked(self.client, book.pk):
+                    break
 
-        # Get back error and warning information from uploading.
-        warnings, errors = Chapter.get_warnings_and_errors(self.client, chapter.pk)
-        if len(warnings) != 0:
-            print(warnings)
-        if len(errors) != 0:
-            raise APIError(str(errors))
+            # Get back error and warning information from uploading.
+            warnings, errors = Chapter.get_warnings_and_errors(self.client, chapter.pk)
+            if len(warnings) != 0:
+                print(warnings)
+            if len(errors) != 0:
+                raise APIError(str(errors))

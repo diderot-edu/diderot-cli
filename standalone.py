@@ -550,7 +550,8 @@ class DiderotAdmin(DiderotUser):
                 self.api_client.upload_chapter(
                     course.label, book.label, number, None, self.args, sleep_time=self.sleep_time,
                 )
-            except APIError:
+            except APIError as e:
+                print(e)
                 exit_with_error("Failure uploading chapter. Aborting")
             print("Successfully uploaded chapter.")
 
