@@ -539,7 +539,7 @@ class DiderotAdmin(DiderotUser):
 
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
-                if part_num is None:
+                if self.args.part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
                 self.api_client.create_chapter(
                     course.label, book.label, self.args.part_num, number, title, label, self.args.publish_date, self.args.publish_on_week)
