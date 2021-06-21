@@ -522,24 +522,35 @@ class DiderotAdmin(DiderotUser):
             title = get_or_none(chapter, "title")
             attachments = get_or_none(chapter, "attachments")
 
+            self.args.book = book_label
+            self.args.part_num = get_or_none(chapter, "part")
+            self.args.chapter_number = number
+            self.args.chapter_label = label
             self.args.pdf = adjust_search_path(get_or_none(chapter, "pdf"))
             self.args.video_url = adjust_search_path(get_or_none(chapter, "video"))
             self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
             self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
+            self.args.publish_date = get_or_none(chapter, "publish_date")
+            self.args.publish_on_week = get_or_none(chapter, "publish_on_week")
+
 
             if number is None:
                 exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")
 
+            
+                
+
             # If the target chapter does not exist, then create it.
             if not Chapter.exists(course, book, number):
-                part_num = get_or_none(chapter, "part")
-                publish_date = get_or_none(chapter, "publish_date")
-                publish_on_week = get_or_none(chapter, "publish_on_week")
                 if part_num is None:
                     exit_with_error("Chapter creation in a book requires 'part' field for chapters")
                 self.api_client.create_chapter(
-                    course.label, book.label, part_num, number, title, label, publish_date, publish_on_week)
+                    course.label, book.label, self.args.part_num, number, title, label, self.args.publish_date, self.args.publish_on_week)
                 print(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
+            else:
+                # TODO: if chapter is already created, then make user to set the publish date
+                self.set_publish_date()
+
 
             # Upload the target files to the chapter now.
             self.args.attach = None
