@@ -530,7 +530,7 @@ class DiderotAdmin(DiderotUser):
             self.args.video_url = adjust_search_path(get_or_none(chapter, "video"))
             self.args.xml = adjust_search_path(get_or_none(chapter, "xml"))
             self.args.xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
-            self.args.publish_date = get_or_none(chapter, "publish_date")
+            self.args.publish_date = get_or_none(chapter, "publish_on_date")
             self.args.publish_on_week = get_or_none(chapter, "publish_on_week")
 
 
