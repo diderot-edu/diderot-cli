@@ -5,7 +5,7 @@ phases:
     runtime-versions:
       python: 3.7
     commands:
-      - pip3 install requests
+      - pip3 install -r requirements.txt
   build:
     commands:
       - make test

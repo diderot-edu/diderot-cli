@@ -1,4 +1,3 @@
-from cli_utils import APIError, BookNotFoundAPIError, singleton_or_none
 from constants import (
     COURSE_API,
     LAB_API,
@@ -8,6 +7,7 @@ from constants import (
     MANAGE_BOOK_API,
     MANAGE_BOOK_LIST_API,
 )
+from utils import APIError, BookNotFoundAPIError, singleton_or_none
 
 
 class Course:
