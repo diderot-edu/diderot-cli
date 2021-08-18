@@ -191,17 +191,15 @@ class TestDiderotUserCLI(unittest.TestCase):
         # Test invalid course label.
         output = runUserCmd("submit_assignment fakelabel fakehw fakepath")
         self.assertTrue("The requested course label does not exist." in output)
-        self.assertTrue("Something went wrong." in output)
+        self.assertTrue("You might not be a member" in output)
 
         # Test invalid homework name.
         output = runUserCmd("submit_assignment TestCourse0 fakehw fakepath")
         self.assertTrue("Invalid homework name." in output)
-        self.assertTrue("Something went wrong." in output)
 
         # Test invalid input file name.
         output = runUserCmd("submit_assignment TestCourse0 TestHW1 fakepath")
         self.assertTrue("Input file does not exist." in output)
-        self.assertTrue("Something went wrong." in output)
 
         # Expect successful execution here!
         output = runUserCmd("submit_assignment TestCourse0 TestHW1 testdata/test_handin.tar")

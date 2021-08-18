@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+import sys
+
 from standalone import DiderotUser
+
+assert sys.version_info >= (3, 7), "Python3.7 is required"
 
 DiderotUser().dispatch()

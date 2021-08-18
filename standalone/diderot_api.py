@@ -1,28 +1,37 @@
 import glob
 import os
+import requests
 import time
 import urllib.parse
+
 from contextlib import ExitStack
 from pathlib import Path
 
-import requests
-
-from models import Book, Chapter, Course, Lab, Part
-from constants import SUBMIT_ASSIGNMENT_API, UPLOAD_FILES_API, LOGIN_URL, MANAGE_CHAPTER_WITH_ACTION_API, \
+from constants import (
+    SUBMIT_ASSIGNMENT_API,
+    UPLOAD_FILES_API,
+    LOGIN_URL,
+    MANAGE_CHAPTER_WITH_ACTION_API,
     MANAGE_CHAPTER_API
-from cli_utils import APIError, download_file_helper, err_for_code, expand_file_path
+)
+from models import Book, Chapter, Course, Lab, Part
+from utils import APIError, download_file_helper, err_for_code, expand_file_path
 
 
-# DiderotClient is a wrapper around a requests.Session that maintains login
-# state and simplifies some Diderot API access.
 class DiderotClient:
+    """
+    DiderotClient is a wrapper around a requests.Session that maintains login
+    state and simplifies some Diderot API access.
+    """
+
     def __init__(self, base_url):
         self.url = base_url
         self.token_header = {}
         self.client = requests.session()
 
-    # log in to the Diderot to get the authentication token
     def login(self, username, password):
+        """log in to the Diderot to get the authentication token"""
+
         login_data = {
             "username": username,
             "password": password,
@@ -39,38 +48,46 @@ class DiderotClient:
         token = r.json()['key']
         self.token_header = {"Authorization": f"Token {token}"}
 
-    # get is a wrapper around requests.Session.get that raises an exception
-    # when a request does not succeed.
     def get(self, api, params=None):
+        """
+        get is a wrapper around requests.Session.get that raises an exception
+        when a request does not succeed.
+        """
+
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.get(url, headers=self.token_header, params=params)
         if response.status_code < 200 or response.status_code >= 300:
             raise err_for_code(response.status_code, response=response)
         return response
 
-    # post is a wrapper around requests.Session.post that raises an exception
-    # when a request does not succeed.
     def post(self, api, data=None, files=None, params=None):
+        """
+        post is a wrapper around requests.Session.post that raises an exception
+        when a request does not succeed.
+        """
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.post(url, headers=self.token_header, data=data, files=files, params=params)
         if response.status_code < 200 or response.status_code >= 300:
             raise err_for_code(response.status_code, response=response)
 
-    # patch is a wrapper around requests.Session.patch that raises an exception
-    # when a request does not succeed.
     def patch(self, api, data=None, files=None, params=None):
+        """
+        patch is a wrapper around requests.Session.patch that raises an exception
+        when a request does not succeed.
+        """
         url = urllib.parse.urljoin(self.url, api)
         response = self.client.patch(url, headers=self.token_header, data=data, files=files, params=params)
         if response.status_code < 200 or response.status_code >= 300:
             raise err_for_code(response.status_code, response=response)
 
-    # close closes the connection to Diderot.
     def close(self):
+        """close closes the connection to Diderot."""
         self.client.close()
 
 
-# DiderotAPIInterface provides an interface to some Diderot actions.
 class DiderotAPIInterface:
+    """DiderotAPIInterface provides an interface to some Diderot actions."""
+
     def __init__(self, base_url):
         self.client = DiderotClient(base_url)
 
