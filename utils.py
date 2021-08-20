@@ -1,9 +1,8 @@
 import json
 import os
-import shutil
-
 import requests
-
+import shutil
+import sys
 
 # APIError is an exception raised by the API.
 class APIError(Exception):
@@ -14,21 +13,25 @@ class BookNotFoundAPIError(APIError):
     pass
 
 
-# expand_file_path expands a relative path into a full path.
 def expand_file_path(path):
+    """expand_file_path expands a relative path into a full path."""
     return os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
 
 
-# singleton_or_none returns a single element from a response json or
-# none if the response is not a singleton.
 def singleton_or_none(response):
+    """
+    singleton_or_none returns a single element from a response json or
+    none if the response is not a singleton.
+    """
+
     if len(response.json()) != 1:
         return None
     return response.json()[0]
 
 
-# err_for_code returns an appropriate error message for HTTP errors.
 def err_for_code(code, response=None):
+    """err_for_code returns an appropriate error message for HTTP errors."""
+
     if code == 200:
         return APIError("Authentication failed. Your credentials might be incorrect")
     elif code == 301:
@@ -47,9 +50,12 @@ def err_for_code(code, response=None):
         return APIError(f"Unhandled status code {code}")
 
 
-# download_file_helper abstracts logic for downloading a file and potentially
-# aborting if the same file already exists locally.
 def download_file_helper(url):
+    """
+    download_file_helper abstracts logic for downloading a file and potentially
+    aborting if the same file already exists locally.
+    """
+
     r = requests.get(url, stream=True)
     if r.status_code != 200:
         raise APIError("Non 200 status code when downloading {}".format(url))
@@ -64,8 +70,9 @@ def download_file_helper(url):
         shutil.copyfileobj(r.raw, f)
 
 
-# Utility function for pretty printing of list data within the terminal size.
 def print_list(items):
+    """Utility function for pretty printing of list data within the terminal size."""
+
     try:
         cols, _ = os.get_terminal_size(0)
     except Exception:
@@ -78,3 +85,9 @@ def print_list(items):
     final = [items[i * n : (i + 1) * n] for i in range((len(items) + n - 1) // n)]
     for row in final:
         print(" ".join(["{: <" + str(maxLen) + "}"] * len(row)).format(*row))
+
+
+def exit_with_error(error_msg):
+    """exit_with_error prints an error message and exist with ret code 1."""
+    print(error_msg)
+    sys.exit(1)
