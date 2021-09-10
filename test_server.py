@@ -4,8 +4,100 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
-from test import books, chapters, codelabs, courses, parts
-from constants import ADDR, PORT, COURSE_API, BOOK_API, PARTS_API, CHAPTERS_API, LOGIN_URL
+from diderot_cli.constants import ADDR, PORT, COURSE_API, BOOK_API, PARTS_API, CHAPTERS_API, LOGIN_URL
+
+courses = [
+    {"id": "0", "label": "TestCourse0", "number": "0", "s3_autograder_bucket": "test_bucket"},
+    {"id": "1", "label": "TestCourse1", "number": "1", "s3_autograder_bucket": "test_bucket"},
+]
+codelabs = [
+    {
+        "id": "0",
+        "name": "TestHW1",
+        "course": "0",
+        "course__label": "TestCourse0",
+        "uuid": "",
+    },
+    {"id": "1", "name": "TestHW2", "course": "0", "course__label": "TestCourse0", "uuid": ""},
+    {"id": "2", "name": "TestHW3", "course": "1", "course__label": "TestCourse1", "uuid": ""},
+    {"id": "3", "name": "TestHW4", "course": "1", "course__label": "TestCourse1", "uuid": ""},
+]
+
+books = [
+    {
+        "label": "TestBook1",
+        "course": "0",
+        "course__label": "TestCourse0",
+        "title": "TestBook1",
+        "version": "1",
+        "id": "0",
+        # TODO (rohany): this might need to be a string
+        "is_locked": False,
+    },
+    {
+        "label": "TestBook2",
+        "course": "0",
+        "course__label": "TestCourse0",
+        "title": "TestBook2",
+        "version": "1",
+        "id": "1",
+        "is_locked": False,
+    },
+    {
+        "label": "TestBook3",
+        "course": "1",
+        "course__label": "TestCourse1",
+        "title": "TestBook3",
+        "version": "1",
+        "id": "2",
+        "is_locked": False,
+    },
+    {
+        "label": "TestBook4",
+        "course": "1",
+        "course__label": "TestCourse1",
+        "title": "TestBook4",
+        "version": "1",
+        "id": "3",
+        "is_locked": False,
+    },
+]
+
+# make parts for only one course.
+parts = [
+    {"id": "0", "label": "TestPart1", "book": "0", "book__id": "0", "title": "TestPart1", "rank": "1"},
+    {"id": "1", "label": "TestPart2", "book": "0", "book__id": "0", "title": "TestPart2", "rank": "2"},
+    {"id": "2", "label": "TestPart3", "book": "1", "book__id": "1", "title": "TestPart3", "rank": "1"},
+]
+
+chapters = [
+    {
+        "id": "0",
+        "label": "TestChapter1",
+        "book": "0",
+        "book__id": "0",
+        "part": "0",
+        "upload_errors": "",
+        "upload_warnings": "",
+        "title": "TestChapter1",
+        "rank": "1",
+        "course__label": "TestCourse0",
+        "course__id": "0",
+    },
+    {
+        "id": "1",
+        "label": "TestChapter2",
+        "book": "0",
+        "book__id": "0",
+        "part": "1",
+        "upload_errors": "",
+        "upload_warnings": "",
+        "title": "TestChapter2",
+        "rank": "2",
+        "course__label": "TestCourse0",
+        "course__id": "0",
+    },
+]
 
 
 # TODO (rohany): This seems unlikely, but maybe theres a way to run an actual
@@ -49,9 +141,16 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
     def list_chapters(self):
         return self.filter(chapters)
 
-    def api_headers(self, data):
+    def json_response(self, data: str):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
+        self.send_header("Content-length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def file_response(self, data: bytes):
+        self.send_response(200)
+        self.send_header("Content-type", "binary/octet-stream")
         self.send_header("Content-length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
@@ -59,25 +158,32 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         # base path
         if self.path == "/":
-            self.api_headers("")
+            self.json_response("")
         elif self.path.startswith(COURSE_API):
             data = self.dump(self.list_courses())
-            self.api_headers(data)
+            self.json_response(data)
+        elif self.path.startswith("/handout_url.tgz"):
+            self.file_response(b"handout_url")
+        elif self.path.startswith("/api/courses/0/codelabs/0/attached_file_urls/"):
+            data = self.dump({
+                "handout_url": f"http://{ADDR}:{PORT}/handout_url.tgz",
+            })
+            self.json_response(data)
         elif self.path.startswith("/api/courses/0/codelabs/"):
             data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "0"]))
-            self.api_headers(data)
+            self.json_response(data)
         elif self.path.startswith("/api/courses/1/codelabs/"):
             data = self.dump(self.filter([lab for lab in codelabs if lab["course"] == "1"]))
-            self.api_headers(data)
+            self.json_response(data)
         elif self.path.startswith(BOOK_API):
             data = self.dump(self.list_books())
-            self.api_headers(data)
+            self.json_response(data)
         elif self.path.startswith(PARTS_API):
             data = self.dump(self.list_parts())
-            self.api_headers(data)
+            self.json_response(data)
         elif self.path.startswith(CHAPTERS_API):
             data = self.dump(self.list_chapters())
-            self.api_headers(data)
+            self.json_response(data)
         else:
             print("GOT THIS URL AND IM ANGRY", self.path)
             self.send_response(200)
@@ -117,7 +223,7 @@ class DiderotHTTPHandler(BaseHTTPRequestHandler):
         # Handle the login behavior
         if self.path.startswith(LOGIN_URL):
             data = self.dump({"key": "test"})
-            self.api_headers(data)
+            self.json_response(data)
         # handle submitting an assignment to course 0
         elif self.path.startswith("/api/courses/0/codelabs/0/submissions/create_and_submit/"):
             success = True

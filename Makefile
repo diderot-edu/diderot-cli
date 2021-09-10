@@ -1,17 +1,22 @@
-default: test
+.PHONY: test clean
 
-admin_release:
-	tar -cvf admin_release.tar standalone.py api_calls.py diderot_admin
+default: dist
 
-student_release:
-	tar -cvf student_release.tar standalone.py api_calls.py diderot_student
+dist:
+	python setup.py bdist_wheel
+
+install:
+	pip install .
+
+setup:
+	pip install -r requirements.txt
 
 test:
-	./test.py -v
+	nosetests test.py --logging-level=ERROR
 
 coverage:
 	coverage run --source='.' ./test.py
 	coverage report
 
 clean:
-	rm -f admin_release.tar student_release.tar
+	rm -rf dist build *.egg-info

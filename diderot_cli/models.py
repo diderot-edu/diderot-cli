@@ -1,4 +1,4 @@
-from constants import (
+from diderot_cli.constants import (
     COURSE_API,
     LAB_API,
     BOOK_API,
@@ -7,7 +7,7 @@ from constants import (
     MANAGE_BOOK_API,
     MANAGE_BOOK_LIST_API,
 )
-from utils import APIError, BookNotFoundAPIError, singleton_or_none
+from diderot_cli.utils import APIError, BookNotFoundAPIError, singleton_or_none
 
 
 class Course:
@@ -197,17 +197,9 @@ class Chapter:
         return len(response.json()) != 0
 
     @staticmethod
-    def create(course, book, part, number, title, label, publish_date=None, publish_on_week=None):
-        data = {"rank": number}
-        if title is not None:
-            data["title"] = title
-        if label is not None:
-            data["label"] = label
-        if publish_date is not None:
-            data["publish_date"] = publish_date
-        if publish_on_week is not None:
-            data["publish_on_week"] = publish_on_week
-
+    def create(course: Course, book: Book, part: Part, number: int, **options):
+        data = {attr: options[attr] for attr in ["title", "label", "publish_date", "publish_on_week"] if attr in options}
+        data["rank"] = number
         data["part"] = part.pk
 
         route_params = {"course_id": course.pk, "book_id": book.pk}
