@@ -10,10 +10,14 @@ MANAGE_CHAPTER_API = MANAGE_BOOK_API + "manage-chapters/{chapter_id}/"
 MANAGE_CHAPTER_WITH_ACTION_API = MANAGE_BOOK_API + "manage-chapters/{chapter_id}/{action}/"
 SUBMIT_ASSIGNMENT_API = "/api/courses/{}/codelabs/{}/submissions/create_and_submit/"
 UPLOAD_FILES_API = "/api/courses/{}/codelabs/{}/"
+FILE_URLS_API = "api/courses/{}/codelabs/{}/attached_file_urls/"
 LOGIN_URL = "/api/users/login/"
 
 DEFAULT_CRED_LOCATIONS = ["~/private/.diderot/credentials", "~/.diderot/credentials"]
 
+DEFAULT_DIDEROT_URL = "https://api.diderot.one"
+
+# For tests
 ADDR = "127.0.0.1"
 PORT = 8080
 SERVURL = "http://{}:{}".format(ADDR, PORT)

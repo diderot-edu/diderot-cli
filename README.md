@@ -10,13 +10,14 @@ We thank William Paivine for his initial work on this project.
 
 ## Installation
 
-To install the CLI, clone this repo. The CLI depends only on python's `requests` package, and requires python 3.7 or higher.
+To install the CLI, either clone this repo and run `make install`, or download the pre-packaged `wheel` file and run `pip install path/to/didert_cli-VERSION-[...].whl`. It requires python 3.7 or higher.
+The dependencies are automatically installed if not present.
 
-To install the dependencies, use `pip install -r requirements.txt`.
+If you do not wish to install this package globally, you can create a virtualenv, install the dependencies manually wih `pip install -r requirements.txt` (may include development dependencies as well) and use the `diderot`, `diderot_admin` or `diderot_student` scripts at the root of this project.
 
 ## Basic Usage
 
-Use the `diderot_student` or `diderot_admin` script depending on your use case. The `diderot_student` and `diderot_admin` scripts accept a `--url` flag, which is meant solely for development (this connects the CLI to a particular instance of Diderot which is different that `http://www.diderot.one`). The remaining arguments are managing credentials.
+Run `diderot admin --help` or `diderot student --help` to see the available commands, depending on your use case
 
 For more details see [the guide](https://www.diderot.one/course/15/chapters/736/).
 
@@ -33,10 +34,10 @@ The student CLI contains basic commands to list, download, and submit assignment
 
 The CLI supports the following student commands.
 
-* `list_courses`
-* `list_assignments`
-* `download_assignment`
-* `submit_assignment`
+* `download-assignment`
+* `list-assignments`
+* `list-courses`
+* `submit-assignment`
 
 Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
 
@@ -46,13 +47,22 @@ The admin CLI contains all the commands of the student CLI along with commands t
 
 The CLI supports the following admin commands.
 
-* `list_books`
-* `list_parts`
-* `list_chapters`
-* `create_part`
-* `create_chapter`
-* `upload_chapter`
-* `update_assignment`
+* `create-book`
+* `create-chapter`
+* `create-part`
+* `download-assignment`
+* `list-assignments`
+* `list-books`
+* `list-chapters`
+* `list-courses`
+* `list-parts`
+* `publish-chapter`
+* `retract-chapter`
+* `set-publish-date`
+* `submit-assignment`
+* `update-assignment`
+* `upload-book`
+* `upload-chapter`
 
 Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
 

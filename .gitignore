@@ -1,6 +1,9 @@
-__pycache__/
-.vscode/
-.idea/
-.coverage
 *.pyc
+.coverage
+.idea/
+.noseids
+.vscode/
+__pycache__/
+build/
+dist/
 venv/*
