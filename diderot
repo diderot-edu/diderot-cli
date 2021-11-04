@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+from diderot_cli.commands import diderot
+from diderot_cli.context import DiderotContext
+
+if __name__ == '__main__':
+    diderot(obj=DiderotContext())
