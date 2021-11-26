@@ -18,6 +18,7 @@ from diderot_cli.utils import (
     print_list,
 )
 
+
 @click.group()
 @opts.api
 @opts.debug
@@ -34,7 +35,7 @@ def admin(dc: DiderotContext, **opts):
     debug_echo(f"Context object: {dc}")
 
 
-@click.command()
+@click.command("create_book")
 @args.multi_args(args.course, args.title, args.chapter_label)
 @uses_api
 @pass_diderot_context
@@ -42,7 +43,8 @@ def create_book(dc: DiderotContext, course: str, title: str, chapter_label: str)
     dc.client.create_book(course, title, chapter_label)
     click.echo("Successfully created book.")
 
-@click.command()
+
+@click.command("create_chapter")
 @args.multi_args(args.course, args.book)
 @opts.multi_opts(opts.part_number, opts.chapter_number, opts.chapter_label, opts.title)
 @uses_api
@@ -51,7 +53,8 @@ def create_chapter(dc: DiderotContext, course: str, book: str, **options):
     dc.client.create_chapter(course, book, **options)
     click.echo("Successfully created chapter.")
 
-@click.command()
+
+@click.command("create_part")
 @args.multi_args(args.course, args.book, args.title)
 @opts.multi_opts(opts.chapter_number, opts.chapter_label)
 @uses_api
@@ -60,7 +63,8 @@ def create_part(dc: DiderotContext, course: str, book: str, title: str, **option
     dc.client.create_part(course, book, title, **options)
     click.echo("Successfully created part.")
 
-@click.command()
+
+@click.command("list_books")
 @args.optional_course
 @click.option("--all", type=click.BOOL, default=False, is_flag=True)
 @uses_api
@@ -69,7 +73,8 @@ def list_books(dc: DiderotContext, course: str, all: bool):
     res = dc.client.list_books(course, all=all)
     print_list([c["label"] for c in res])
 
-@click.command()
+
+@click.command("list_chapters")
 @args.multi_args(args.course, args.book)
 @uses_api
 @pass_diderot_context
@@ -83,7 +88,8 @@ def list_chapters(dc: DiderotContext, course: str, book: str):
         ]
     )
 
-@click.command()
+
+@click.command("list_parts")
 @args.multi_args(args.course, args.book)
 @uses_api
 @pass_diderot_context
@@ -92,7 +98,8 @@ def list_parts(dc: DiderotContext, course: str, book: str):
     book = Book(course, book)
     print_list(["{}. {}".format(c["rank"], c["title"]) for c in Part.list(course, book)])
 
-@click.command()
+
+@click.command("publish_chapter")
 @args.multi_args(args.course, args.book)
 @opts.multi_opts(opts.chapter_number, opts.chapter_label)
 @uses_api
@@ -101,7 +108,8 @@ def publish_chapter(dc: DiderotContext, course: str, book: str, **options):
     dc.client.release_unrelease_chapter(course, book, release=True, **options)
     click.echo("Success publishing chapter.")
 
-@click.command()
+
+@click.command("set_publish_date")
 @args.multi_args(args.course, args.book)
 @opts.multi_opts(opts.chapter_number, opts.chapter_label, opts.publish_date, opts.publish_on_week)
 @uses_api
@@ -110,7 +118,8 @@ def set_publish_date(dc: DiderotContext, course: str, book: str, **options):
     dc.client.set_publish_date(course, book, **options)
     click.echo("Successfully set publish date for the chapter.")
 
-@click.command()
+
+@click.command("retract_chapter")
 @args.multi_args(args.course, args.book)
 @opts.multi_opts(opts.chapter_number, opts.chapter_label)
 @uses_api
@@ -119,7 +128,8 @@ def retract_chapter(dc: DiderotContext, course: str, book: str, **options):
     dc.client.release_unrelease_chapter(course, book, release=False, **options)
     click.echo("Success retracting chapter.")
 
-@click.command()
+
+@click.command("update_assignment")
 @args.multi_args(args.course, args.homework)
 @opts.multi_opts(opts.autograde_tar, opts.autograde_makefile, opts.handout)
 @uses_api
@@ -128,7 +138,8 @@ def update_assignment(dc: DiderotContext, course: str, homework: str, **options)
     dc.client.update_assignment(course, homework, **options)
     click.echo("Success uploading files.")
 
-@click.command()
+
+@click.command("upload_book")
 @args.course
 @click.argument("upload-data", type=click.Path(exists=True)) # Path? re-check this
 @opts.sleep_time
@@ -259,7 +270,8 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         dc.client.upload_chapter(course.label, book.label, number, None, attach=attach, **options)
         click.echo("Successfully uploaded chapter.")
 
-@click.command()
+
+@click.command("upload_chapter")
 @args.multi_args(args.course, args.book)
 @opts.multi_opts(
     opts.chapter_number, opts.chapter_label,

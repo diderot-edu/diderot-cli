@@ -25,7 +25,7 @@ def student(dc: DiderotContext, **opts):
     debug_echo(f"Context object: {dc}")
 
 
-@click.command()
+@click.command("download_assignment")
 @args.multi_args(args.course, args.homework)
 @uses_api
 @pass_diderot_context
@@ -33,7 +33,8 @@ def download_assignment(dc: DiderotContext, course, homework):
     if dc.client.download_assignment(course, homework):
         click.echo("Successfully downloaded assignment.")
 
-@click.command()
+
+@click.command("list_assignments")
 @args.course
 @uses_api
 @pass_diderot_context
@@ -45,13 +46,15 @@ def list_assignments(dc: DiderotContext, course):
     else:
         print_list(labs)
 
-@click.command()
+
+@click.command("list_courses")
 @uses_api
 @pass_diderot_context
 def list_courses(dc: DiderotContext):
     print_list([c["label"] for c in Course.list(dc.client.client)])
 
-@click.command()
+
+@click.command("submit_assignment")
 @args.multi_args(args.course, args.homework, args.handin)
 @uses_api
 @pass_diderot_context
