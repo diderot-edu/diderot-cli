@@ -10,7 +10,6 @@ from diderot_cli.context import DiderotContext, pass_diderot_context
 from diderot_cli.diderot_api import uses_api
 from diderot_cli.models import Book, Chapter, Course, Part
 from diderot_cli.utils import (
-    APIError,
     BookNotFoundAPIError,
     debug as debug_echo,
     exit_with_error,
@@ -141,7 +140,7 @@ def update_assignment(dc: DiderotContext, course: str, homework: str, **options)
 
 @click.command("upload_book")
 @args.course
-@click.argument("upload-data", type=click.Path(exists=True)) # Path? re-check this
+@click.argument("upload-data", type=click.Path(exists=True))  # Path? re-check this
 @opts.sleep_time
 @uses_api
 @pass_diderot_context
@@ -204,7 +203,7 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
     book_data_chapter_numbers = set([c.get("number") for c in book_data_chapters])
     actual_chapter_numbers = set([int(float(c["rank"])) for c in Chapter.list(course, book)])
     union_chapter_numbers = actual_chapter_numbers.union(book_data_chapter_numbers)
-    if union_chapter_numbers != set(range(1, len(union_chapter_numbers)+1)):
+    if union_chapter_numbers != set(range(1, len(union_chapter_numbers) + 1)):
         exit_with_error(f"invalid JSON: resulting chapters numbers are inconsistent, "
                         f"should be a sequence of integers starting with 1 including existing chapters. "
                         f"Current numbers set is: {actual_chapter_numbers} and resulting using json "
@@ -237,15 +236,12 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
 
         book = book_label
         part_num = get_or_none(chapter, "part")
-        chapter_number = number
-        chapter_label = label
-        pdf = adjust_search_path(get_or_none(chapter, "pdf"))
-        video_url = adjust_search_path(get_or_none(chapter, "video"))
-        xml = adjust_search_path(get_or_none(chapter, "xml"))
-        xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
+        # pdf = adjust_search_path(get_or_none(chapter, "pdf"))
+        # video_url = adjust_search_path(get_or_none(chapter, "video"))
+        # xml = adjust_search_path(get_or_none(chapter, "xml"))
+        # xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
         publish_date = get_or_none(chapter, "publish_on_date")
         publish_on_week = get_or_none(chapter, "publish_on_week")
-
 
         if number is None:
             exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")

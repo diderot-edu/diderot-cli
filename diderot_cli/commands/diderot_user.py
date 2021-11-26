@@ -3,11 +3,11 @@ import click
 import diderot_cli.arguments as args
 import diderot_cli.options as opts
 
-from diderot_cli.constants import DEFAULT_DIDEROT_URL
 from diderot_cli.context import DiderotContext, pass_diderot_context
 from diderot_cli.diderot_api import uses_api
 from diderot_cli.models import Course, Lab
 from diderot_cli.utils import print_list, debug as debug_echo
+
 
 @click.group()
 @opts.api
