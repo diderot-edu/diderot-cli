@@ -2,10 +2,10 @@ import click
 import json
 import os
 
-import diderot_cli.commands.diderot_user as student
 import diderot_cli.arguments as args
 import diderot_cli.options as opts
 
+from diderot_cli.commands import diderot_user
 from diderot_cli.context import DiderotContext, pass_diderot_context
 from diderot_cli.diderot_api import uses_api
 from diderot_cli.models import Book, Chapter, Course, Part
@@ -305,10 +305,10 @@ def register_commands(click_group: click.Group):
         update_assignment,
         upload_book,
         upload_chapter,
-        student.download_assignment,
-        student.list_assignments,
-        student.list_courses,
-        student.submit_assignment,
+        diderot_user.download_assignment,
+        diderot_user.list_assignments,
+        diderot_user.list_courses,
+        diderot_user.submit_assignment,
     ]
 
     for c in commands:
