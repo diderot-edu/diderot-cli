@@ -20,8 +20,9 @@ autograde_makefile = click.option("--autograde-makefile", type=click.Path(exists
 handout            = click.option("--handout",type=click.Path(exists=True))
 
 title           = click.option("--title")
-chapter_label   = click.option("--chapter-label")
+chapter_label   = click.option("--chapter-label", type=click.STRING)
 chapter_number  = click.option("--chapter-number", type=click.INT)
+part_label     = click.option("--part-label", type=click.STRING)
 part_number     = click.option("--part-number", type=click.INT)
 publish_date    = click.option("--publish-date")
 publish_on_week = click.option("--publish-on-week")
