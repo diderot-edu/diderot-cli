@@ -55,7 +55,7 @@ def create_chapter(dc: DiderotContext, course: str, book: str, **options):
 
 @click.command("create_part")
 @args.multi_args(args.course, args.book, args.title)
-@opts.multi_opts(opts.chapter_number, opts.chapter_label)
+@opts.multi_opts(opts.part_number, opts.part_label)
 @uses_api
 @pass_diderot_context
 def create_part(dc: DiderotContext, course: str, book: str, title: str, **options):
