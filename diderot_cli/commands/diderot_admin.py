@@ -35,11 +35,11 @@ def admin(dc: DiderotContext, **opts):
 
 
 @click.command("create_book")
-@args.multi_args(args.course, args.title, args.chapter_label)
+@args.multi_args(args.course, args.title, args.book_label)
 @uses_api
 @pass_diderot_context
-def create_book(dc: DiderotContext, course: str, title: str, chapter_label: str):
-    dc.client.create_book(course, title, chapter_label)
+def create_book(dc: DiderotContext, course: str, title: str, book_label: str):
+    dc.client.create_book(course, title, book_label)
     click.echo("Successfully created book.")
 
 
