@@ -35,19 +35,19 @@ else
 endif
 
 upload_pdf: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --number $(NO) --title $(TITLE)
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part_number $(PART_NO) --chapter_number $(NO) --title $(TITLE) --chapter_label $(LABEL_CHAPTER)
 	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO)  --pdf $(FILE).pdf
 
 upload_xml: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part_number $(PART_NO) --chapter_number $(NO)
 	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml
 
 upload_xml_attach: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part_number $(PART_NO) --chapter_number $(NO)
 	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --attach $(ATTACH)
 
 upload_xml_pdf: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part_number $(PART_NO) --chapter_number $(NO)
 	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf
 
 upload_xml_pdf_attach: 
