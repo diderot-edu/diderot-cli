@@ -179,7 +179,7 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         exit_with_error("Please specify a valid book to upload into")
 
     book_title = book_data.get("title", book_label)
-    print(f"Found  book title {book_title}")
+    print(f"Book title {book_title}")
     try:
         book = Book(course, book_label)
     except BookNotFoundAPIError:
@@ -243,10 +243,10 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         attachments = get_or_none(chapter, "attachments")
 
         part_num = get_or_none(chapter, "part")
-        # pdf = adjust_search_path(get_or_none(chapter, "pdf"))
-        # video_url = adjust_search_path(get_or_none(chapter, "video"))
-        # xml = adjust_search_path(get_or_none(chapter, "xml"))
-        # xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
+        pdf = adjust_search_path(get_or_none(chapter, "pdf"))
+        video_url = adjust_search_path(get_or_none(chapter, "video"))
+        xml = adjust_search_path(get_or_none(chapter, "xml"))
+        xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
         publish_date = get_or_none(chapter, "publish_on_date")
         publish_on_week = get_or_none(chapter, "publish_on_week")
 
@@ -270,7 +270,7 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
             attach = [adjust_search_path(path) for path in attachments]
         # Set default arguments that we wont use, but upload_chapter expects.
         click.echo(f"Uploading chapter number: {number}...")
-        dc.client.upload_chapter(course.label, book.label, number, None, attach=attach, **options)
+        dc.client.upload_chapter(course.label, book.label, number, None, attach=attach, xml=xml, xml_pdf=xml_pdf, pdf=pdf)
         click.echo("Successfully uploaded chapter.")
 
 

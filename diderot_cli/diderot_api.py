@@ -271,20 +271,21 @@ class DiderotAPIInterface:
                 raise APIError("XML argument must be an XML or MLX file.")
             files.append(("input_file_xml", Path(xml_filename)))
 
-            for fg in attach:
-                base_path = Path(fg)
-                file_glob = glob.glob(expand_file_path(fg))
-                if not base_path.exists() and len(file_glob) == 0:
-                    click.echo(f"Warning: cannot find file {fg}. Skipping.")
-                    continue
-                for g in file_glob:
-                    f = Path(g).expanduser()
-                    if f.is_dir():
-                        # If it is a directory, include all children.
-                        files.extend([("attachments", m) for m in f.glob("**/*")])
-                    else:
-                        # If it is a file, add it directly.
-                        files.append(("attachments", f))
+            if attach:
+                for fg in attach:
+                    base_path = Path(fg)
+                    file_glob = glob.glob(expand_file_path(fg))
+                    if not base_path.exists() and len(file_glob) == 0:
+                        click.echo(f"Warning: cannot find file {fg}. Skipping.")
+                        continue
+                    for g in file_glob:
+                        f = Path(g).expanduser()
+                        if f.is_dir():
+                            # If it is a directory, include all children.
+                            files.extend([("attachments", m) for m in f.glob("**/*")])
+                        else:
+                            # If it is a file, add it directly.
+                            files.append(("attachments", f))
             if xml_pdf_filename is not None:
                 files.append(("input_file_pdf", Path(xml_pdf_filename)))
 
@@ -322,8 +323,10 @@ class DiderotAPIInterface:
             # Get back error and warning information from uploading.
             warnings, errors = Chapter.get_warnings_and_errors(self.client, chapter.pk)
 
-            if len(warnings) != 0:
-                [warn(w) for w in warnings]
+#            if len(warnings) != 0:
+#                [warn(w) for w in warnings]
+            if warnings:
+                warn(warnings)
             if len(errors) != 0:
                 raise APIError(str(errors))
 
