@@ -184,11 +184,11 @@ class DiderotAPIInterface:
     def create_part(self, course_label, book_label, title, **options):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        if Part.exists(course, book, options.get("part_number")):
+        if Part.exists(course, book, options.get(constants.PART_NUMBER_GET)):
             raise APIError(
-                "Existing part for Course: {}, Book: {}, and Number: {} found.".format(course.label, book.label, options.get("chapter_number"))
+                "Existing part for Course: {}, Book: {}, and Number: {} found.".format(course.label, book.label, options.get(constants.PART_NUMBER_GET))
             )
-        Part.create(course, book, title, options.get("part_number"), options.get("part_label"))
+        Part.create(course, book, title, options.get(constants.PART_NUMBER_GET), options.get(constants.PART_LABEL_GET))
 
     def create_book(self, course_label, title, label):
         course = Course(self.client, course_label)
@@ -202,23 +202,23 @@ class DiderotAPIInterface:
     def create_chapter(self, course_label, book_label, **options):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        if options.get("part_number") is None:
-            raise APIError("--part-number must be set.")
-        part = Part(course, book, options.get("part_number"))
+        if options.get(constants.PART_NUMBER_GET) is None:
+            raise APIError(f"--{constants.PART_NUMBER} must be set.")
+        part = Part(course, book, options.get(constants.PART_NUMBER_GET))
         # See if a chapter like this exists already.
-        if Chapter.exists(course, book, options.get("chapter_number")):
+        if Chapter.exists(course, book, options.get(constants.CHAPTER_NUMBER_GET)):
             raise APIError(
                 "Existing chapter for Course: {}, Book: {} and Number: {} found.".format(
-                    course.label, book.label, options.get("chapter_number")
+                    course.label, book.label, options.get(constants.CHAPTER_NUMBER_GET)
                 )
             )
 
-        Chapter.create(course, book, part, options.get("chapter_number"), **options)
+        Chapter.create(course, book, part, options.get(constants.CHAPTER_NUMBER_GET), **options)
 
     def release_unrelease_chapter(self, course_label, book_label, release, **options):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        chapter = Chapter(course, book, options.get("chapter_number"), options.get("chapter_label"))
+        chapter = Chapter(course, book, options.get(constants.CHAPTER_NUMBER_GET), options.get(constants.CHAPTER_LABEL_GET))
         route_params = {
             "course_id": course.pk,
             "book_id": book.pk,
@@ -232,17 +232,17 @@ class DiderotAPIInterface:
     def set_publish_date(self, course_label, book_label, **options):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        chapter = Chapter(course, book, options.get("chapter_number"), options.get("chapter_label"))
+        chapter = Chapter(course, book, options.get(CHAPTER_NUMBER_GET), options.get(CHAPTER_LABEL_GET))
         route_params = {
             "course_id": course.pk,
             "book_id": book.pk,
             "chapter_id": chapter.pk,
         }
         data = {}
-        if options.get("publish_date"):
-            data["date_release"] = options.get("publish_date")
-        elif options.get("publish_on_week"):
-            data["publish_on_week"] = options.get("publish_on_week")
+        if options.get(constants.PUBLISH_DATE_GET):
+            data["date_release"] = options.get(constants.PUBLISH_DATE_GET)
+        elif options.get(constants.PUBLISH_ON_WEEK_GET):
+            data["publish_on_week"] = options.get(constants.PUBLISH_ON_WEEK_GET)
         self.client.patch(
             constants.MANAGE_CHAPTER_API.format(**route_params), data=data
         )
@@ -252,12 +252,12 @@ class DiderotAPIInterface:
         book = Book(course, book_label)
         chapter = Chapter(course, book, number, label)
 
-        pdf_filename = options.get("pdf")
-        xml_filename = options.get("xml")
-        xml_pdf_filename = options.get("xml_pdf")
-        video_url = options.get("video_url")
-        sleep_time = options.get("sleep_time", 5)
-        attach = options.get("attach", [])
+        pdf_filename = options.get(constants.PDF_GET)
+        xml_filename = options.get(constants.XML_GET)
+        xml_pdf_filename = options.get(constants.XML_PDF_GET)
+        video_url = options.get(constants.VIDEO_URL_GET)
+        sleep_time = options.get(constants.SLEEP_TIME_GET, 5)
+        attach = options.get(constants.ATTACH_GET, [])
 
         data = {}
         # Populate the input set of files.
