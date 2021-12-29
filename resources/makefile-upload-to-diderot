@@ -11,7 +11,7 @@
 ## upload_exam: ATTACH=media/
 ## upload_exam: exam.xml upload_xml_attach
 ## the last line could be
-## upload_exam: exam.xml upload-xml_pdf_attach
+## upload_exam: exam.xml upload_xml_pdf_attach
 ## or 
 ## upload_exam: exam.xml upload_xml_pdf
 ####
