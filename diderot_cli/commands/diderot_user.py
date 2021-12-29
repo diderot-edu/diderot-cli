@@ -3,13 +3,14 @@ import click
 import diderot_cli.arguments as args
 import diderot_cli.options as opts
 
+from click_aliases import ClickAliasedGroup
 from diderot_cli.context import DiderotContext, pass_diderot_context
 from diderot_cli.diderot_api import uses_api
 from diderot_cli.models import Course, Lab
 from diderot_cli.utils import print_list, debug as debug_echo
 
 
-@click.group()
+@click.group(cls=ClickAliasedGroup)
 @opts.api
 @opts.debug
 @pass_diderot_context
@@ -25,7 +26,7 @@ def student(dc: DiderotContext, **opts):
     debug_echo(f"Context object: {dc}")
 
 
-@click.command("download_assignment")
+@student.command(aliases=["download_assignment", "download-assignment"])
 @args.multi_args(args.course, args.homework)
 @uses_api
 @pass_diderot_context
@@ -34,7 +35,7 @@ def download_assignment(dc: DiderotContext, course, homework):
         click.echo("Successfully downloaded assignment.")
 
 
-@click.command("list_assignments")
+@student.command(aliases=["list_assignments", "list-assignments"])
 @args.course
 @uses_api
 @pass_diderot_context
@@ -47,14 +48,14 @@ def list_assignments(dc: DiderotContext, course):
         print_list(labs)
 
 
-@click.command("list_courses")
+@student.command(aliases=["list_courses", "list-courses"])
 @uses_api
 @pass_diderot_context
 def list_courses(dc: DiderotContext):
     print_list([c["label"] for c in Course.list(dc.client.client)])
 
 
-@click.command("submit_assignment")
+@student.command(aliases=["submit_assignment", "submit-assignments"])
 @args.multi_args(args.course, args.homework, args.handin)
 @uses_api
 @pass_diderot_context

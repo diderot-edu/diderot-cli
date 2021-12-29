@@ -106,3 +106,5 @@ def debug(message):
 
 def warn(message):
     click.secho(f"Warning: {message}", fg="yellow")
+
+
