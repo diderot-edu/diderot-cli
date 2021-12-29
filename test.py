@@ -170,25 +170,25 @@ class TestDiderotAdminCLI(Base):
 
     def test_create_part(self):
         # Test an invalid course label.
-        self.run_admin_cmd("create_part fakecourse fakebook NewTestPart --chapter-number 1")
+        self.run_admin_cmd("create_part fakecourse fakebook NewTestPart --part-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test an invalid book label.
-        self.run_admin_cmd("create_part TestCourse0 fakebook NewTestPart --chapter-number 1")
+        self.run_admin_cmd("create_part TestCourse0 fakebook NewTestPart --part-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test error when part exists.
-        self.run_admin_cmd("create_part TestCourse0 TestBook1 NewTestPart --chapter-number 1")
+        self.run_admin_cmd("create_part TestCourse0 TestBook1 NewTestPart --part-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Existing part for Course")
 
         # Expect successful response.
-        self.run_admin_cmd("create_part TestCourse0 TestBook1 NewTestPart --chapter-number 3 --chapter-label NewTestPart")
+        self.run_admin_cmd("create_part TestCourse0 TestBook1 NewTestPart --part-number 3 --part-label NewTestPart")
 
         self.assert_successful_execution()
         self.assert_in_output("Successfully created part.")
