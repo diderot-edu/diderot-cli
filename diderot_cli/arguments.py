@@ -10,6 +10,7 @@ def multi_args(*args):
 course          = click.argument("course")
 optional_course = click.argument("course", default="")
 book            = click.argument("book")
+book_label      = click.argument("book_label")
 part            = click.argument("part", type=click.INT)
 title           = click.argument("title")
 chapter_label   = click.argument("chapter_label")
