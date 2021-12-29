@@ -166,8 +166,11 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         return os.path.join(file_prefix, path)
 
     # Collect the necessary Diderot objects.
+    print(f"Fetching course {course}")
     course = Course(dc.client.client, course)
     book_label = get_or_none(book_data, "book")
+    print(f"Uploading  book {book_label}")
+
     # Try out "label", more consistent with Diderot terminology
     if book_label is None:
         book_label = get_or_none(book_data, "label")
@@ -176,12 +179,13 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         exit_with_error("Please specify a valid book to upload into")
 
     book_title = book_data.get("title", book_label)
-
+    print(f"Found  book title {book_title}")
     try:
         book = Book(course, book_label)
     except BookNotFoundAPIError:
         Book.create(course, book_title, book_label)
         book = Book(course, book_label)
+    print("Created  book")
 
     book_data_chapters = book_data.get("chapters", [])
 
@@ -190,6 +194,8 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
     chapters_data_part_numbers = set([c.get("part") for c in book_data_chapters])
     actual_part_numbers = set([int(float(c["rank"])) for c in Part.list(course, book)])
     union_part_numbers = actual_part_numbers.union(book_data_part_numbers)
+    print("Setup complete.")
+
     if union_part_numbers != set(range(1, len(union_part_numbers) + 1)):
         exit_with_error(f"invalid JSON: resulting parts numbers are inconsistent, "
                         f"should be a sequence of integers starting with 1 including existing parts. "
@@ -209,6 +215,7 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
                         f"Current numbers set is: {actual_chapter_numbers} and resulting using json "
                         f"is {union_chapter_numbers}")
 
+    click.echo("Creating parts")
     # If the upload contains parts, create them.
     parts = get_or_none(book_data, "parts")
     if parts is not None:
@@ -217,11 +224,12 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
                 dc.client.create_part(
                     course.label,
                     book.label,
-                    get_or_none(part, "number"),
                     get_or_none(part, "title"),
-                    get_or_none(part, "label"),
+                    part_number = get_or_none(part, "number"),
+                    part_label = get_or_none(part, "label"),
                 )
 
+    click.echo("Creating chapters")
     # Upload and maybe create the chapters in the input.
     chapters = get_or_none(book_data, "chapters")
     if chapters is None:
@@ -234,7 +242,6 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         title = get_or_none(chapter, "title")
         attachments = get_or_none(chapter, "attachments")
 
-        book = book_label
         part_num = get_or_none(chapter, "part")
         # pdf = adjust_search_path(get_or_none(chapter, "pdf"))
         # video_url = adjust_search_path(get_or_none(chapter, "video"))
@@ -247,13 +254,13 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
             exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")
 
         if Chapter.exists(course, book, number):
-            dc.client.set_publish_date(course, book, **options)
+            dc.client.set_publish_date(course.label, book.label, chapter_label=label, chapter_number=number)
         else:
             if part_num is None:
                 exit_with_error("Chapter creation in a book requires 'part' field for chapters")
 
             dc.client.create_chapter(
-                course.label, book.label, part_num, number, title, label, publish_date, publish_on_week
+                course.label, book.label, part_number=part_num, chapter_number=number, title=title, chapter_label=label, publish_date=publish_date, publish_on_week=publish_on_week
             )
             click.echo(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
 

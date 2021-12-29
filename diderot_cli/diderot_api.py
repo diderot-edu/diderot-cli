@@ -232,7 +232,7 @@ class DiderotAPIInterface:
     def set_publish_date(self, course_label, book_label, **options):
         course = Course(self.client, course_label)
         book = Book(course, book_label)
-        chapter = Chapter(course, book, options.get(CHAPTER_NUMBER_GET), options.get(CHAPTER_LABEL_GET))
+        chapter = Chapter(course, book, options.get(constants.CHAPTER_NUMBER_GET), options.get(constants.CHAPTER_LABEL_GET))
         route_params = {
             "course_id": course.pk,
             "book_id": book.pk,
