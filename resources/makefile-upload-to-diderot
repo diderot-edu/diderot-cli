@@ -29,30 +29,30 @@ ATTACH="does_not_exist"
 
 upload: $(FILE).xml
 ifdef ATTACH
-	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf --attach $(ATTACH)
+	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf --attach $(ATTACH)
 else 
-	$(DIDEROT_ADMIN) upload_chapter  $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf
+	$(DIDEROT_ADMIN) upload_chapter  $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf
 endif
 
 upload_pdf: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --number $(NO) --title $(TITLE)
-	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO)  --pdf $(FILE).pdf
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part-number $(PART_NO) --chapter-number $(NO) --title $(TITLE) --chapter_label $(LABEL_CHAPTER)
+	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO)  --pdf $(FILE).pdf
 
 upload_xml: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
-	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part-number $(PART_NO) --chapter-number $(NO)
+	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO) --xml $(FILE).xml
 
 upload_xml_attach: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
-	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --attach $(ATTACH)
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part-number $(PART_NO) --chapter-number $(NO)
+	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO) --xml $(FILE).xml --attach $(ATTACH)
 
 upload_xml_pdf: 
-	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
-	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf
+	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part-number $(PART_NO) --chapter-number $(NO)
+	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf
 
 upload_xml_pdf_attach: 
 	-$(DIDEROT_ADMIN) create_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --part $(PART_NO) --number $(NO)
-	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter_number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf --attach $(ATTACH)
+	$(DIDEROT_ADMIN) upload_chapter $(LABEL_COURSE) $(LABEL_TEXTBOOK) --chapter-number $(NO) --xml $(FILE).xml --xml_pdf $(FILE).pdf --attach $(ATTACH)
 
 list_chapters: 
 	/Users/umut/diderot/diderot-cli/diderot_admin list_chapters $(LABEL_COURSE) $(LABEL_TEXTBOOK)
