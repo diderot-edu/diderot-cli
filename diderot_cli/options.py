@@ -15,13 +15,17 @@ username = click.option("--username", "-u", envvar="DIDEROT_USER")
 password = click.option("--password", "-p", envvar="DIDEROT_PASSWORD", help="DEPRECATED. This option will be removed in future versions.")
 debug = click.option("--debug/--no-debug", envvar="DEBUG", default=False, help="Shows debug messages for development.")
 
+# Options must be constents with those defined
+# in constants.py
+# We cannot use constants here but must use strings.
 autograde_tar      = click.option("--autograde-tar", type=click.Path(exists=True))
 autograde_makefile = click.option("--autograde-makefile", type=click.Path(exists=True))
 handout            = click.option("--handout",type=click.Path(exists=True))
 
 title           = click.option("--title")
-chapter_label   = click.option("--chapter-label")
+chapter_label   = click.option("--chapter-label", type=click.STRING)
 chapter_number  = click.option("--chapter-number", type=click.INT)
+part_label      = click.option("--part-label", type=click.STRING)
 part_number     = click.option("--part-number", type=click.INT)
 publish_date    = click.option("--publish-date")
 publish_on_week = click.option("--publish-on-week")
