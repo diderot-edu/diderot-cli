@@ -92,7 +92,11 @@ class Book:
 
     @staticmethod
     def check_is_locked(client, id):
-        response = client.get(BOOK_API, params={"id": id})
+        try: 
+            response = client.get(BOOK_API, params={"id": id})
+        except:
+            raise APIError("Something went wrong when connecting to server: could not connect.  Please try again!")
+
         result = singleton_or_none(response)
         return bool(result["is_locked"])
 

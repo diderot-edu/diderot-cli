@@ -247,9 +247,9 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         pdf = adjust_search_path(get_or_none(chapter, "pdf"))
         video_url = adjust_search_path(get_or_none(chapter, "video"))
         xml = adjust_search_path(get_or_none(chapter, "xml"))
-        xml_pdf = adjust_search_path(get_or_none(chapter, "xml_pdf"))
-        publish_date = get_or_none(chapter, "publish_on_date")
-        publish_on_week = get_or_none(chapter, "publish_on_week")
+        xml_pdf = adjust_search_path(get_or_none(chapter, "xml-pdf"))
+        publish_date = get_or_none(chapter, "publish-on-date")
+        publish_on_week = get_or_none(chapter, "publish-on-week")
 
         if number is None:
             exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")
