@@ -2,7 +2,7 @@
 
 # diderot-cli
 
-Command line interface to interact with [Diderot](http://www.umut-acar.org/diderot).
+Command line interface to interact with [Diderot](http://www.diderot.one).
 
 We welcome contributors! If you are interested in contributing, read CONTRIBUTING.md for some basic guidelines, and grab an issue, or submit your own! 
 
