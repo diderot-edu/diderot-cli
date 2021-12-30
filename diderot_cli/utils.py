@@ -54,6 +54,8 @@ def err_for_code(code, response=None):
                     return APIError(f"Unhandled status code: {code}, error: {response.content}")
             except json.decoder.JSONDecodeError:
                 return APIError(f"Unhandled status code: {code}, error: {response.content}")
+            except Exception:
+                return APIError(f"Response from server is not intelligible. Is the server alive?")
 
         return APIError(f"Unhandled status code: {code}")
 
