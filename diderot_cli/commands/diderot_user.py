@@ -25,14 +25,6 @@ def student(dc: DiderotContext, **opts):
     debug_echo(f"Context object: {dc}")
 
 
-@click.command("download_assignment")
-@args.multi_args(args.course, args.homework)
-@uses_api
-@pass_diderot_context
-def download_assignment_(dc: DiderotContext, course, homework):
-    if dc.client.download_assignment(course, homework):
-        click.echo("Successfully downloaded assignment.")
-
 @click.command("download-assignment")
 @args.multi_args(args.course, args.homework)
 @uses_api
@@ -41,18 +33,13 @@ def download_assignment(dc: DiderotContext, course, homework):
     if dc.client.download_assignment(course, homework):
         click.echo("Successfully downloaded assignment.")
 
-
-@click.command("list_assignments")
-@args.course
+@click.command("download_assignment")
+@args.multi_args(args.course, args.homework)
 @uses_api
 @pass_diderot_context
-def list_assignments_(dc: DiderotContext, course):
-    course = Course(dc.client.client, course)
-    labs = [hw["name"] for hw in Lab.list(course)]
-    if len(labs) == 0:
-        click.echo("Course has no labs.")
-    else:
-        print_list(labs)
+def download_assignment_(dc: DiderotContext, course, homework):
+    if dc.client.download_assignment(course, homework):
+        click.echo("Successfully downloaded assignment.")
 
 @click.command("list-assignments")
 @args.course
@@ -66,12 +53,17 @@ def list_assignments(dc: DiderotContext, course):
     else:
         print_list(labs)
 
-
-@click.command("list_courses_")
+@click.command("list_assignments")
+@args.course
 @uses_api
 @pass_diderot_context
-def list_courses(dc: DiderotContext):
-    print_list([c["label"] for c in Course.list(dc.client.client)])
+def list_assignments_(dc: DiderotContext, course):
+    course = Course(dc.client.client, course)
+    labs = [hw["name"] for hw in Lab.list(course)]
+    if len(labs) == 0:
+        click.echo("Course has no labs.")
+    else:
+        print_list(labs)
 
 @click.command("list-courses")
 @uses_api
@@ -79,14 +71,12 @@ def list_courses(dc: DiderotContext):
 def list_courses(dc: DiderotContext):
     print_list([c["label"] for c in Course.list(dc.client.client)])
 
-
-@click.command("submit_assignment_")
-@args.multi_args(args.course, args.homework, args.handin)
+@click.command("list_courses")
 @uses_api
 @pass_diderot_context
-def submit_assignment(dc: DiderotContext, course: str, homework: str, handin: str):
-    dc.client.submit_assignment(course, homework, handin)
-    click.echo("Assignment submitted successfully. Track your submission's status on Diderot.")
+def list_courses_(dc: DiderotContext):
+    print_list([c["label"] for c in Course.list(dc.client.client)])
+
 
 @click.command("submit-assignment")
 @args.multi_args(args.course, args.homework, args.handin)
@@ -96,6 +86,13 @@ def submit_assignment(dc: DiderotContext, course: str, homework: str, handin: st
     dc.client.submit_assignment(course, homework, handin)
     click.echo("Assignment submitted successfully. Track your submission's status on Diderot.")
 
+@click.command("submit_assignment")
+@args.multi_args(args.course, args.homework, args.handin)
+@uses_api
+@pass_diderot_context
+def submit_assignment_(dc: DiderotContext, course: str, homework: str, handin: str):
+    dc.client.submit_assignment(course, homework, handin)
+    click.echo("Assignment submitted successfully. Track your submission's status on Diderot.")
 
 def register_commands(click_group: click.Group):
     commands = [
