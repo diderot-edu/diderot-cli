@@ -314,9 +314,13 @@ def register_commands(click_group: click.Group):
         upload_book,
         upload_chapter,
         diderot_user.download_assignment,
+        diderot_user.download_assignment_,
         diderot_user.list_assignments,
+        diderot_user.list_assignments_,
         diderot_user.list_courses,
+        diderot_user.list_courses_,
         diderot_user.submit_assignment,
+        diderot_user.submit_assignment_,
     ]
 
     for c in commands:
