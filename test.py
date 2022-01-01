@@ -327,7 +327,7 @@ class TestDiderotAdminCLI(Base):
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
-        self.run_admin_cmd("retracts-chapter TestCourse0 TestBook1 --chapter-label fakelabel")
+        self.run_admin_cmd("retract-chapter TestCourse0 TestBook1 --chapter-label fakelabel")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
