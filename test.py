@@ -48,7 +48,7 @@ class Base(unittest.TestCase):
 class TestDiderotUserCLI(Base):
     # TODO (rohany): add a test for credentials
     def test_list_courses(self):
-        self.run_user_cmd("list_courses")
+        self.run_user_cmd("list-courses")
         self.assert_successful_execution()
 
         # 6 extra elements in output for labels (splitted): "Active courses", "Inactive courses", "public courses"
@@ -59,14 +59,14 @@ class TestDiderotUserCLI(Base):
 
     def test_list_assignments(self):
         # Test invalid course label.
-        self.run_user_cmd("list_assignments fakelabel")
+        self.run_user_cmd("list-assignments fakelabel")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test that assignment data is correct when switching on course.
         for c in ["TestCourse0", "TestCourse1"]:
-            self.run_user_cmd(f"list_assignments {c}")
+            self.run_user_cmd(f"list-assignments {c}")
 
             self.assert_successful_execution()
 
@@ -77,34 +77,34 @@ class TestDiderotUserCLI(Base):
 
     def test_download_assignment(self):
         # Test invalid course label.
-        self.run_user_cmd("download_assignment fakelabel fakehw")
+        self.run_user_cmd("download-assignment fakelabel fakehw")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid homework name.
-        self.run_user_cmd("download_assignment TestCourse0 fakehw")
+        self.run_user_cmd("download-assignment TestCourse0 fakehw")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Invalid homework name.")
 
         # Expect success with valid hw name and course name.
         with self.runner.isolated_filesystem():
-            self.run_user_cmd("download_assignment TestCourse0 TestHW1")
+            self.run_user_cmd("download-assignment TestCourse0 TestHW1")
 
         self.assert_successful_execution()
         self.assert_in_output("Successfully downloaded assignment.")
 
     def test_submit_assignment(self):
         # Test invalid course label.
-        self.run_user_cmd("submit_assignment fakelabel fakehw testdata/test_handin.tar")
+        self.run_user_cmd("submit-assignment fakelabel fakehw testdata/test_handin.tar")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
         self.assert_in_output("You might not be a member")
 
         # Test invalid homework name.
-        self.run_user_cmd("submit_assignment TestCourse0 fakehw testdata/test_handin.tar")
+        self.run_user_cmd("submit-assignment TestCourse0 fakehw testdata/test_handin.tar")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Invalid homework name.")
@@ -125,31 +125,31 @@ class TestDiderotUserCLI(Base):
 class TestDiderotAdminCLI(Base):
     def test_create_chapter(self):
         # Test invalid course label.
-        self.run_admin_cmd("create_chapter fakecourse fakebook --chapter-number 1")
+        self.run_admin_cmd("create-chapter fakecourse fakebook --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book label.
-        self.run_admin_cmd("create_chapter TestCourse0 fakebook --chapter-number 1")
+        self.run_admin_cmd("create-chapter TestCourse0 fakebook --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test error is raised when book is not a booklet and parts is not provided.
-        self.run_admin_cmd("create_chapter TestCourse0 TestBook1 --chapter-number 1")
+        self.run_admin_cmd("create-chapter TestCourse0 TestBook1 --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("--part-number must be set.")
 
         # Test error when input part is invalid.
-        self.run_admin_cmd("create_chapter TestCourse0 TestBook1 --part-number 3 --chapter-number 1")
+        self.run_admin_cmd("create-chapter TestCourse0 TestBook1 --part-number 3 --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input part not found.")
 
         # Test error when chapter exists.
-        self.run_admin_cmd("create_chapter TestCourse0 TestBook1 --part-number 1 --chapter-number 1")
+        self.run_admin_cmd("create-chapter TestCourse0 TestBook1 --part-number 1 --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Existing chapter for")
@@ -163,52 +163,52 @@ class TestDiderotAdminCLI(Base):
 
         # Expect successful response for non booklets.
         self.run_admin_cmd(
-            "create_chapter TestCourse0 TestBook2 --part-number 1 --chapter-number 3 --title TestChapter3 --chapter-label TestChapter3"
+            "create-chapter TestCourse0 TestBook2 --part-number 1 --chapter-number 3 --title TestChapter3 --chapter-label TestChapter3"
         )
         self.assert_successful_execution()
         self.assert_in_output("Successfully created chapter.")
 
     def test_create_part(self):
         # Test an invalid course label.
-        self.run_admin_cmd("create_part fakecourse fakebook NewTestPart --part-number 1")
+        self.run_admin_cmd("create-part fakecourse fakebook NewTestPart --part-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test an invalid book label.
-        self.run_admin_cmd("create_part TestCourse0 fakebook NewTestPart --part-number 1")
+        self.run_admin_cmd("create-part TestCourse0 fakebook NewTestPart --part-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test error when part exists.
-        self.run_admin_cmd("create_part TestCourse0 TestBook1 NewTestPart --part-number 1")
+        self.run_admin_cmd("create-part TestCourse0 TestBook1 NewTestPart --part-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Existing part for Course")
 
         # Expect successful response.
-        self.run_admin_cmd("create_part TestCourse0 TestBook1 NewTestPart --part-number 3 --part-label NewTestPart")
+        self.run_admin_cmd("create-part TestCourse0 TestBook1 NewTestPart --part-number 3 --part-label NewTestPart")
 
         self.assert_successful_execution()
         self.assert_in_output("Successfully created part.")
 
     def test_list_books(self):
         # With no course provided, expect an error.
-        self.run_admin_cmd("list_books")
+        self.run_admin_cmd("list-books")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("A course label is required if not listing all books.")
 
         # Test with invalid course label.
-        self.run_admin_cmd("list_books fakecourse")
+        self.run_admin_cmd("list-books fakecourse")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test with a valid input course label.
         for c in ["TestCourse0", "TestCourse1"]:
-            self.run_admin_cmd("list_books {}".format(c))
+            self.run_admin_cmd("list-books {}".format(c))
 
             self.assert_successful_execution()
 
@@ -218,7 +218,7 @@ class TestDiderotAdminCLI(Base):
                 self.assert_in_output(b["label"])
 
         # Test the --all flag.
-        self.run_admin_cmd("list_books --all")
+        self.run_admin_cmd("list-books --all")
 
         self.assert_successful_execution()
         self.assertTrue(len(shlex.split(self.result.output)) == len(books))
@@ -228,19 +228,19 @@ class TestDiderotAdminCLI(Base):
 
     def test_list_chapters(self):
         # Test invalid course label.
-        self.run_admin_cmd("list_chapters fakecourse fakebook")
+        self.run_admin_cmd("list-chapters fakecourse fakebook")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book label.
-        self.run_admin_cmd("list_chapters TestCourse0 fakebook")
+        self.run_admin_cmd("list-chapters TestCourse0 fakebook")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test that we get expected results with a valid book.
-        self.run_admin_cmd("list_chapters TestCourse0 TestBook1")
+        self.run_admin_cmd("list-chapters TestCourse0 TestBook1")
 
         self.assert_successful_execution()
 
@@ -251,26 +251,26 @@ class TestDiderotAdminCLI(Base):
             self.assert_in_output(s)
 
         # Test that we don't get any results with a book with no chapters.
-        self.run_admin_cmd("list_chapters TestCourse0 TestBook2")
+        self.run_admin_cmd("list-chapters TestCourse0 TestBook2")
 
         self.assert_successful_execution()
         self.assertTrue(len(self.result.output) == 0)
 
     def test_list_parts(self):
         # Test invalid course label.
-        self.run_admin_cmd("list_parts fakecourse fakebook")
+        self.run_admin_cmd("list-parts fakecourse fakebook")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book label.
-        self.run_admin_cmd("list_parts TestCourse0 fakebook")
+        self.run_admin_cmd("list-parts TestCourse0 fakebook")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test that we get expected results with a valid book.
-        self.run_admin_cmd("list_parts TestCourse0 TestBook1")
+        self.run_admin_cmd("list-parts TestCourse0 TestBook1")
 
         self.assert_successful_execution()
 
@@ -282,73 +282,73 @@ class TestDiderotAdminCLI(Base):
             self.assert_in_output(s)
 
         # Test that we don't get any results with a book with no parts.
-        self.run_admin_cmd("list_parts TestCourse1 TestBook3")
+        self.run_admin_cmd("list-parts TestCourse1 TestBook3")
 
         self.assert_successful_execution()
         self.assertTrue(len(self.result.output) == 0)
 
     def test_publish_retract_chapter(self):
         # Test invalid course label.
-        self.run_admin_cmd("publish_chapter fakecourse fakebook --chapter-number 10")
+        self.run_admin_cmd("publish-chapter fakecourse fakebook --chapter-number 10")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
-        self.run_admin_cmd("retract_chapter fakecourse fakebook --chapter-number 10")
+        self.run_admin_cmd("retract-chapter fakecourse fakebook --chapter-number 10")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book.
-        self.run_admin_cmd("publish_chapter TestCourse0 fakebook --chapter-number 10")
+        self.run_admin_cmd("publish-chapter TestCourse0 fakebook --chapter-number 10")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
-        self.run_admin_cmd("retract_chapter TestCourse0 fakebook --chapter-number 10")
+        self.run_admin_cmd("retract-chapter TestCourse0 fakebook --chapter-number 10")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test invalid chapter number.
-        self.run_admin_cmd("publish_chapter TestCourse0 TestBook1 --chapter-number 10")
+        self.run_admin_cmd("publish-chapter TestCourse0 TestBook1 --chapter-number 10")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
-        self.run_admin_cmd("retract_chapter TestCourse0 TestBook1 --chapter-number 10")
+        self.run_admin_cmd("retract-chapter TestCourse0 TestBook1 --chapter-number 10")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
         # Test invalid chapter label.
-        self.run_admin_cmd("publish_chapter TestCourse0 TestBook1 --chapter-label fakelabel")
+        self.run_admin_cmd("publish-chapter TestCourse0 TestBook1 --chapter-label fakelabel")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
-        self.run_admin_cmd("retract_chapter TestCourse0 TestBook1 --chapter-label fakelabel")
+        self.run_admin_cmd("retracts-chapter TestCourse0 TestBook1 --chapter-label fakelabel")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
         # Test success in releasing chapter.
-        self.run_admin_cmd("publish_chapter TestCourse0 TestBook1 --chapter-label TestChapter1")
+        self.run_admin_cmd("publish-chapter TestCourse0 TestBook1 --chapter-label TestChapter1")
 
         self.assert_successful_execution()
         self.assert_in_output("Success publishing chapter.")
 
-        self.run_admin_cmd("retract_chapter TestCourse0 TestBook1 --chapter-label TestChapter1")
+        self.run_admin_cmd("retract-chapter TestCourse0 TestBook1 --chapter-label TestChapter1")
 
         self.assert_successful_execution()
         self.assert_in_output("Success retracting chapter.")
 
-        self.run_admin_cmd("publish_chapter TestCourse0 TestBook1 --chapter-number 1")
+        self.run_admin_cmd("publish-chapter TestCourse0 TestBook1 --chapter-number 1")
 
         self.assert_successful_execution()
         self.assert_in_output("Success publishing chapter.")
 
-        self.run_admin_cmd("retract_chapter TestCourse0 TestBook1 --chapter-number 1")
+        self.run_admin_cmd("retract-chapter TestCourse0 TestBook1 --chapter-number 1")
 
         self.assert_successful_execution()
         self.assert_in_output("Success retracting chapter.")
@@ -377,25 +377,25 @@ class TestDiderotAdminCLI(Base):
 
     def test_upload_chapter(self):
         # Test invalid course label.
-        self.run_admin_cmd("upload_chapter fakecourse fakebook --chapter-number 10 --pdf testdata/chapter.pdf")
+        self.run_admin_cmd("upload-chapter fakecourse fakebook --chapter-number 10 --pdf testdata/chapter.pdf")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book.
-        self.run_admin_cmd("upload_chapter TestCourse0 fakebook --chapter-number 10 --pdf testdata/chapter.pdf")
+        self.run_admin_cmd("upload-chapter TestCourse0 fakebook --chapter-number 10 --pdf testdata/chapter.pdf")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test invalid chapter number.
-        self.run_admin_cmd("upload_chapter TestCourse0 TestBook1 --chapter-number 10 --pdf testdata/chapter.pdf")
+        self.run_admin_cmd("upload-chapter TestCourse0 TestBook1 --chapter-number 10 --pdf testdata/chapter.pdf")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
         # Test invalid chapter label.
-        self.run_admin_cmd("upload_chapter TestCourse0 TestBook1 --chapter-label fakelabel --pdf testdata/chapter.pdf")
+        self.run_admin_cmd("upload-chapter TestCourse0 TestBook1 --chapter-label fakelabel --pdf testdata/chapter.pdf")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
@@ -403,44 +403,44 @@ class TestDiderotAdminCLI(Base):
         # Pdf upload test.
         # Expect an error if used not on a pdf.
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-number 1 --pdf testdata/book.xml --video-url fakeurl"
+            "upload-chapter TestCourse0 TestBook1 --chapter-number 1 --pdf testdata/book.xml --video-url fakeurl"
         )
         self.assert_in_output("PDF argument must be a PDF file.")
 
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-number 1 --pdf testdata/chapter.pdf --video-url fakeurl"
+            "upload-chapter TestCourse0 TestBook1 --chapter-number 1 --pdf testdata/chapter.pdf --video-url fakeurl"
         )
         self.assert_successful_execution()
         self.assert_in_output("Chapter uploaded successfully.")
 
         # Xml/mlx upload test.
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.xml --xml-pdf testdata/book.pdf"
+            "upload-chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.xml --xml-pdf testdata/book.pdf"
         )
         self.assert_successful_execution()
         self.assert_in_output("Chapter uploaded successfully.")
 
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-label TestChapter1 --xml testdata/book.xml --xml-pdf testdata/book.pdf"
+            "upload-chapter TestCourse0 TestBook1 --chapter-label TestChapter1 --xml testdata/book.xml --xml-pdf testdata/book.pdf"
         )
         self.assert_successful_execution()
         self.assert_in_output("Chapter uploaded successfully.")
 
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf"
+            "upload-chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf"
         )
         self.assert_successful_execution()
         self.assert_in_output("Chapter uploaded successfully.")
 
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-label TestChapter1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf"
+            "upload-chapter TestCourse0 TestBook1 --chapter-label TestChapter1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf"
         )
         self.assert_successful_execution()
         self.assert_in_output("Chapter uploaded successfully.")
 
         # Test folder.
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf --attach testdata/images/"
+            "upload-chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf --attach testdata/images/"
         )
         self.assert_successful_execution()
         self.assert_in_output("Uploading file: test1.png")
@@ -449,7 +449,7 @@ class TestDiderotAdminCLI(Base):
 
         # Test file list.
         self.run_admin_cmd(
-            "upload_chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf --attach testdata/images/test1.png --attach testdata/images/test2.png"
+            "upload-chapter TestCourse0 TestBook1 --chapter-number 1 --xml testdata/book.mlx --xml-pdf testdata/book.pdf --attach testdata/images/test1.png --attach testdata/images/test2.png"
         )
         self.assert_successful_execution()
         self.assert_in_output("Uploading file: test1.png")
@@ -459,40 +459,40 @@ class TestDiderotAdminCLI(Base):
     def test_set_publish_date_for_chapter(self):
         # Test invalid course label.
         self.run_admin_cmd(
-            "set_publish_date fakecourse fakebook --chapter-number 10 --publish-date \"2021-06-10T10:15\""
+            "set-publish-date fakecourse fakebook --chapter-number 10 --publish-date \"2021-06-10T10:15\""
         )
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book.
         self.run_admin_cmd(
-            "set_publish_date TestCourse0 fakebook --chapter-number 10 --publish-date \"2021-06-10T10:15\""
+            "set-publish-date TestCourse0 fakebook --chapter-number 10 --publish-date \"2021-06-10T10:15\""
         )
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
 
         # Test invalid chapter number.
         self.run_admin_cmd(
-            "set_publish_date TestCourse0 TestBook1 --chapter-number 10 --publish-date \"2021-06-10T10:15\""
+            "set-publish-date TestCourse0 TestBook1 --chapter-number 10 --publish-date \"2021-06-10T10:15\""
         )
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
         # Test invalid chapter label.
         self.run_admin_cmd(
-            "set_publish_date TestCourse0 TestBook1 --chapter-label fakelabel --publish-date \"2021-06-10T10:15\""
+            "set-publish-date TestCourse0 TestBook1 --chapter-label fakelabel --publish-date \"2021-06-10T10:15\""
         )
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input chapter not found.")
 
         # Test success in setting date for chapter.
         self.run_admin_cmd(
-            "set_publish_date TestCourse0 TestBook1 --chapter-label TestChapter1 --publish-date \"2021-06-10T10:15\""
+            "set-publish-date TestCourse0 TestBook1 --chapter-label TestChapter1 --publish-date \"2021-06-10T10:15\""
         )
         self.assert_in_output("Successfully set publish date for the chapter.")
 
         self.run_admin_cmd(
-            "set_publish_date TestCourse0 TestBook1 --chapter-number 1 --publish-on-week \"3/5, 14:30\""
+            "set-publish-date TestCourse0 TestBook1 --chapter-number 1 --publish-on-week \"3/5, 14:30\""
         )
         self.assert_in_output("Successfully set publish date for the chapter.")
 
