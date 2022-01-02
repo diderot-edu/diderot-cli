@@ -125,13 +125,13 @@ class TestDiderotUserCLI(Base):
 class TestDiderotAdminCLI(Base):
     def test_create_chapter(self):
         # Test invalid course label.
-        self.run_admin_cmd("create-chapter fakecourse fakebook --chapter-number 1")
+        self.run_admin_cmd("create-chapter fakecourse fakebook --part-number 1 --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid book label.
-        self.run_admin_cmd("create-chapter TestCourse0 fakebook --chapter-number 1")
+        self.run_admin_cmd("create-chapter TestCourse0 fakebook --part-number 1 --chapter-number 1")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Input book not found.")
