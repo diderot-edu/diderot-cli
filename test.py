@@ -110,13 +110,13 @@ class TestDiderotUserCLI(Base):
         self.assert_in_output("Invalid homework name.")
 
         # Test invalid input file name.
-        self.run_user_cmd("submit_assignment TestCourse0 TestHW1 testdata/invalid.tar")
+        self.run_user_cmd("submit-assignment TestCourse0 TestHW1 testdata/invalid.tar")
 
         self.assert_unsuccessful_execution(exit_code=2)
         self.assert_in_output("Path 'testdata/invalid.tar' does not exist.")
 
         # Expect successful execution here!
-        self.run_user_cmd("submit_assignment TestCourse0 TestHW1 testdata/test_handin.tar")
+        self.run_user_cmd("submit-assignment TestCourse0 TestHW1 testdata/test_handin.tar")
 
         self.assert_successful_execution()
         self.assert_in_output("Assignment submitted successfully.")
@@ -355,20 +355,20 @@ class TestDiderotAdminCLI(Base):
 
     def test_update_assignment(self):
         # Test invalid course label.
-        self.run_admin_cmd("update_assignment fakecourse fakehw")
+        self.run_admin_cmd("update-assignment fakecourse fakehw")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("The requested course label does not exist.")
 
         # Test invalid homework name.
-        self.run_admin_cmd("update_assignment TestCourse0 fakehw")
+        self.run_admin_cmd("update-assignment TestCourse0 fakehw")
 
         self.assert_unsuccessful_execution()
         self.assert_in_output("Invalid homework name.")
 
         # Expect success.
         self.run_admin_cmd(
-            "update_assignment TestCourse0 TestHW1 --autograde-tar testdata/autograde.tar\
+            "update-assignment TestCourse0 TestHW1 --autograde-tar testdata/autograde.tar\
              --autograde-makefile testdata/autograde-Makefile \
              --handout testdata/handout.tar"
         )
