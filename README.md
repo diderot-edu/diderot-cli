@@ -77,6 +77,6 @@ Please look at the Diderot Guide or use the CLI's help messages for more informa
 
 ## Testing
 
-The CLI is backed by a small suite of unit tests that try to attain as much coverage of the codebase as possible. The tests mock the Diderot webserver and test communication behavior between the CLI and Diderot. However, they are not a complete assertion that changes to the CLI are correct, and are intended more as a deterrent against behavior regression.
+The CLI is backed by a small suite of unit tests. The tests mock the Diderot webserver and test communication behavior between the CLI and Diderot. However, they are not a complete assertion that changes to the CLI are correct, and are intended more as a deterrent against behavior regression.
 
 To run the tests, run `make test`.
