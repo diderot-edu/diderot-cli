@@ -156,7 +156,7 @@ class TestDiderotAdminCLI(Base):
 
         # Expect a successful response.
         self.run_admin_cmd(
-            "create_chapter TestCourse0 TestBook1 --part-number 1 --chapter-number 3 --title TestChapter3 --chapter-label TestChapter3"
+            "create-chapter TestCourse0 TestBook1 --part-number 1 --chapter-number 3 --title TestChapter3 --chapter-label TestChapter3"
         )
         self.assert_successful_execution()
         self.assert_in_output("Successfully created chapter.")
