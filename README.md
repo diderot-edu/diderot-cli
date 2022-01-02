@@ -43,10 +43,10 @@ The student CLI contains basic commands to list, download, and submit assignment
 
 The CLI supports the following student commands.
 
-* `download_assignment`
-* `list_assignments`
-* `list_courses`
-* `submit_assignment`
+* `download-assignment`
+* `list-assignments`
+* `list-courses`
+* `submit-assignment`
 
 Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
 
@@ -56,22 +56,22 @@ The admin CLI contains all the commands of the student CLI along with commands t
 
 The CLI supports the following admin commands.
 
-* `create_book`
-* `create_chapter`
-* `create_part`
-* `download_assignment`
-* `list_assignments`
-* `list_books`
-* `list_chapters`
-* `list_courses`
-* `list_parts`
-* `publish_chapter`
-* `retract_chapter`
-* `set_publish_date`
-* `submit_assignment`
-* `update_assignment`
-* `upload_book`
-* `upload_chapter`
+* `create-book`
+* `create-chapter`
+* `create-part`
+* `download-assignment`
+* `list-assignments`
+* `list-books`
+* `list-chapters`
+* `list-courses`
+* `list-parts`
+* `publish-chapter`
+* `retract-chapter`
+* `set-publish-date`
+* `submit-assignment`
+* `update-assignment`
+* `upload-book`
+* `upload-chapter`
 
 Please look at the Diderot Guide or use the CLI's help messages for more information about these commands.
 
