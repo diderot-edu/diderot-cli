@@ -202,7 +202,7 @@ class Chapter:
 
     @staticmethod
     def create(course: Course, book: Book, part: Part, number: int, **options):
-        data = {attr: options[attr] for attr in ["title", "label", "publish_date", "publish_on_week"] if attr in options}
+        data = {attr: options[attr] for attr in ["title", "label", "publish_date", "publish_on_week", "schedule_date", "schedule_on_week"] if attr in options}
         data["rank"] = number
         data["part"] = part.pk
 
