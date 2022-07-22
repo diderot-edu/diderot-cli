@@ -249,6 +249,8 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
         xml_pdf = adjust_search_path(get_or_none(chapter, "xml-pdf"))
         publish_date = get_or_none(chapter, "publish-on-date")
         publish_on_week = get_or_none(chapter, "publish-on-week")
+        schedule_date = get_or_none(chapter, "schedule-on-date")
+        schedule_on_week = get_or_none(chapter, "schedule-on-week")
 
         if number is None:
             exit_with_error(f"invalid JSON: must provide field 'number' for chapter {chapter}")
@@ -260,7 +262,7 @@ def upload_book(dc: DiderotContext, course: str, upload_data: str, **options):
                 exit_with_error("Chapter creation in a book requires 'part' field for chapters")
 
             dc.client.create_chapter(
-                course.label, book.label, part_number=part_num, chapter_number=number, title=title, chapter_label=label, publish_date=publish_date, publish_on_week=publish_on_week
+                course.label, book.label, part_number=part_num, chapter_number=number, title=title, chapter_label=label, publish_date=publish_date, publish_on_week=publish_on_week, schedule_on_date=schedule_on_date, schedule_on_week=schedule_on_week
             )
             click.echo(f"Successfully created chapter number ({number}), label ({label}, title ({title}).")
 
